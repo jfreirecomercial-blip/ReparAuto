@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+/* ============ TEMA REPARAUTO (Tailwind v4) ============ */
+@theme {
+  --color-brand-50: #f0f4f8;
+  --color-brand-100: #d9e2ec;
+  --color-brand-200: #bcccdc;
+  --color-brand-300: #9fb3c8;
+  --color-brand-400: #829ab1;
+  --color-brand-500: #627d98;
+  --color-brand-600: #486581;
+  --color-brand-700: #334e68;
+  --color-brand-800: #243b53;
+  --color-brand-900: #2b3a4e;
+
+  --color-accent: #e55b2b;
+  --color-accent-hover: #c44a1f;
+
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+}
+
+/* ============ ESTILOS GLOBAIS ============ */
+* {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #f0f4f8;
+  color: #243b53;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+  padding-bottom: 80px;
+}
+
+@media (min-width: 768px) {
+  main {
+    padding-bottom: 0;
+  }
+}
+
+/* ============ FOCUS VISÍVEL (Acessibilidade) ============ */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 3px solid #e55b2b !important;
+  outline-offset: 2px !important;
+}
+
+/* ============ CARD CARRO ============ */
+.card-car {
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.card-car:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  transition: all 0.25s ease;
+}
+
+/* ============ BOTTOM NAV ============ */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 2px solid #e2e8f0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0 12px;
+  z-index: 50;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.bottom-nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #627d98;
+  transition: all 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.bottom-nav button.active {
+  color: #e55b2b;
+  font-weight: 700;
+}
+
+.bottom-nav button i {
+  font-size: 1.3rem;
+}
+
+@media (min-width: 768px) {
+  .bottom-nav {
+    display: none;
+  }
+}
+
+/* ============ CHIPS ============ */
+.chip-active {
+  background: #e55b2b !important;
+  color: #fff !important;
+  border-color: #e55b2b !important;
+}
+
+.active-pecas-chip {
+  background-color: #e55b2b !important;
+  color: #fff !important;
+  border-color: #e55b2b !important;
+}
+
+/* ============ STEP INDICATOR ============ */
+.step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #627d98;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: all 0.3s;
+}
+
+.step-dot.active-step {
+  background: #e55b2b;
+  color: #fff;
+}
+
+.step-dot.done-step {
+  background: #10b981;
+  color: #fff;
+}
+
+/* ============ MODAL ============ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+/* ============ SCROLLBAR HIDE ============ */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ============ ANIMAÇÕES ============ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: fadeIn 0.3s ease;
+}
+
+/* ============ TOAST ============ */
+.custom-toast {
+  transition: all 0.3s ease;
+}
