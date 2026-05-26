@@ -11,6 +11,7 @@ import Pecas from '@/pages/Pecas';
 import Perfil from '@/pages/Perfil';
 import SetupPerfil from '@/pages/SetupPerfil';
 import PoliticaPage from '@/pages/PoliticaPage';
+import Admin from '@/pages/Admin';
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
                 <Route path="/pecas" element={<Pecas />} />
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/setup-perfil" element={<SetupPerfil />} />
+                <Route path="/admin" element={<Admin />} />
                 <Route path="/:tipo" element={<PoliticaPage />} />
               </Routes>
             </main>

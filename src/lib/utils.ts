@@ -102,3 +102,12 @@ export function renderFoto(foto: string, classes = 'w-full h-full object-cover')
 export function dataAtualISO(): string {
   return new Date().toISOString();
 }
+
+export function formatarData(data: { toDate?: () => Date; seconds?: number } | string | Date | null | undefined): string {
+  if (!data) return '—';
+  if (typeof data === 'string') return new Date(data).toLocaleDateString('pt-PT');
+  if (data instanceof Date) return data.toLocaleDateString('pt-PT');
+  if (typeof data.toDate === 'function') return data.toDate().toLocaleDateString('pt-PT');
+  if (typeof data.seconds === 'number') return new Date(data.seconds * 1000).toLocaleDateString('pt-PT');
+  return '—';
+}

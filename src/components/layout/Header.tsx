@@ -42,6 +42,11 @@ export default function Header() {
           <a href="#/pecas" className="hover:text-accent transition flex items-center gap-1 text-white">
             <i className="fa-solid fa-gears"></i> Peças & Desmonte
           </a>
+          {auth.isAdmin && (
+            <a href="#/admin" className="hover:text-accent transition flex items-center gap-1 text-white">
+              <i className="fa-solid fa-shield-halved"></i> Admin
+            </a>
+          )}
         </nav>
 
         <div className="flex-1 max-w-md mx-4 hidden lg:block">

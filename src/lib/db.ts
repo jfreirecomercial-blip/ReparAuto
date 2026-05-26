@@ -15,7 +15,7 @@ import { db } from './firebase';
 import { DB_VERSION, DB_VERSION_KEY } from './constants';
 import type { Carro, CarroInput } from '@/types/carro';
 import type { Peca, PecaInput } from '@/types/peca';
-import type { Usuario } from '@/types/usuario';
+import type { Usuario, Role } from '@/types/usuario';
 
 type CarroSeed = Omit<CarroInput, 'dataCriacao'> & { dataCriacao: ReturnType<typeof Timestamp.now> };
 type PecaSeed = Omit<PecaInput, 'dataCriacao'> & { dataCriacao: ReturnType<typeof Timestamp.now> };
@@ -433,5 +433,49 @@ export async function updateUserProfile(uid: string, data: Record<string, unknow
   } catch (err) {
     console.error('[DB] Erro ao atualizar perfil:', err);
     throw err;
+  }
+}
+
+// ============ ADMIN ============
+
+export async function getAllUsers(): Promise<Usuario[]> {
+  try {
+    const snap = await getDocs(collection(db, USERS_COLLECTION));
+    return snap.docs.map((d) => ({ uid: d.id, ...d.data() } as Usuario));
+  } catch (err) {
+    console.error('[DB] Erro ao buscar utilizadores:', err);
+    return [];
+  }
+}
+
+export async function setUserRole(uid: string, role: Role): Promise<void> {
+  try {
+    const userRef = doc(db, USERS_COLLECTION, uid);
+    await setDoc(userRef, { role, dataAtualizacao: Timestamp.now() }, { merge: true });
+  } catch (err) {
+    console.error('[DB] Erro ao alterar role:', err);
+    throw err;
+  }
+}
+
+export async function getAllCarrosAdmin(): Promise<Carro[]> {
+  try {
+    const q = query(collection(db, CARROS_COLLECTION), orderBy('dataCriacao', 'desc'));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Carro));
+  } catch (err) {
+    console.error('[DB] Erro ao buscar carros (admin):', err);
+    return [];
+  }
+}
+
+export async function getAllPecasAdmin(): Promise<Peca[]> {
+  try {
+    const q = query(collection(db, PECAS_COLLECTION), orderBy('dataCriacao', 'desc'));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Peca));
+  } catch (err) {
+    console.error('[DB] Erro ao buscar peças (admin):', err);
+    return [];
   }
 }
