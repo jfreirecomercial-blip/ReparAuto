@@ -2,14 +2,17 @@ interface AdminStatsProps {
   totalUsers: number;
   totalCarros: number;
   totalPecas: number;
+  carrosPendentes: number;
+  pecasPendentes: number;
 }
 
-export default function AdminStats({ totalUsers, totalCarros, totalPecas }: AdminStatsProps) {
+export default function AdminStats({ totalUsers, totalCarros, totalPecas, carrosPendentes, pecasPendentes }: AdminStatsProps) {
   const stats = [
     { label: 'Utilizadores', value: totalUsers, icon: 'fa-solid fa-users', cor: 'bg-blue-500' },
     { label: 'Carros', value: totalCarros, icon: 'fa-solid fa-car', cor: 'bg-accent' },
     { label: 'Peças', value: totalPecas, icon: 'fa-solid fa-gears', cor: 'bg-green-500' },
     { label: 'Total Anúncios', value: totalCarros + totalPecas, icon: 'fa-solid fa-list', cor: 'bg-purple-500' },
+    { label: 'Pendentes', value: carrosPendentes + pecasPendentes, icon: 'fa-solid fa-clock', cor: 'bg-yellow-500' },
   ];
 
   return (

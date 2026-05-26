@@ -5,15 +5,17 @@ import {
   getDoc,
   addDoc,
   deleteDoc,
+  updateDoc,
   query,
   orderBy,
+  where,
   setDoc,
   Timestamp,
   type DocumentData,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { DB_VERSION, DB_VERSION_KEY } from './constants';
-import type { Carro, CarroInput } from '@/types/carro';
+import type { Carro, CarroInput, StatusAnuncio } from '@/types/carro';
 import type { Peca, PecaInput } from '@/types/peca';
 import type { Usuario, Role } from '@/types/usuario';
 
@@ -52,6 +54,7 @@ const defaultCarros: CarroSeed[] = [
     criador: 'admin@reparauto.pt',
     rodando: false,
     inspecao: false,
+    status: 'aprovado',
     dataCriacao: Timestamp.now(),
   },
   {
@@ -81,6 +84,7 @@ const defaultCarros: CarroSeed[] = [
     criador: 'admin@reparauto.pt',
     rodando: false,
     inspecao: false,
+    status: 'aprovado',
     dataCriacao: Timestamp.now(),
   },
   {
@@ -111,6 +115,7 @@ const defaultCarros: CarroSeed[] = [
     criador: 'admin@reparauto.pt',
     rodando: true,
     inspecao: true,
+    status: 'aprovado',
     dataCriacao: Timestamp.now(),
   },
   {
@@ -138,6 +143,7 @@ const defaultCarros: CarroSeed[] = [
     mecanicoTelefone: '',
     fotos: ['images/bmw320d.png', '✨', '💎'],
     criador: 'admin@reparauto.pt',
+    status: 'aprovado',
     dataCriacao: Timestamp.now(),
   },
   {
@@ -167,6 +173,7 @@ const defaultCarros: CarroSeed[] = [
     criador: 'admin@reparauto.pt',
     rodando: false,
     inspecao: false,
+    status: 'aprovado',
     dataCriacao: Timestamp.now(),
   },
   {
@@ -194,6 +201,7 @@ const defaultCarros: CarroSeed[] = [
     mecanicoTelefone: '',
     fotos: ['images/mercedes.png', '🚗', '⚙️'],
     criador: 'admin@reparauto.pt',
+    status: 'aprovado',
     dataCriacao: Timestamp.now(),
   },
   {
@@ -223,6 +231,7 @@ const defaultCarros: CarroSeed[] = [
     criador: 'admin@reparauto.pt',
     rodando: true,
     inspecao: true,
+    status: 'aprovado',
     dataCriacao: Timestamp.now(),
   },
 ];
@@ -242,6 +251,7 @@ const defaultPecas: PecaSeed[] = [
     criador: 'admin@reparauto.pt',
     descricao:
       'Motor em excelente estado de funcionamento. Retirado de veículo acidentado na traseira. Tem cerca de 210.000 km. Vendido completo com turbo original.',
+    status: 'aprovado',
     dataCriacao: Timestamp.now(),
   },
   {
@@ -258,6 +268,7 @@ const defaultPecas: PecaSeed[] = [
     criador: 'carlos@email.com',
     descricao:
       'Carro completo para peças. Chaparia em bom estado, interiores impecáveis. Motor parado. Vendo peças individuais ou o conjunto.',
+    status: 'aprovado',
     dataCriacao: Timestamp.now(),
   },
   {
@@ -274,6 +285,7 @@ const defaultPecas: PecaSeed[] = [
     criador: 'admin@reparauto.pt',
     descricao:
       'Procuro farol esquerdo (lado condutor) original e em bom estado para Renault Clio de 2007 (Fase 1).',
+    status: 'aprovado',
     dataCriacao: Timestamp.now(),
   },
 ];
@@ -304,9 +316,21 @@ export async function getCarros(): Promise<Carro[]> {
   try {
     const q = query(collection(db, CARROS_COLLECTION), orderBy('dataCriacao', 'desc'));
     const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Carro));
+    const todos = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Carro));
+    return todos.filter((c) => c.status === 'aprovado');
   } catch (err) {
     console.error('[DB] Erro ao buscar carros:', err);
+    return [];
+  }
+}
+
+export async function getCarrosByCreator(email: string): Promise<Carro[]> {
+  try {
+    const q = query(collection(db, CARROS_COLLECTION), where('criador', '==', email));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Carro));
+  } catch (err) {
+    console.error('[DB] Erro ao buscar carros do criador:', err);
     return [];
   }
 }
@@ -329,9 +353,10 @@ export async function addCarro(dados: Record<string, unknown>): Promise<Carro> {
   try {
     const docRef = await addDoc(collection(db, CARROS_COLLECTION), {
       ...dados,
+      status: 'pendente',
       dataCriacao: Timestamp.now(),
     });
-    return { id: docRef.id, ...dados } as Carro;
+    return { id: docRef.id, ...dados, status: 'pendente' } as Carro;
   } catch (err) {
     console.error('[DB] Erro ao adicionar carro:', err);
     throw err;
@@ -351,9 +376,21 @@ export async function getPecas(): Promise<Peca[]> {
   try {
     const q = query(collection(db, PECAS_COLLECTION), orderBy('dataCriacao', 'desc'));
     const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Peca));
+    const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Peca));
+    return todas.filter((p) => p.status === 'aprovado');
   } catch (err) {
     console.error('[DB] Erro ao buscar peças:', err);
+    return [];
+  }
+}
+
+export async function getPecasByCreator(email: string): Promise<Peca[]> {
+  try {
+    const q = query(collection(db, PECAS_COLLECTION), where('criador', '==', email));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Peca));
+  } catch (err) {
+    console.error('[DB] Erro ao buscar peças do criador:', err);
     return [];
   }
 }
@@ -376,9 +413,10 @@ export async function addPeca(dados: Record<string, unknown>): Promise<Peca> {
   try {
     const docRef = await addDoc(collection(db, PECAS_COLLECTION), {
       ...dados,
+      status: 'pendente',
       dataCriacao: Timestamp.now(),
     });
-    return { id: docRef.id, ...dados } as Peca;
+    return { id: docRef.id, ...dados, status: 'pendente' } as Peca;
   } catch (err) {
     console.error('[DB] Erro ao adicionar peça:', err);
     throw err;
@@ -454,6 +492,24 @@ export async function setUserRole(uid: string, role: Role): Promise<void> {
     await setDoc(userRef, { role, dataAtualizacao: Timestamp.now() }, { merge: true });
   } catch (err) {
     console.error('[DB] Erro ao alterar role:', err);
+    throw err;
+  }
+}
+
+export async function updateCarroStatus(id: string, status: StatusAnuncio): Promise<void> {
+  try {
+    await updateDoc(doc(db, CARROS_COLLECTION, id), { status });
+  } catch (err) {
+    console.error('[DB] Erro ao atualizar status do carro:', err);
+    throw err;
+  }
+}
+
+export async function updatePecaStatus(id: string, status: StatusAnuncio): Promise<void> {
+  try {
+    await updateDoc(doc(db, PECAS_COLLECTION, id), { status });
+  } catch (err) {
+    console.error('[DB] Erro ao atualizar status da peça:', err);
     throw err;
   }
 }

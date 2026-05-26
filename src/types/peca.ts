@@ -1,4 +1,5 @@
 import type { Timestamp } from 'firebase/firestore';
+import type { StatusAnuncio } from './carro';
 
 export type TipoPeca = 'venda' | 'desmonte' | 'procura';
 export type FiltroTipoPeca = 'todos' | TipoPeca;
@@ -18,6 +19,7 @@ export interface Peca {
   criador: string;
   vendedorNome?: string;
   descricao: string;
+  status: StatusAnuncio;
   dataCriacao: Timestamp;
 }
 

@@ -8,6 +8,8 @@ import {
   getAllPecasAdmin,
   deleteCarro,
   deletePeca,
+  updateCarroStatus,
+  updatePecaStatus,
 } from '@/lib/db';
 import AdminStats from '@/components/admin/AdminStats';
 import UserTable from '@/components/admin/UserTable';
@@ -15,6 +17,7 @@ import ListingsTable from '@/components/admin/ListingsTable';
 import type { Usuario, Role } from '@/types/usuario';
 import type { Carro } from '@/types/carro';
 import type { Peca } from '@/types/peca';
+import type { StatusAnuncio } from '@/types/carro';
 
 type TabAdmin = 'visao-geral' | 'utilizadores' | 'anuncios';
 
@@ -71,6 +74,26 @@ export default function Admin() {
     setPecas((prev) => prev.filter((p) => p.id !== id));
   };
 
+  const handleApproveCarro = async (id: string) => {
+    await updateCarroStatus(id, 'aprovado');
+    setCarros((prev) => prev.map((c) => (c.id === id ? { ...c, status: 'aprovado' } : c)));
+  };
+
+  const handleRejectCarro = async (id: string) => {
+    await updateCarroStatus(id, 'rejeitado');
+    setCarros((prev) => prev.map((c) => (c.id === id ? { ...c, status: 'rejeitado' } : c)));
+  };
+
+  const handleApprovePeca = async (id: string) => {
+    await updatePecaStatus(id, 'aprovado');
+    setPecas((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'aprovado' } : p)));
+  };
+
+  const handleRejectPeca = async (id: string) => {
+    await updatePecaStatus(id, 'rejeitado');
+    setPecas((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'rejeitado' } : p)));
+  };
+
   const tabs = [
     { key: 'visao-geral' as TabAdmin, label: 'Visão Geral', icon: 'fa-solid fa-chart-simple' },
     { key: 'utilizadores' as TabAdmin, label: 'Utilizadores', icon: 'fa-solid fa-users' },
@@ -114,7 +137,13 @@ export default function Admin() {
       </div>
 
       {tab === 'visao-geral' && (
-        <AdminStats totalUsers={users.length} totalCarros={carros.length} totalPecas={pecas.length} />
+        <AdminStats
+          totalUsers={users.length}
+          totalCarros={carros.length}
+          totalPecas={pecas.length}
+          carrosPendentes={carros.filter((c) => c.status === 'pendente').length}
+          pecasPendentes={pecas.filter((p) => p.status === 'pendente').length}
+        />
       )}
 
       {tab === 'utilizadores' && (
@@ -136,6 +165,10 @@ export default function Admin() {
             pecas={pecas}
             onDeleteCarro={handleDeleteCarro}
             onDeletePeca={handleDeletePeca}
+            onApproveCarro={handleApproveCarro}
+            onRejectCarro={handleRejectCarro}
+            onApprovePeca={handleApprovePeca}
+            onRejectPeca={handleRejectPeca}
           />
         </div>
       )}

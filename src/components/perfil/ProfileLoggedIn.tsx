@@ -1,17 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useApp } from '@/providers/AppProvider';
+import { getCarrosByCreator, getPecasByCreator } from '@/lib/db';
 import { formatarPreco } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import EditarPerfilModal from './EditarPerfilModal';
+import Badge from '@/components/ui/Badge';
+import type { Carro } from '@/types/carro';
+import type { Peca } from '@/types/peca';
 
 export default function ProfileLoggedIn() {
-  const { auth, carros, pecas } = useApp();
+  const { auth } = useApp();
   const { user, logout, isAdmin } = auth;
   const navigate = useNavigate();
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [meusCarros, setMeusCarros] = useState<Carro[]>([]);
+  const [minhasPecas, setMinhasPecas] = useState<Peca[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const meusCarros = carros.carros.filter((c) => c.criador === user?.email);
-  const minhasPecas = pecas.pecas.filter((p) => p.criador === user?.email);
+  const carregar = useCallback(async () => {
+    if (!user?.email) return;
+    setLoading(true);
+    const [carrosData, pecasData] = await Promise.all([
+      getCarrosByCreator(user.email),
+      getPecasByCreator(user.email),
+    ]);
+    setMeusCarros(carrosData);
+    setMinhasPecas(pecasData);
+    setLoading(false);
+  }, [user?.email]);
+
+  useEffect(() => { carregar(); }, [carregar]);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -116,6 +134,12 @@ export default function ProfileLoggedIn() {
         </div>
       </div>
 
+      {loading ? (
+        <div className="flex items-center justify-center py-10">
+          <i className="fa-solid fa-spinner fa-spin text-3xl text-accent"></i>
+        </div>
+      ) : (
+        <>
       {/* My Cars */}
       <div className="bg-white rounded-2xl shadow-lg p-6">
         <h4 className="font-extrabold text-brand-900 mb-4 flex items-center gap-2">
@@ -140,10 +164,14 @@ export default function ProfileLoggedIn() {
                 className="flex items-center justify-between bg-slate-50 rounded-xl p-3 border border-slate-200 cursor-pointer hover:bg-slate-100 transition"
                 onClick={() => navigate(`/detalhes/${carro.id}`)}
               >
-                <div>
-                  <p className="font-bold text-brand-900 text-sm">
-                    {carro.marca} {carro.modelo} ({carro.anoFabricacao})
-                  </p>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-brand-900 text-sm">
+                      {carro.marca} {carro.modelo} ({carro.anoFabricacao})
+                    </p>
+                    {carro.status === 'pendente' && <Badge cor="yellow">Pendente</Badge>}
+                    {carro.status === 'rejeitado' && <Badge cor="red">Rejeitado</Badge>}
+                  </div>
                   <p className="text-xs text-slate-500">{carro.km?.toLocaleString('pt-PT')} km</p>
                 </div>
                 <span className="font-extrabold text-accent text-sm">{formatarPreco(carro.preco)}</span>
@@ -170,8 +198,12 @@ export default function ProfileLoggedIn() {
                 key={peca.id}
                 className="flex items-center justify-between bg-slate-50 rounded-xl p-3 border border-slate-200"
               >
-                <div>
-                  <p className="font-bold text-brand-900 text-sm">{peca.titulo}</p>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-brand-900 text-sm">{peca.titulo}</p>
+                    {peca.status === 'pendente' && <Badge cor="yellow">Pendente</Badge>}
+                    {peca.status === 'rejeitado' && <Badge cor="red">Rejeitado</Badge>}
+                  </div>
                   <p className="text-xs text-slate-500">{peca.categoria} • {peca.tipo}</p>
                 </div>
                 {peca.preco && (
@@ -184,6 +216,8 @@ export default function ProfileLoggedIn() {
       </div>
 
       <EditarPerfilModal show={editModalOpen} onClose={() => setEditModalOpen(false)} />
+      </>
+      )}
     </div>
   );
 }

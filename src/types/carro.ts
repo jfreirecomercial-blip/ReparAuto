@@ -6,6 +6,7 @@ export type Cambio = 'Manual' | 'Automático' | 'CVT';
 export type FiltroAtivo = 'lowcost' | '500' | '1000' | 'reparar' | 'qualquer' | null;
 export type SortOrdem = 'crescente' | 'decrescente' | null;
 export type FiltroChip = { label: string; value: string };
+export type StatusAnuncio = 'pendente' | 'aprovado' | 'rejeitado';
 
 export interface Carro {
   id: string;
@@ -36,6 +37,7 @@ export interface Carro {
   vendedorTelefone?: string;
   rodando?: boolean;
   inspecao?: boolean;
+  status: StatusAnuncio;
   dataCriacao: Timestamp;
 }
 

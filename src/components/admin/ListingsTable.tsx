@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Carro } from '@/types/carro';
+import type { Carro, StatusAnuncio } from '@/types/carro';
 import type { Peca } from '@/types/peca';
 import { formatarPreco, formatarData } from '@/lib/utils';
 
@@ -8,11 +8,15 @@ interface ListingsTableProps {
   pecas: Peca[];
   onDeleteCarro: (id: string) => Promise<void>;
   onDeletePeca: (id: string) => Promise<void>;
+  onApproveCarro: (id: string) => Promise<void>;
+  onRejectCarro: (id: string) => Promise<void>;
+  onApprovePeca: (id: string) => Promise<void>;
+  onRejectPeca: (id: string) => Promise<void>;
 }
 
 type TabAnuncios = 'carros' | 'pecas';
 
-export default function ListingsTable({ carros, pecas, onDeleteCarro, onDeletePeca }: ListingsTableProps) {
+export default function ListingsTable({ carros, pecas, onDeleteCarro, onDeletePeca, onApproveCarro, onRejectCarro, onApprovePeca, onRejectPeca }: ListingsTableProps) {
   const [tab, setTab] = useState<TabAnuncios>('carros');
   const [confirmDelete, setConfirmDelete] = useState<{ tipo: 'carro' | 'peca'; id: string; titulo: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -62,6 +66,7 @@ export default function ListingsTable({ carros, pecas, onDeleteCarro, onDeletePe
               <th className="pb-3 pr-4">Preço</th>
               <th className="pb-3 pr-4">Criador</th>
               <th className="pb-3 pr-4">Data</th>
+              <th className="pb-3 pr-4">Status</th>
               <th className="pb-3">Ações</th>
             </tr>
           </thead>
@@ -76,12 +81,40 @@ export default function ListingsTable({ carros, pecas, onDeleteCarro, onDeletePe
                     <td className="py-3 pr-4 font-bold text-accent">{formatarPreco(c.preco)}</td>
                     <td className="py-3 pr-4 text-slate-600 text-xs">{c.criador}</td>
                     <td className="py-3 pr-4 text-slate-500 text-xs">{formatarData(c.dataCriacao)}</td>
-                    <td className="py-3">
+                    <td className="py-3 pr-4">
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                        c.status === 'aprovado' ? 'bg-green-100 text-green-700' :
+                        c.status === 'pendente' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {c.status === 'aprovado' ? 'Aprovado' : c.status === 'pendente' ? 'Pendente' : 'Rejeitado'}
+                      </span>
+                    </td>
+                    <td className="py-3 flex items-center gap-1">
+                      {c.status !== 'aprovado' && (
+                        <button
+                          onClick={() => onApproveCarro(c.id)}
+                          className="text-xs font-bold text-green-600 hover:text-green-800 transition px-2 py-1 rounded-lg hover:bg-green-50"
+                          title="Aprovar"
+                        >
+                          <i className="fa-solid fa-check"></i>
+                        </button>
+                      )}
+                      {c.status !== 'rejeitado' && (
+                        <button
+                          onClick={() => onRejectCarro(c.id)}
+                          className="text-xs font-bold text-red-500 hover:text-red-700 transition px-2 py-1 rounded-lg hover:bg-red-50"
+                          title="Rejeitar"
+                        >
+                          <i className="fa-solid fa-xmark"></i>
+                        </button>
+                      )}
                       <button
                         onClick={() => setConfirmDelete({ tipo: 'carro', id: c.id, titulo: `${c.marca} ${c.modelo}` })}
                         className="text-xs font-bold text-red-500 hover:text-red-700 transition px-2 py-1 rounded-lg hover:bg-red-50"
+                        title="Eliminar"
                       >
-                        <i className="fa-solid fa-trash-can mr-1"></i> Eliminar
+                        <i className="fa-solid fa-trash-can"></i>
                       </button>
                     </td>
                   </tr>
@@ -95,19 +128,47 @@ export default function ListingsTable({ carros, pecas, onDeleteCarro, onDeletePe
                     </td>
                     <td className="py-3 pr-4 text-slate-600 text-xs">{p.criador}</td>
                     <td className="py-3 pr-4 text-slate-500 text-xs">{formatarData(p.dataCriacao)}</td>
-                    <td className="py-3">
+                    <td className="py-3 pr-4">
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                        p.status === 'aprovado' ? 'bg-green-100 text-green-700' :
+                        p.status === 'pendente' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {p.status === 'aprovado' ? 'Aprovado' : p.status === 'pendente' ? 'Pendente' : 'Rejeitado'}
+                      </span>
+                    </td>
+                    <td className="py-3 flex items-center gap-1">
+                      {p.status !== 'aprovado' && (
+                        <button
+                          onClick={() => onApprovePeca(p.id)}
+                          className="text-xs font-bold text-green-600 hover:text-green-800 transition px-2 py-1 rounded-lg hover:bg-green-50"
+                          title="Aprovar"
+                        >
+                          <i className="fa-solid fa-check"></i>
+                        </button>
+                      )}
+                      {p.status !== 'rejeitado' && (
+                        <button
+                          onClick={() => onRejectPeca(p.id)}
+                          className="text-xs font-bold text-red-500 hover:text-red-700 transition px-2 py-1 rounded-lg hover:bg-red-50"
+                          title="Rejeitar"
+                        >
+                          <i className="fa-solid fa-xmark"></i>
+                        </button>
+                      )}
                       <button
                         onClick={() => setConfirmDelete({ tipo: 'peca', id: p.id, titulo: p.titulo })}
                         className="text-xs font-bold text-red-500 hover:text-red-700 transition px-2 py-1 rounded-lg hover:bg-red-50"
+                        title="Eliminar"
                       >
-                        <i className="fa-solid fa-trash-can mr-1"></i> Eliminar
+                        <i className="fa-solid fa-trash-can"></i>
                       </button>
                     </td>
                   </tr>
                 ))}
             {(tab === 'carros' ? carros.length === 0 : pecas.length === 0) && (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-slate-400 text-sm">
+                <td colSpan={7} className="py-8 text-center text-slate-400 text-sm">
                   Nenhum anúncio encontrado.
                 </td>
               </tr>

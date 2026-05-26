@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '@/providers/AppProvider';
+import { getCarroPorId as getCarroPorIdDb } from '@/lib/db';
 import { formatarPreco, renderDescricao, renderFoto } from '@/lib/utils';
 import TechnicalSheet from '@/components/detalhes/TechnicalSheet';
 import StatusPanel from '@/components/detalhes/StatusPanel';
 import GalleryModal from '@/components/detalhes/GalleryModal';
 import Badge from '@/components/ui/Badge';
+import type { Carro } from '@/types/carro';
 
 function FotoRender({ foto, classes }: { foto: string; classes?: string }) {
   const data = renderFoto(foto, classes);
@@ -16,14 +18,58 @@ function FotoRender({ foto, classes }: { foto: string; classes?: string }) {
 export default function DetalhesCarro() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { carros, favoritos } = useApp();
-  const { getCarroPorId } = carros;
+  const { auth, favoritos } = useApp();
+  const { user, isAdmin } = auth;
   const { toggleFavorito, isFavorito } = favoritos;
 
+  const [carro, setCarro] = useState<Carro | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [bloqueado, setBloqueado] = useState(false);
   const [galeriaAberta, setGaleriaAberta] = useState(false);
   const [indiceGaleria, setIndiceGaleria] = useState(0);
 
-  const carro = getCarroPorId(id || '');
+  useEffect(() => {
+    async function fetchCarro() {
+      if (!id) { setLoading(false); return; }
+      const data = await getCarroPorIdDb(id);
+      if (!data) {
+        setLoading(false);
+        return;
+      }
+      if (data.status !== 'aprovado' && data.criador !== user?.email && !isAdmin) {
+        setBloqueado(true);
+        setLoading(false);
+        return;
+      }
+      setCarro(data);
+      setLoading(false);
+    }
+    fetchCarro();
+  }, [id, user, isAdmin]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <i className="fa-solid fa-spinner fa-spin text-3xl text-accent"></i>
+      </div>
+    );
+  }
+
+  if (bloqueado) {
+    return (
+      <div className="text-center py-12">
+        <i className="fa-solid fa-lock text-4xl text-slate-300 mb-3"></i>
+        <p className="font-semibold text-slate-600">Anúncio não disponível</p>
+        <p className="text-sm text-slate-400 mt-1">Este anúncio está pendente de aprovação.</p>
+        <button
+          onClick={() => navigate('/')}
+          className="mt-4 text-accent hover:text-accent-hover font-semibold text-sm"
+        >
+          <i className="fa-solid fa-arrow-left mr-1"></i> Voltar à página inicial
+        </button>
+      </div>
+    );
+  }
 
   if (!carro) {
     return (
@@ -63,6 +109,8 @@ export default function DetalhesCarro() {
           </div>
           <div className="flex items-center gap-2">
             {isLowCost && <Badge cor="accent">Low-Cost</Badge>}
+            {carro.status === 'pendente' && <Badge cor="yellow">Pendente</Badge>}
+            {carro.status === 'rejeitado' && <Badge cor="red">Rejeitado</Badge>}
             <button
               onClick={() => toggleFavorito(carro.id)}
               className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition flex items-center gap-1 ${

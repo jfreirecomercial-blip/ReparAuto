@@ -23,6 +23,8 @@ export type {
   BadgeCor, BadgeProps,
 } from './ui';
 
+export type { StatusAnuncio } from './carro';
+
 export type {
   CarrosContextValue, PecasContextValue, AppContextValue, AppProviderProps,
 } from './app';
