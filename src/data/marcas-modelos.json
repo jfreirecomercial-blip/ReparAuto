@@ -25,7 +25,7 @@
   },
   {
     "marca": "BMW",
-    "modelos": ["Série 1", "Série 2", "Série 2 Active Tourer", "Série 3", "Série 4", "Série 5", "Série 6", "Série 7", "Série 8", "i3", "i4", "i5", "i7", "i8", "iX", "iX1", "iX2", "iX3", "M2", "M3", "M4", "M5", "M6", "M8", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "XM", "Z3", "Z4", "Z8"]
+    "modelos": ["114d", "114i", "116d", "116i", "118d", "118i", "120d", "120i", "123d", "125d", "128i", "130i", "135i", "M135i", "M140i", "216d", "218d", "218i", "220d", "220i", "225d", "225i", "M235i", "M240i", "316d", "316i", "318d", "318i", "320d", "320e", "320i", "323i", "325d", "325i", "328i", "330d", "330e", "330i", "335d", "335i", "340d", "340i", "M3", "418d", "418i", "420d", "420i", "425d", "428i", "430d", "430i", "435d", "435i", "440d", "440i", "M4", "518d", "520d", "520i", "523i", "525d", "525i", "528i", "530d", "530e", "530i", "535d", "535i", "540d", "540i", "545e", "550d", "550i", "M5", "630d", "630i", "635d", "635i", "640d", "640i", "645Ci", "650i", "M6", "725d", "730d", "730i", "735i", "740d", "740e", "740i", "745e", "750i", "750Li", "760i", "M760Li", "i7", "840d", "840i", "850i", "M8", "i3", "i4", "i5", "i8", "iX", "iX1", "iX2", "iX3", "M2", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "XM", "Z3", "Z4", "Z8", "Z4 M40i"]
   },
   {
     "marca": "BYD",
@@ -157,7 +157,7 @@
   },
   {
     "marca": "Mercedes-Benz",
-    "modelos": ["Classe A", "Classe B", "Classe C", "Classe CLA", "Classe CLS", "Classe E", "Classe G", "Classe GLA", "Classe GLB", "Classe GLC", "Classe GLE", "Classe GLK", "Classe GLS", "Classe M", "Classe R", "Classe S", "Classe SL", "Classe SLC", "Classe SLK", "Classe V", "AMG GT", "Citan", "EQA", "EQB", "EQC", "EQE", "EQS", "EQV", "Sprinter", "Viano", "Vito"]
+    "modelos": ["A140", "A150", "A160", "A170", "A180", "A200", "A220", "A250", "A35 AMG", "A45 AMG", "B150", "B160", "B170", "B180", "B200", "B220", "B250", "C160", "C180", "C200", "C220", "C220 CDI", "C230", "C240", "C250", "C270", "C280", "C300", "C320", "C350", "C400", "C43 AMG", "C63 AMG", "CLA180", "CLA200", "CLA220", "CLA250", "CLA35 AMG", "CLA45 AMG", "CLS250", "CLS320", "CLS350", "CLS400", "CLS500", "CLS53 AMG", "CLS63 AMG", "E200", "E220", "E220 CDI", "E230", "E240", "E250", "E270", "E280", "E300", "E320", "E350", "E400", "E420", "E430", "E500", "E53 AMG", "E63 AMG", "G320", "G350", "G400", "G500", "G55 AMG", "G63 AMG", "G65 AMG", "GLA180", "GLA200", "GLA220", "GLA250", "GLA35 AMG", "GLA45 AMG", "GLB180", "GLB200", "GLB220", "GLB250", "GLB35 AMG", "GLC220", "GLC220d", "GLC250", "GLC300", "GLC350", "GLC400", "GLC43 AMG", "GLC63 AMG", "GLE250", "GLE300", "GLE350", "GLE350d", "GLE400", "GLE450", "GLE500", "GLE53 AMG", "GLE63 AMG", "GLS350", "GLS400", "GLS450", "GLS500", "GLS580", "GLS600", "GLS63 AMG", "ML250", "ML280", "ML300", "ML320", "ML350", "ML400", "ML420", "ML430", "ML500", "ML55 AMG", "ML63 AMG", "R280", "R300", "R320", "R350", "R500", "S280", "S300", "S320", "S350", "S400", "S400h", "S420", "S430", "S450", "S500", "S550", "S560", "S600", "S63 AMG", "S65 AMG", "Maybach S", "SL280", "SL300", "SL320", "SL350", "SL400", "SL500", "SL55 AMG", "SL60 AMG", "SL63 AMG", "SL600", "SL65 AMG", "SLK200", "SLK230", "SLK250", "SLK280", "SLK300", "SLK320", "SLK350", "SLK55 AMG", "SLC180", "SLC200", "SLC250", "SLC300", "SLC43 AMG", "V200", "V220", "V220d", "V250", "V300", "AMG GT", "AMG GT 4-Door", "Citan", "EQA", "EQB", "EQC", "EQE", "EQS", "EQV", "Sprinter", "Viano", "Vito"]
   },
   {
     "marca": "MG",
