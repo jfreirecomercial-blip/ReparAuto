@@ -15,6 +15,7 @@ import { db } from './firebase';
 import { DB_VERSION, DB_VERSION_KEY } from './constants';
 import type { Carro, CarroInput } from '@/types/carro';
 import type { Peca, PecaInput } from '@/types/peca';
+import type { Usuario } from '@/types/usuario';
 
 type CarroSeed = Omit<CarroInput, 'dataCriacao'> & { dataCriacao: ReturnType<typeof Timestamp.now> };
 type PecaSeed = Omit<PecaInput, 'dataCriacao'> & { dataCriacao: ReturnType<typeof Timestamp.now> };
@@ -389,6 +390,48 @@ export async function deletePeca(id: string): Promise<void> {
     await deleteDoc(doc(db, PECAS_COLLECTION, id));
   } catch (err) {
     console.error('[DB] Erro ao eliminar peça:', err);
+    throw err;
+  }
+}
+
+// ============ USERS (PERFIS) ============
+
+const USERS_COLLECTION = 'users';
+
+export async function getUserProfile(uid: string): Promise<Usuario | null> {
+  try {
+    const userRef = doc(db, USERS_COLLECTION, uid);
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+      return { uid: snap.id, ...snap.data() } as Usuario;
+    }
+    return null;
+  } catch (err) {
+    console.error('[DB] Erro ao buscar perfil:', err);
+    return null;
+  }
+}
+
+export async function createUserProfile(uid: string, data: Record<string, unknown>): Promise<void> {
+  try {
+    const userRef = doc(db, USERS_COLLECTION, uid);
+    await setDoc(userRef, {
+      ...data,
+      dataCriacao: Timestamp.now(),
+      dataAtualizacao: Timestamp.now(),
+    });
+  } catch (err) {
+    console.error('[DB] Erro ao criar perfil:', err);
+    throw err;
+  }
+}
+
+export async function updateUserProfile(uid: string, data: Record<string, unknown>): Promise<void> {
+  try {
+    const userRef = doc(db, USERS_COLLECTION, uid);
+    await setDoc(userRef, { ...data, dataAtualizacao: Timestamp.now() }, { merge: true });
+  } catch (err) {
+    console.error('[DB] Erro ao atualizar perfil:', err);
     throw err;
   }
 }

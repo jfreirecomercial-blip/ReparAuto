@@ -9,7 +9,7 @@ export type {
 } from './peca';
 
 export type {
-  Usuario, AuthContextValue,
+  Usuario, AuthContextValue, Role, TipoConta, UsuarioInput,
 } from './usuario';
 
 export type {

@@ -7,21 +7,65 @@ import {
   logoutFirebase,
   onAuthChange,
 } from '@/lib/auth';
-import type { Usuario } from '@/types/usuario';
+import {
+  getUserProfile,
+  createUserProfile,
+  updateUserProfile,
+} from '@/lib/db';
+import type { Usuario, Role, TipoConta } from '@/types/usuario';
+
+const DEFAULT_ROLE: Role = 'user';
+const DEFAULT_TIPO_CONTA: TipoConta = 'particular';
+
+function criarUsuarioBase(firebaseUser: User): Usuario {
+  return {
+    uid: firebaseUser.uid,
+    nome: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Utilizador',
+    email: firebaseUser.email!,
+    telefone: '',
+    localidade: '',
+    codigoPostal: '',
+    morada: '',
+    nif: '',
+    tipoConta: DEFAULT_TIPO_CONTA,
+    role: DEFAULT_ROLE,
+    bio: '',
+    notificacoes: true,
+    foto: firebaseUser.photoURL || null,
+    profileCompleted: false,
+  };
+}
 
 export default function useAuth() {
   const [user, setUser] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const refreshProfile = useCallback(async () => {
+    if (!user?.uid) return;
+    try {
+      const profile = await getUserProfile(user.uid);
+      if (profile) {
+        setUser((prev) => prev ? { ...prev, ...profile } : null);
+      }
+    } catch {
+      // fallback: keep current user
+    }
+  }, [user?.uid]);
+
   useEffect(() => {
-    const unsubscribe = onAuthChange((firebaseUser: User | null) => {
+    const unsubscribe = onAuthChange(async (firebaseUser: User | null) => {
       if (firebaseUser) {
-        setUser({
-          uid: firebaseUser.uid,
-          nome: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Utilizador',
-          email: firebaseUser.email!,
-          foto: firebaseUser.photoURL,
-        });
+        const base = criarUsuarioBase(firebaseUser);
+        try {
+          const profile = await getUserProfile(firebaseUser.uid);
+          if (profile) {
+            setUser({ ...base, ...profile });
+          } else {
+            setUser(base);
+          }
+        } catch {
+          setUser(base);
+        }
       } else {
         setUser(null);
       }
@@ -32,38 +76,66 @@ export default function useAuth() {
 
   const login = useCallback(async (email: string, password: string): Promise<Usuario> => {
     const fbUser = await loginComEmail(email, password);
-    return {
-      uid: fbUser.uid,
-      nome: fbUser.displayName || fbUser.email?.split('@')[0] || 'Utilizador',
-      email: fbUser.email!,
-      foto: fbUser.photoURL,
-    };
+    const base = criarUsuarioBase(fbUser);
+    try {
+      const profile = await getUserProfile(fbUser.uid);
+      if (profile) {
+        const merged = { ...base, ...profile };
+        setUser(merged);
+        return merged;
+      }
+    } catch {
+      // fallback
+    }
+    setUser(base);
+    return base;
   }, []);
 
   const registar = useCallback(async (nome: string, email: string, password: string): Promise<Usuario> => {
     const fbUser = await criarConta(email, password, nome);
-    return {
-      uid: fbUser.uid,
-      nome: fbUser.displayName || nome,
-      email: fbUser.email!,
-      foto: fbUser.photoURL,
-    };
+    const base = criarUsuarioBase(fbUser);
+    base.nome = nome;
+    try {
+      const profile = await getUserProfile(fbUser.uid);
+      if (profile) {
+        const merged = { ...base, ...profile };
+        setUser(merged);
+        return merged;
+      }
+    } catch {
+      // fallback
+    }
+    setUser(base);
+    return base;
   }, []);
 
   const loginGoogle = useCallback(async (): Promise<Usuario> => {
     const fbUser = await loginComGoogle();
-    return {
-      uid: fbUser.uid,
-      nome: fbUser.displayName || fbUser.email?.split('@')[0] || 'Utilizador',
-      email: fbUser.email!,
-      foto: fbUser.photoURL,
-    };
+    const base = criarUsuarioBase(fbUser);
+    try {
+      const profile = await getUserProfile(fbUser.uid);
+      if (profile) {
+        const merged = { ...base, ...profile };
+        setUser(merged);
+        return merged;
+      }
+    } catch {
+      // fallback
+    }
+    setUser(base);
+    return base;
   }, []);
 
   const logout = useCallback(async (): Promise<void> => {
     await logoutFirebase();
     setUser(null);
   }, []);
+
+  const updateProfile = useCallback(async (data: Partial<Usuario>): Promise<void> => {
+    if (!user?.uid) return;
+    await updateUserProfile(user.uid, data);
+    setUser((prev) => prev ? { ...prev, ...data } : null);
+  }, [user?.uid]);
 
   return {
     user,
@@ -73,5 +145,9 @@ export default function useAuth() {
     loginGoogle,
     logout,
     isLoggedIn: !!user,
+    isAdmin: user?.role === 'admin',
+    profileCompleted: user?.profileCompleted ?? false,
+    updateProfile,
+    refreshProfile,
   };
 }

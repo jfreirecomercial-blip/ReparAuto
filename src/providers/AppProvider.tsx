@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { initDatabase } from '@/lib/db';
 import useAuth from '@/hooks/useAuth';
 import useCarros from '@/hooks/useCarros';
@@ -18,6 +19,8 @@ export function useApp(): AppContextValue {
 
 export default function AppProvider({ children }: { children: ReactNode }) {
   const [dbReady, setDbReady] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     initDatabase().then(() => {
@@ -29,6 +32,15 @@ export default function AppProvider({ children }: { children: ReactNode }) {
   const carros = useCarros();
   const pecas = usePecas();
   const favoritos = useFavoritos(auth.user);
+
+  const { isLoggedIn, loading, profileCompleted } = auth;
+
+  useEffect(() => {
+    if (loading) return;
+    if (isLoggedIn && !profileCompleted && location.pathname !== '/setup-perfil') {
+      navigate('/setup-perfil', { replace: true });
+    }
+  }, [isLoggedIn, loading, profileCompleted, navigate, location.pathname]);
 
   const value: AppContextValue = {
     dbReady,

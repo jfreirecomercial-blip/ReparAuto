@@ -9,6 +9,7 @@ import DetalhesCarro from '@/pages/DetalhesCarro';
 import Anunciar from '@/pages/Anunciar';
 import Pecas from '@/pages/Pecas';
 import Perfil from '@/pages/Perfil';
+import SetupPerfil from '@/pages/SetupPerfil';
 import PoliticaPage from '@/pages/PoliticaPage';
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
                 <Route path="/anunciar" element={<Anunciar />} />
                 <Route path="/pecas" element={<Pecas />} />
                 <Route path="/perfil" element={<Perfil />} />
+                <Route path="/setup-perfil" element={<SetupPerfil />} />
                 <Route path="/:tipo" element={<PoliticaPage />} />
               </Routes>
             </main>

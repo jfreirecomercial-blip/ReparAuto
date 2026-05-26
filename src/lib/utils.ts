@@ -12,7 +12,32 @@ export function validarEmail(email: string): boolean {
 }
 
 export function validarTelefone(tel: string): boolean {
-  return /^9\d{8}$/.test(tel.replace(/\s/g, ''));
+  const digits = tel.replace(/\s/g, '');
+  return /^(9|2)\d{8}$/.test(digits);
+}
+
+export function validarCodigoPostal(cp: string): boolean {
+  return /^\d{4}-\d{3}$/.test(cp.trim());
+}
+
+export function formatarCodigoPostal(cp: string): string {
+  const digits = cp.replace(/\D/g, '');
+  if (digits.length <= 4) return digits;
+  return `${digits.slice(0, 4)}-${digits.slice(4, 7)}`;
+}
+
+export function validarNif(nif: string): boolean {
+  const digits = nif.replace(/\s/g, '');
+  if (!/^\d{9}$/.test(digits)) return false;
+  const first = parseInt(digits[0], 10);
+  if (![1, 2, 3, 5, 6, 7, 8, 9].includes(first)) return false;
+  let sum = 0;
+  for (let i = 0; i < 8; i++) {
+    sum += parseInt(digits[i], 10) * (9 - i);
+  }
+  const remainder = sum % 11;
+  const checkDigit = remainder < 2 ? 0 : 11 - remainder;
+  return checkDigit === parseInt(digits[8], 10);
 }
 
 export function renderDescricao(texto: string): string {
