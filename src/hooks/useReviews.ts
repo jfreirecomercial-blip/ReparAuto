@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { subscribeReviews, addReview, deleteReview, updateSellerRating } from '@/lib/db';
-import type { Review, ReviewInput } from '@/types/review';
+import { subscribeReviews, addReview, deleteReview, updateSellerRating, getAllReviewsAdmin, updateReviewStatus } from '@/lib/db';
+import type { Review, ReviewInput, StatusReview } from '@/types/review';
 
 export default function useReviews(vendedorEmail: string | undefined) {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -29,9 +29,7 @@ export default function useReviews(vendedorEmail: string | undefined) {
     : 0;
 
   const criar = useCallback(async (data: ReviewInput) => {
-    const review = await addReview(data);
-    await updateSellerRating(data.vendedorUid, data.vendedorEmail);
-    return review;
+    return await addReview(data);
   }, []);
 
   const remover = useCallback(async (id: string, vendedorUid: string, vendedorEmailParam: string) => {
@@ -45,6 +43,51 @@ export default function useReviews(vendedorEmail: string | undefined) {
     media,
     total: reviews.length,
     criar,
+    remover,
+  };
+}
+
+export function useReviewsAdmin() {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const carregar = useCallback(async () => {
+    setLoading(true);
+    const data = await getAllReviewsAdmin();
+    setReviews(data);
+    setLoading(false);
+  }, []);
+
+  const atualizarStatus = useCallback(async (
+    id: string,
+    status: StatusReview,
+    vendedorUid: string,
+    vendedorEmail: string,
+  ) => {
+    await updateReviewStatus(id, status);
+    if (status === 'aprovado') {
+      await updateSellerRating(vendedorUid, vendedorEmail);
+    }
+    setReviews((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, status } : r)),
+    );
+  }, []);
+
+  const remover = useCallback(async (
+    id: string,
+    vendedorUid: string,
+    vendedorEmail: string,
+  ) => {
+    await deleteReview(id);
+    await updateSellerRating(vendedorUid, vendedorEmail);
+    setReviews((prev) => prev.filter((r) => r.id !== id));
+  }, []);
+
+  return {
+    reviews,
+    loading,
+    carregar,
+    atualizarStatus,
     remover,
   };
 }

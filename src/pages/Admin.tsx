@@ -20,14 +20,16 @@ import UserTable from '@/components/admin/UserTable';
 import ListingsTable from '@/components/admin/ListingsTable';
 import ReportsQueue from '@/components/admin/ReportsQueue';
 import VerificationsQueue from '@/components/admin/VerificationsQueue';
+import ReviewsQueue from '@/components/admin/ReviewsQueue';
 import useReports from '@/hooks/useReports';
+import { useReviewsAdmin } from '@/hooks/useReviews';
 import { useVerificationsAdmin } from '@/hooks/useVerification';
 import type { Usuario, Role } from '@/types/usuario';
 import type { Carro} from '@/types/carro';
 import type { Peca } from '@/types/peca';
 import type { StatusAnuncio } from '@/types/carro';
 
-type TabAdmin = 'visao-geral' | 'utilizadores' | 'anuncios' | 'denuncias' | 'verificacoes';
+type TabAdmin = 'visao-geral' | 'utilizadores' | 'anuncios' | 'denuncias' | 'verificacoes' | 'avaliacoes';
 
 export default function Admin() {
   const { auth } = useApp();
@@ -43,6 +45,7 @@ export default function Admin() {
   const [pecas, setPecas] = useState<Peca[]>([]);
   const [loading, setLoading] = useState(true);
   const { reports, loading: reportsLoading, carregar: carregarReports, atualizarStatus: atualizarStatusReport } = useReports();
+  const { reviews: adminReviews, loading: reviewsAdminLoading, carregar: carregarReviews, atualizarStatus: atualizarStatusReview, remover: removerReview } = useReviewsAdmin();
   const { verifications, loading: verificationsLoading, carregar: carregarVerifications, atualizarStatus: atualizarStatusVerification } = useVerificationsAdmin();
 
   useEffect(() => {
@@ -82,6 +85,7 @@ export default function Admin() {
       setCarros(c);
       setPecas(p);
       carregarReports();
+      carregarReviews();
       carregarVerifications();
     } catch (err) {
       console.error('[Admin] Erro ao carregar dados:', err);
@@ -208,7 +212,45 @@ export default function Admin() {
   };
 
   const reportsPendentes = reports.filter((r) => r.status === 'pendente').length;
+  const reviewsPendentes = adminReviews.filter((r) => r.status === 'pendente').length;
   const verificationsPendentes = verifications.filter((v) => v.status === 'pendente').length;
+
+  const handleApproveReview = async (id: string) => {
+    try {
+      const review = adminReviews.find((r) => r.id === id);
+      if (!review) return;
+      await atualizarStatusReview(id, 'aprovado', review.vendedorUid, review.vendedorEmail);
+      toast?.sucesso('Avaliação aprovada!');
+      const vendedor = users.find((u) => u.email === review.vendedorEmail);
+      if (vendedor) {
+        await criarNotificacao(vendedor.uid, 'info', 'Nova avaliação!', `Recebeu uma avaliação de ${review.nota} estrelas de ${review.autorNome}.`);
+      }
+    } catch {
+      toast?.erro('Erro ao aprovar avaliação.');
+    }
+  };
+
+  const handleRejectReview = async (id: string) => {
+    try {
+      const review = adminReviews.find((r) => r.id === id);
+      if (!review) return;
+      await atualizarStatusReview(id, 'rejeitado', review.vendedorUid, review.vendedorEmail);
+      toast?.sucesso('Avaliação rejeitada.');
+    } catch {
+      toast?.erro('Erro ao rejeitar avaliação.');
+    }
+  };
+
+  const handleDeleteReview = async (id: string) => {
+    try {
+      const review = adminReviews.find((r) => r.id === id);
+      if (!review) return;
+      await removerReview(id, review.vendedorUid, review.vendedorEmail);
+      toast?.sucesso('Avaliação eliminada.');
+    } catch {
+      toast?.erro('Erro ao eliminar avaliação.');
+    }
+  };
 
   const handleReportStatusUpdate = async (id: string, status: import('@/types/report').StatusReport, notasAdmin?: string) => {
     try {
@@ -238,6 +280,7 @@ export default function Admin() {
     { key: 'visao-geral' as TabAdmin, label: 'Visão Geral', icon: 'fa-solid fa-chart-simple' },
     { key: 'utilizadores' as TabAdmin, label: 'Utilizadores', icon: 'fa-solid fa-users' },
     { key: 'anuncios' as TabAdmin, label: 'Anúncios', icon: 'fa-solid fa-list' },
+    { key: 'avaliacoes' as TabAdmin, label: `Avaliações${reviewsPendentes > 0 ? ` (${reviewsPendentes})` : ''}`, icon: 'fa-solid fa-star-half-stroke' },
     { key: 'denuncias' as TabAdmin, label: `Denúncias${reportsPendentes > 0 ? ` (${reportsPendentes})` : ''}`, icon: 'fa-solid fa-flag' },
     { key: 'verificacoes' as TabAdmin, label: `Verificações${verificationsPendentes > 0 ? ` (${verificationsPendentes})` : ''}`, icon: 'fa-solid fa-shield-halved' },
   ];
@@ -316,6 +359,18 @@ export default function Admin() {
             onRejectPeca={handleRejectPeca}
             onUpdateCarro={handleUpdateCarro}
             onUpdatePeca={handleUpdatePeca}
+          />
+        </div>
+      )}
+
+      {tab === 'avaliacoes' && (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <ReviewsQueue
+            reviews={adminReviews}
+            loading={reviewsAdminLoading}
+            onApprove={handleApproveReview}
+            onReject={handleRejectReview}
+            onDelete={handleDeleteReview}
           />
         </div>
       )}

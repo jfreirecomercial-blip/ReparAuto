@@ -57,9 +57,10 @@ export default function ReviewForm({
 
   if (enviado) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-        <i className="fa-solid fa-circle-check text-green-500 text-xl mb-2"></i>
-        <p className="text-sm font-semibold text-green-800">Avaliação enviada com sucesso!</p>
+      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
+        <i className="fa-solid fa-clock text-yellow-500 text-xl mb-2"></i>
+        <p className="text-sm font-semibold text-yellow-800">Avaliação enviada!</p>
+        <p className="text-xs text-yellow-600 mt-1">A sua avaliação será visível após aprovação pela equipa ReparAuto.</p>
       </div>
     );
   }

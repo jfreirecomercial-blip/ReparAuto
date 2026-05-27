@@ -33,6 +33,6 @@ export type {
   CarrosContextValue, PecasContextValue, AppContextValue, AppProviderProps,
 } from './app';
 
-export type { Review, ReviewInput } from './review';
+export type { Review, ReviewInput, StatusReview } from './review';
 export type { Report, ReportInput, MotivoReport, StatusReport, TipoReport } from './report';
 export type { Verification, VerificationInput, StatusVerificacao, TipoVerificacao } from './verification';

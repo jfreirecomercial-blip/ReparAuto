@@ -1,5 +1,7 @@
 import type { Timestamp } from 'firebase/firestore';
 
+export type StatusReview = 'pendente' | 'aprovado' | 'rejeitado';
+
 export interface Review {
   id: string;
   autorUid: string;
@@ -11,7 +13,8 @@ export interface Review {
   anuncioTipo: 'carro' | 'peca';
   nota: number;
   comentario: string;
+  status: StatusReview;
   dataCriacao: Timestamp;
 }
 
-export type ReviewInput = Omit<Review, 'id' | 'dataCriacao'>;
+export type ReviewInput = Omit<Review, 'id' | 'dataCriacao' | 'status'>;

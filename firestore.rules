@@ -81,7 +81,9 @@ service cloud.firestore {
         && request.resource.data.autorUid == request.auth.uid
         && request.resource.data.vendedorEmail != request.auth.token.email
         && request.resource.data.nota >= 1
-        && request.resource.data.nota <= 5;
+        && request.resource.data.nota <= 5
+        && request.resource.data.status == 'pendente';
+      allow update: if isAdmin();
       allow delete: if isAuthenticated() && (resource.data.autorUid == request.auth.uid || isAdmin());
     }
 

@@ -22,7 +22,7 @@ import type { Carro, CarroInput, StatusAnuncio } from '@/types/carro';
 import type { Peca, PecaInput } from '@/types/peca';
 import type { Usuario, Role } from '@/types/usuario';
 import type { Notificacao, TipoNotificacao } from '@/types/notificacao';
-import type { Review, ReviewInput } from '@/types/review';
+import type { Review, ReviewInput, StatusReview } from '@/types/review';
 import type { Report, ReportInput, StatusReport } from '@/types/report';
 import type { Verification, VerificationInput, StatusVerificacao } from '@/types/verification';
 
@@ -789,9 +789,10 @@ export async function addReview(data: ReviewInput): Promise<Review> {
   try {
     const docRef = await addDoc(collection(db, REVIEWS_COLLECTION), {
       ...data,
+      status: 'pendente',
       dataCriacao: Timestamp.now(),
     });
-    return { id: docRef.id, ...data } as Review;
+    return { id: docRef.id, ...data, status: 'pendente' } as Review;
   } catch (err) {
     console.error('[DB] Erro ao adicionar avaliação:', err);
     throw err;
@@ -811,8 +812,8 @@ export function subscribeReviews(
   return onSnapshot(
     q,
     (snap) => {
-      const reviews = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Review);
-      onData(reviews);
+      const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Review);
+      onData(all.filter((r) => r.status === 'aprovado'));
     },
     (err) => {
       console.error('[DB] Erro no snapshot de avaliações:', err);
@@ -829,10 +830,31 @@ export async function getReviewsByVendedor(vendedorEmail: string): Promise<Revie
       orderBy('dataCriacao', 'desc'),
     );
     const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Review);
+    const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Review);
+    return all.filter((r) => r.status === 'aprovado');
   } catch (err) {
     console.error('[DB] Erro ao buscar avaliações:', err);
     return [];
+  }
+}
+
+export async function getAllReviewsAdmin(): Promise<Review[]> {
+  try {
+    const q = query(collection(db, REVIEWS_COLLECTION), orderBy('dataCriacao', 'desc'));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Review);
+  } catch (err) {
+    console.error('[DB] Erro ao buscar avaliações (admin):', err);
+    return [];
+  }
+}
+
+export async function updateReviewStatus(id: string, status: StatusReview): Promise<void> {
+  try {
+    await updateDoc(doc(db, REVIEWS_COLLECTION, id) as any, { status } as any);
+  } catch (err) {
+    console.error('[DB] Erro ao atualizar status da avaliação:', err);
+    throw err;
   }
 }
 
