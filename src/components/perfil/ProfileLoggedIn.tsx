@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useApp } from '@/providers/AppProvider';
-import { getCarrosByCreator, getPecasByCreator } from '@/lib/db';
+import { getCarrosByCreator, getPecasByCreator, updateCarro, updatePeca, deleteCarro, deletePeca } from '@/lib/db';
 import { formatarPreco } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 import EditarPerfilModal from './EditarPerfilModal';
+import EditarCarroModal from '@/components/admin/EditarCarroModal';
+import EditarPecaModal from '@/components/admin/EditarPecaModal';
 import Badge from '@/components/ui/Badge';
 import UserAvatar from '@/components/ui/UserAvatar';
 import type { Carro } from '@/types/carro';
@@ -19,6 +21,10 @@ export default function ProfileLoggedIn() {
   const [meusCarros, setMeusCarros] = useState<Carro[]>([]);
   const [minhasPecas, setMinhasPecas] = useState<Peca[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editCarro, setEditCarro] = useState<Carro | null>(null);
+  const [editPeca, setEditPeca] = useState<Peca | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ tipo: 'carro' | 'peca'; id: string; titulo: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const carregar = useCallback(async () => {
     if (!user?.email) return;
@@ -33,6 +39,36 @@ export default function ProfileLoggedIn() {
   }, [user?.email]);
 
   useEffect(() => { carregar(); }, [carregar]);
+
+  const handleSaveCarro = async (id: string, dados: Record<string, unknown>) => {
+    await updateCarro(id, { ...dados, status: 'pendente' });
+    setEditCarro(null);
+    await carregar();
+  };
+
+  const handleSavePeca = async (id: string, dados: Record<string, unknown>) => {
+    await updatePeca(id, { ...dados, status: 'pendente' });
+    setEditPeca(null);
+    await carregar();
+  };
+
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
+    setDeleting(true);
+    try {
+      if (confirmDelete.tipo === 'carro') {
+        await deleteCarro(confirmDelete.id);
+      } else {
+        await deletePeca(confirmDelete.id);
+      }
+      setConfirmDelete(null);
+      await carregar();
+    } catch (err) {
+      console.error('[Perfil] Erro ao eliminar:', err);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -192,20 +228,45 @@ export default function ProfileLoggedIn() {
             {meusCarros.map((carro) => (
               <div
                 key={carro.id}
-                className="flex items-center justify-between bg-slate-50 rounded-xl p-3 border border-slate-200 cursor-pointer hover:bg-slate-100 transition"
-                onClick={() => navigate(`/detalhes/${carro.id}`)}
+                className="bg-slate-50 rounded-xl p-3 border border-slate-200 hover:bg-slate-100 transition"
               >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-bold text-brand-900 text-sm">
-                      {carro.marca} {carro.modelo} ({carro.anoFabricacao})
-                    </p>
-                    {carro.status === 'pendente' && <Badge cor="yellow">Pendente</Badge>}
-                    {carro.status === 'rejeitado' && <Badge cor="red">Rejeitado</Badge>}
+                <div className="flex items-center justify-between">
+                  <div
+                    className="flex-1 cursor-pointer min-w-0"
+                    onClick={() => navigate(`/detalhes/${carro.id}`)}
+                  >
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-bold text-brand-900 text-sm">
+                        {carro.marca} {carro.modelo} ({carro.anoFabricacao})
+                      </p>
+                      {carro.status === 'pendente' && <Badge cor="yellow">Pendente</Badge>}
+                      {carro.status === 'rejeitado' && <Badge cor="red">Rejeitado</Badge>}
+                    </div>
+                    <p className="text-xs text-slate-500">{carro.km?.toLocaleString('pt-PT')} km</p>
                   </div>
-                  <p className="text-xs text-slate-500">{carro.km?.toLocaleString('pt-PT')} km</p>
+                  <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                    <span className="font-extrabold text-accent text-sm">{formatarPreco(carro.preco)}</span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setEditCarro(carro); }}
+                      className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition"
+                      title="Editar"
+                    >
+                      <i className="fa-solid fa-pen-to-square text-xs"></i>
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setConfirmDelete({ tipo: 'carro', id: carro.id, titulo: `${carro.marca} ${carro.modelo}` }); }}
+                      className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition"
+                      title="Eliminar"
+                    >
+                      <i className="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                  </div>
                 </div>
-                <span className="font-extrabold text-accent text-sm">{formatarPreco(carro.preco)}</span>
+                <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-400">
+                  <span><i className="fa-solid fa-eye mr-1"></i>{carro.visualizacoes || 0}</span>
+                  <span><i className="fa-solid fa-comment mr-1"></i>{carro.contagemMensagens || 0}</span>
+                  <span><i className="fa-solid fa-heart mr-1"></i>{carro.contagemFavoritos || 0}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -227,19 +288,41 @@ export default function ProfileLoggedIn() {
             {minhasPecas.map((peca) => (
               <div
                 key={peca.id}
-                className="flex items-center justify-between bg-slate-50 rounded-xl p-3 border border-slate-200"
+                className="bg-slate-50 rounded-xl p-3 border border-slate-200 hover:bg-slate-100 transition"
               >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-bold text-brand-900 text-sm">{peca.titulo}</p>
-                    {peca.status === 'pendente' && <Badge cor="yellow">Pendente</Badge>}
-                    {peca.status === 'rejeitado' && <Badge cor="red">Rejeitado</Badge>}
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-bold text-brand-900 text-sm">{peca.titulo}</p>
+                      {peca.status === 'pendente' && <Badge cor="yellow">Pendente</Badge>}
+                      {peca.status === 'rejeitado' && <Badge cor="red">Rejeitado</Badge>}
+                    </div>
+                    <p className="text-xs text-slate-500">{peca.categoria} • {peca.tipo}</p>
                   </div>
-                  <p className="text-xs text-slate-500">{peca.categoria} • {peca.tipo}</p>
+                  <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                    {peca.preco != null && (
+                      <span className="font-extrabold text-accent text-sm">{formatarPreco(peca.preco)}</span>
+                    )}
+                    <button
+                      onClick={() => setEditPeca(peca)}
+                      className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition"
+                      title="Editar"
+                    >
+                      <i className="fa-solid fa-pen-to-square text-xs"></i>
+                    </button>
+                    <button
+                      onClick={() => setConfirmDelete({ tipo: 'peca', id: peca.id, titulo: peca.titulo })}
+                      className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition"
+                      title="Eliminar"
+                    >
+                      <i className="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                  </div>
                 </div>
-                {peca.preco && (
-                  <span className="font-extrabold text-accent text-sm">{formatarPreco(peca.preco)}</span>
-                )}
+                <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-400">
+                  <span><i className="fa-solid fa-eye mr-1"></i>{peca.visualizacoes || 0}</span>
+                  <span><i className="fa-solid fa-comment mr-1"></i>{peca.contagemMensagens || 0}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -247,6 +330,52 @@ export default function ProfileLoggedIn() {
       </div>
 
       <EditarPerfilModal show={editModalOpen} onClose={() => setEditModalOpen(false)} />
+
+      {editCarro && (
+        <EditarCarroModal
+          show
+          carro={editCarro}
+          onClose={() => setEditCarro(null)}
+          onSave={handleSaveCarro}
+        />
+      )}
+
+      {editPeca && (
+        <EditarPecaModal
+          show
+          peca={editPeca}
+          onClose={() => setEditPeca(null)}
+          onSave={handleSavePeca}
+        />
+      )}
+
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+            <h4 className="font-bold text-brand-900 mb-2">Eliminar Anúncio</h4>
+            <p className="text-sm text-slate-600 mb-4">
+              Tem certeza que deseja eliminar <strong>{confirmDelete.titulo}</strong>? Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition"
+                disabled={deleting}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 text-sm text-white bg-red-500 hover:bg-red-600 rounded-lg transition disabled:opacity-50"
+                disabled={deleting}
+              >
+                {deleting ? <i className="fa-solid fa-spinner fa-spin mr-1"></i> : <i className="fa-solid fa-trash-can mr-1"></i>}
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       </>
       )}
     </div>
