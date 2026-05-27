@@ -21,9 +21,16 @@ const statusLabels: Record<StatusVerificacao, string> = {
   rejeitado: 'Rejeitado',
 };
 
+const tipoDocLabels: Record<string, string> = {
+  cc: 'Cartão de Cidadão',
+  passaporte: 'Passaporte',
+  residencia: 'Título de Residência',
+};
+
 export default function VerificationsQueue({ verifications, loading, onUpdateStatus }: VerificationsQueueProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [notas, setNotas] = useState('');
+  const [imageModal, setImageModal] = useState<string | null>(null);
 
   if (loading) {
     return (
@@ -70,42 +77,80 @@ export default function VerificationsQueue({ verifications, loading, onUpdateSta
                     <p className="text-sm font-semibold text-brand-900">{v.nome}</p>
                     <p className="text-xs text-slate-500">{v.email}</p>
                     {v.nif && <p className="text-xs text-slate-500">NIF: {v.nif}</p>}
+                    {v.tipoDocumento && (
+                      <p className="text-xs text-slate-500">
+                        <i className="fa-solid fa-file mr-1"></i>
+                        {tipoDocLabels[v.tipoDocumento] || v.tipoDocumento}
+                      </p>
+                    )}
                   </div>
-                  {v.status === 'pendente' && (
-                    <button
-                      onClick={() => {
-                        setExpandedId(isExpanded ? null : v.id);
-                        setNotas('');
-                      }}
-                      className="text-xs text-accent hover:text-accent-hover font-semibold ml-3"
-                    >
-                      <i className={`fa-solid ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
-                    </button>
-                  )}
+                  <button
+                    onClick={() => {
+                      setExpandedId(isExpanded ? null : v.id);
+                      setNotas('');
+                    }}
+                    className="text-xs text-accent hover:text-accent-hover font-semibold ml-3"
+                  >
+                    <i className={`fa-solid ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
+                  </button>
                 </div>
 
-                {isExpanded && v.status === 'pendente' && (
+                {isExpanded && (
                   <div className="mt-3 pt-3 border-t border-slate-200">
-                    <textarea
-                      value={notas}
-                      onChange={(e) => setNotas(e.target.value)}
-                      placeholder="Notas de administração..."
-                      className="w-full border border-slate-300 rounded-lg p-2 text-xs resize-none h-16 focus:outline-none focus:ring-2 focus:ring-accent/30 mb-2"
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => onUpdateStatus(v.id, v.uid, 'aprovado', notas)}
-                        className="text-xs font-bold bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg transition"
-                      >
-                        <i className="fa-solid fa-check mr-1"></i> Aprovar
-                      </button>
-                      <button
-                        onClick={() => onUpdateStatus(v.id, v.uid, 'rejeitado', notas)}
-                        className="text-xs font-bold bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg transition"
-                      >
-                        <i className="fa-solid fa-xmark mr-1"></i> Rejeitar
-                      </button>
-                    </div>
+                    {/* Document images */}
+                    {v.documentoUrl && v.selfieUrl && (
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Documento</p>
+                          <div
+                            className="w-full h-32 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 cursor-pointer hover:opacity-80 transition"
+                            onClick={() => setImageModal(v.documentoUrl)}
+                          >
+                            <img src={v.documentoUrl} alt="Documento" className="w-full h-full object-cover" />
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Selfie c/ Documento</p>
+                          <div
+                            className="w-full h-32 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 cursor-pointer hover:opacity-80 transition"
+                            onClick={() => setImageModal(v.selfieUrl)}
+                          >
+                            <img src={v.selfieUrl} alt="Selfie com documento" className="w-full h-full object-cover" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {!v.documentoUrl && !v.selfieUrl && v.status !== 'pendente' && (
+                      <p className="text-xs text-slate-400 italic mb-3">
+                        <i className="fa-solid fa-trash-can mr-1"></i> Documentos apagados após decisão.
+                      </p>
+                    )}
+
+                    {v.status === 'pendente' && (
+                      <>
+                        <textarea
+                          value={notas}
+                          onChange={(e) => setNotas(e.target.value)}
+                          placeholder="Notas de administração..."
+                          className="w-full border border-slate-300 rounded-lg p-2 text-xs resize-none h-16 focus:outline-none focus:ring-2 focus:ring-accent/30 mb-2"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => onUpdateStatus(v.id, v.uid, 'aprovado', notas)}
+                            className="text-xs font-bold bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg transition"
+                          >
+                            <i className="fa-solid fa-check mr-1"></i> Aprovar
+                          </button>
+                          <button
+                            onClick={() => onUpdateStatus(v.id, v.uid, 'rejeitado', notas)}
+                            className="text-xs font-bold bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg transition"
+                          >
+                            <i className="fa-solid fa-xmark mr-1"></i> Rejeitar
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
 
@@ -118,6 +163,24 @@ export default function VerificationsQueue({ verifications, loading, onUpdateSta
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Image modal */}
+      {imageModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setImageModal(null)}
+        >
+          <div className="relative max-w-2xl max-h-[90vh]">
+            <button
+              onClick={() => setImageModal(null)}
+              className="absolute -top-3 -right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg text-slate-600 hover:text-red-500 transition z-10"
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+            <img src={imageModal} alt="Documento ampliado" className="max-w-full max-h-[85vh] rounded-xl shadow-2xl" />
+          </div>
         </div>
       )}
     </div>

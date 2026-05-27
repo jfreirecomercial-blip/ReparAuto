@@ -6,6 +6,8 @@ import {
   updateVerificationStatus,
   updateUserProfile,
   getUserProfile,
+  deleteVerificationFiles,
+  clearVerificationUrls,
 } from '@/lib/db';
 import type { Verification, VerificationInput, StatusVerificacao } from '@/types/verification';
 
@@ -61,9 +63,10 @@ export function useVerificationsAdmin() {
     resolvidoPor: string,
     notasAdmin?: string,
   ) => {
+    const v = verifications.find((v) => v.id === id);
     await updateVerificationStatus(id, status, resolvidoPor, notasAdmin);
+
     if (status === 'aprovado') {
-      const v = verifications.find((v) => v.id === id);
       const updates: Record<string, unknown> = { verificado: true };
       if (v?.tipo === 'profissional') {
         const profile = await getUserProfile(uid);
@@ -72,10 +75,16 @@ export function useVerificationsAdmin() {
       }
       await updateUserProfile(uid, updates);
     }
+
+    if (v?.documentoUrl && v?.selfieUrl) {
+      await deleteVerificationFiles(v.documentoUrl, v.selfieUrl);
+      await clearVerificationUrls(id);
+    }
+
     setVerifications((prev) =>
-      prev.map((v) => (v.id === id ? { ...v, status, resolvidoPor, notasAdmin } : v)),
+      prev.map((v) => (v.id === id ? { ...v, status, resolvidoPor, notasAdmin, documentoUrl: '', selfieUrl: '' } : v)),
     );
-  }, []);
+  }, [verifications]);
 
   return {
     verifications,

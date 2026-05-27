@@ -16,7 +16,8 @@ import {
   increment,
   type DocumentData,
 } from 'firebase/firestore';
-import { db } from './firebase';
+import { ref, deleteObject } from 'firebase/storage';
+import { db, storage } from './firebase';
 import { DB_VERSION, DB_VERSION_KEY } from './constants';
 import type { Carro, CarroInput, StatusAnuncio } from '@/types/carro';
 import type { Peca, PecaInput } from '@/types/peca';
@@ -995,5 +996,28 @@ export async function updateVerificationStatus(
   } catch (err) {
     console.error('[DB] Erro ao atualizar verificação:', err);
     throw err;
+  }
+}
+
+export async function deleteVerificationFiles(documentoUrl: string, selfieUrl: string): Promise<void> {
+  const deleteByUrl = async (url: string) => {
+    try {
+      const storageRef = ref(storage, url);
+      await deleteObject(storageRef);
+    } catch (err) {
+      console.error('[DB] Erro ao apagar ficheiro de verificação:', err);
+    }
+  };
+  await Promise.all([deleteByUrl(documentoUrl), deleteByUrl(selfieUrl)]);
+}
+
+export async function clearVerificationUrls(id: string): Promise<void> {
+  try {
+    await updateDoc(doc(db, VERIFICATIONS_COLLECTION, id) as any, {
+      documentoUrl: '',
+      selfieUrl: '',
+    } as any);
+  } catch (err) {
+    console.error('[DB] Erro ao limpar URLs de verificação:', err);
   }
 }
