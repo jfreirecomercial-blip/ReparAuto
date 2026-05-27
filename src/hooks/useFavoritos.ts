@@ -6,6 +6,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { incrementCampo, decrementCampo } from '@/lib/db';
+import { enqueue, dequeueAll } from '@/lib/offlineQueue';
 import type { Usuario } from '@/types/usuario';
 
 const STORAGE_KEY = 'favs_reparauto';
@@ -45,6 +46,23 @@ export default function useFavoritos(user: Usuario | null) {
     }
   }, [user?.uid]);
 
+  useEffect(() => {
+    function replayQueue() {
+      if (!user?.uid || !navigator.onLine) return;
+      const actions = dequeueAll();
+      for (const action of actions) {
+        if (action.type === 'favorito_add') {
+          incrementCampo('cars', action.payload.carId as string, 'contagemFavoritos');
+        } else if (action.type === 'favorito_remove') {
+          decrementCampo('cars', action.payload.carId as string, 'contagemFavoritos');
+        }
+      }
+    }
+    window.addEventListener('online', replayQueue);
+    replayQueue();
+    return () => window.removeEventListener('online', replayQueue);
+  }, [user?.uid]);
+
   const salvar = useCallback(
     async (lista: string[]) => {
       setFavoritosState(lista);
@@ -72,10 +90,18 @@ export default function useFavoritos(user: Usuario | null) {
       if (idx > -1) {
         nova = [...favoritos];
         nova.splice(idx, 1);
-        decrementCampo('cars', idStr, 'contagemFavoritos');
+        if (navigator.onLine) {
+          decrementCampo('cars', idStr, 'contagemFavoritos');
+        } else {
+          enqueue({ type: 'favorito_remove', payload: { carId: idStr } });
+        }
       } else {
         nova = [...favoritos, idStr];
-        incrementCampo('cars', idStr, 'contagemFavoritos');
+        if (navigator.onLine) {
+          incrementCampo('cars', idStr, 'contagemFavoritos');
+        } else {
+          enqueue({ type: 'favorito_add', payload: { carId: idStr } });
+        }
       }
       salvar(nova);
     },

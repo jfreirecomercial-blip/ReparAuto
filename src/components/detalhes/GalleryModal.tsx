@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import Modal from '@/components/ui/Modal';
 import FotoRender from '@/components/ui/FotoRender';
 import useSwipe from '@/hooks/useSwipe';
+import usePinchZoom from '@/hooks/usePinchZoom';
 
 interface GalleryModalProps {
   show: boolean;
@@ -37,6 +38,22 @@ export default function GalleryModal({ show, onClose, fotos = [], indiceInicial 
   }, [show, goNext, goPrev]);
 
   const swipeHandlers = useSwipe({ onLeft: goNext, onRight: goPrev });
+  const pinchHandlers = usePinchZoom();
+
+  const combinedTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 2) pinchHandlers.onTouchStart(e);
+    else swipeHandlers.onTouchStart(e);
+  }, [swipeHandlers, pinchHandlers]);
+
+  const combinedTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 2) pinchHandlers.onTouchMove(e);
+    else swipeHandlers.onTouchMove(e);
+  }, [swipeHandlers, pinchHandlers]);
+
+  const combinedTouchEnd = useCallback((e: React.TouchEvent) => {
+    pinchHandlers.onTouchEnd(e);
+    swipeHandlers.onTouchEnd(e);
+  }, [swipeHandlers, pinchHandlers]);
 
   if (!show || fotos.length === 0) return null;
 
@@ -45,10 +62,16 @@ export default function GalleryModal({ show, onClose, fotos = [], indiceInicial 
       <div className="space-y-3">
         <div
           className="w-full h-64 sm:h-96 rounded-xl overflow-hidden bg-slate-200 touch-pan-y select-none"
-          {...swipeHandlers}
+          onTouchStart={combinedTouchStart}
+          onTouchMove={combinedTouchMove}
+          onTouchEnd={combinedTouchEnd}
         >
           <FotoRender foto={fotos[indice]} classes="w-full h-full object-cover" />
         </div>
+
+        <p className="text-[10px] text-slate-400 text-center hidden sm:hidden">
+          <i className="fa-solid fa-hand-pointer mr-1"></i> Deslize para navegar &middot; Belisque para zoom
+        </p>
 
         {fotos.length > 1 && (
           <div className="flex items-center justify-between gap-2">
