@@ -50,7 +50,6 @@ export default function LazyImage({ src, alt, className = '' }: LazyImageProps) 
           className={`w-full h-full object-cover transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
           onLoad={() => setLoaded(true)}
           onError={() => setError(true)}
-          loading="lazy"
         />
       )}
     </div>

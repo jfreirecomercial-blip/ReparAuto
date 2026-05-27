@@ -21,9 +21,8 @@ export default defineConfig({
         start_url: './',
         scope: './',
         icons: [
-          { src: 'pwa-icon.svg', sizes: '192x192', type: 'image/svg+xml' },
-          { src: 'pwa-icon.svg', sizes: '512x512', type: 'image/svg+xml' },
-          { src: 'pwa-icon.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' as const },
+          { src: 'pwa-icon.svg', sizes: 'any', type: 'image/svg+xml' },
+          { src: 'pwa-icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' as const },
         ],
       },
       workbox: {
@@ -48,7 +47,7 @@ export default defineConfig({
             },
           },
           {
-            urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/.*/i,
+            urlPattern: /^https:\/\/(firebasestorage\.googleapis\.com|.*\.firebasestorage\.app)\/.*/i,
             handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'firebase-images',
