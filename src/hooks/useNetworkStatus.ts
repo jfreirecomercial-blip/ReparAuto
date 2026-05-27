@@ -21,7 +21,9 @@ function getConnection(): NetworkInformation | null {
   return nav.connection || null;
 }
 
-function getSnapshot(): NetworkStatus {
+let cachedSnapshot: NetworkStatus = buildSnapshot();
+
+function buildSnapshot(): NetworkStatus {
   if (!navigator.onLine) {
     return { online: false, speed: 'offline', effectiveType: null, downlink: null };
   }
@@ -40,15 +42,35 @@ function getSnapshot(): NetworkStatus {
   };
 }
 
+function updateSnapshot() {
+  const next = buildSnapshot();
+  if (
+    next.online !== cachedSnapshot.online ||
+    next.speed !== cachedSnapshot.speed ||
+    next.effectiveType !== cachedSnapshot.effectiveType ||
+    next.downlink !== cachedSnapshot.downlink
+  ) {
+    cachedSnapshot = next;
+  }
+}
+
+function getSnapshot(): NetworkStatus {
+  return cachedSnapshot;
+}
+
 function subscribe(callback: () => void) {
-  window.addEventListener('online', callback);
-  window.addEventListener('offline', callback);
+  const onChange = () => {
+    updateSnapshot();
+    callback();
+  };
+  window.addEventListener('online', onChange);
+  window.addEventListener('offline', onChange);
   const conn = getConnection();
-  if (conn) conn.addEventListener('change', callback);
+  if (conn) conn.addEventListener('change', onChange);
   return () => {
-    window.removeEventListener('online', callback);
-    window.removeEventListener('offline', callback);
-    if (conn) conn.removeEventListener('change', callback);
+    window.removeEventListener('online', onChange);
+    window.removeEventListener('offline', onChange);
+    if (conn) conn.removeEventListener('change', onChange);
   };
 }
 
