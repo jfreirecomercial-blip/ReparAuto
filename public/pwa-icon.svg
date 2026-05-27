@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#2b3a4e"/>
+  <g transform="translate(256, 220)">
+    <path d="M-140 40 L-120 -20 C-110 -50 -80 -70 -50 -70 L50 -70 C80 -70 110 -50 120 -20 L140 40" stroke="#e55b2b" stroke-width="16" fill="none" stroke-linecap="round"/>
+    <rect x="-155" y="40" width="310" height="70" rx="20" fill="#e55b2b"/>
+    <circle cx="-100" cy="110" r="28" fill="#2b3a4e" stroke="#f0f4f8" stroke-width="8"/>
+    <circle cx="100" cy="110" r="28" fill="#2b3a4e" stroke="#f0f4f8" stroke-width="8"/>
+    <rect x="-30" y="55" width="60" height="14" rx="7" fill="#f0f4f8"/>
+  </g>
+  <text x="256" y="380" font-family="Arial, sans-serif" font-weight="800" font-size="72" fill="#ffffff" text-anchor="middle">ReparAuto</text>
+</svg>

@@ -9,6 +9,7 @@ import ContactSection from '@/components/detalhes/ContactSection';
 import GalleryModal from '@/components/detalhes/GalleryModal';
 import VinCheckPanel from '@/components/trust/VinCheckPanel';
 import Badge from '@/components/ui/Badge';
+import ShareButton from '@/components/ui/ShareButton';
 import type { Carro } from '@/types/carro';
 
 function FotoRender({ foto, classes }: { foto: string; classes?: string }) {
@@ -129,6 +130,10 @@ export default function DetalhesCarro() {
               <i className={`fa-solid fa-heart ${isFavorito(carro.id) ? '' : 'text-slate-400'}`}></i>
               {isFavorito(carro.id) ? 'Favorito' : 'Favoritar'}
             </button>
+            <ShareButton
+              title={`${carro.marca} ${carro.modelo} - ReparAuto`}
+              text={`${carro.marca} ${carro.modelo} ${carro.anoFabricacao} - ${formatarPreco(carro.preco)}`}
+            />
           </div>
         </div>
 
