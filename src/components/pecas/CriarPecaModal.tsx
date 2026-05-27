@@ -61,6 +61,7 @@ export default function CriarPecaModal({ show, onClose }: CriarPecaModalProps) {
         localizacao: undefined,
         preco: form.preco ? Number(form.preco) : null,
         criador: user?.email || '',
+        criadorUid: user?.uid || '',
         vendedorNome: user?.nome || 'Anónimo',
         vendedorTelefone: form.vendedorTelefone || null,
         vendedorWhatsApp: form.vendedorWhatsApp || null,

@@ -74,6 +74,7 @@ export default function Anunciar() {
         rodando: dados.rodando === 'sim',
         inspecao: dados.inspecao === 'sim',
         criador: user.email,
+        criadorUid: user.uid,
         vendedorNome: user.nome,
         vendedorTelefone: dados.vendedorTelefone || null,
         vendedorWhatsApp: dados.vendedorWhatsApp || null,

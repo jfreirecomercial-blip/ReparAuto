@@ -91,7 +91,7 @@ export default function Header() {
       </div>
 
       {location.pathname === '/' && (
-      <div className="max-w-6xl mx-auto px-4 pb-2 flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide">
+      <div className="max-w-6xl mx-auto px-4 pb-2 flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide touch-pan-x overscroll-x-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
         {chips.map((chip) => (
           <button
             key={chip.value}

@@ -20,6 +20,7 @@ export interface Peca {
   vendedorEmail?: string;
   foto?: string;
   criador: string;
+  criadorUid?: string;
   vendedorNome?: string;
   descricao: string;
   status: StatusAnuncio;

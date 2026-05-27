@@ -33,6 +33,7 @@ export interface Carro {
   mecanicoTelefone?: string;
   fotos: string[];
   criador: string;
+  criadorUid?: string;
   vendedorNome?: string;
   vendedorTelefone?: string;
   vendedorWhatsApp?: string;
