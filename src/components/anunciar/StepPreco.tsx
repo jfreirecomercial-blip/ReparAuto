@@ -11,13 +11,13 @@ interface StepPrecoProps {
 
 export default function StepPreco({ dados, setDados, onBack, onPublicar }: StepPrecoProps) {
   const [erros, setErros] = useState<Record<string, boolean>>({});
-  const [whatsappIgual, setWhatsappIgual] = useState(true);
+  const [telefoneDiferente, setTelefoneDiferente] = useState(false);
 
   const atualizar = (campo: string, valor: unknown) => {
     setDados((prev) => {
       const next = { ...prev, [campo]: valor };
-      if (whatsappIgual && campo === 'vendedorTelefone') {
-        next.vendedorWhatsApp = (valor as string).replace(/\s/g, '');
+      if (!telefoneDiferente && campo === 'vendedorWhatsApp') {
+        next.vendedorTelefone = valor as string;
       }
       return next;
     });
@@ -273,14 +273,14 @@ export default function StepPreco({ dados, setDados, onBack, onPublicar }: StepP
         )}
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4">
         <span className="block text-sm font-bold text-brand-900 mb-3 flex items-center gap-2">
           <i className="fa-solid fa-address-card text-blue-500"></i> Contacto do Vendedor
         </span>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="space-y-2">
           <div>
             <label className="block text-xs font-semibold text-slate-500 mb-1">
-              WhatsApp <span className="text-green-600">(recomendado)</span>
+              WhatsApp / Telefone <span className="text-green-600">(recomendado)</span>
             </label>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-slate-600">+</span>
@@ -294,40 +294,42 @@ export default function StepPreco({ dados, setDados, onBack, onPublicar }: StepP
             </div>
             <p className="text-[10px] text-slate-400 mt-0.5">Nº com código do país (ex: 351912345678)</p>
           </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-1">Telefone</label>
+          <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-600 select-none">
             <input
-              type="tel"
-              placeholder="912 345 678"
-              value={dados.vendedorTelefone || ''}
-              onChange={(e) => atualizar('vendedorTelefone', e.target.value)}
+              type="checkbox"
+              checked={telefoneDiferente}
+              onChange={(e) => {
+                setTelefoneDiferente(e.target.checked);
+                if (!e.target.checked) {
+                  setDados((prev) => ({ ...prev, vendedorTelefone: prev.vendedorWhatsApp }));
+                }
+              }}
+              className="rounded text-accent focus:ring-accent"
+            />
+            Telefone diferente do WhatsApp
+          </label>
+          {telefoneDiferente && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">Telefone</label>
+              <input
+                type="tel"
+                placeholder="912 345 678"
+                value={dados.vendedorTelefone || ''}
+                onChange={(e) => atualizar('vendedorTelefone', e.target.value)}
+                className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:border-accent"
+              />
+            </div>
+          )}
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1">Email de Contacto</label>
+            <input
+              type="email"
+              placeholder="seu@email.com"
+              value={dados.vendedorEmail || ''}
+              onChange={(e) => atualizar('vendedorEmail', e.target.value)}
               className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:border-accent"
             />
           </div>
-        </div>
-        <label className="flex items-center gap-2 mt-3 cursor-pointer text-xs text-slate-600 select-none">
-          <input
-            type="checkbox"
-            checked={whatsappIgual}
-            onChange={(e) => {
-              setWhatsappIgual(e.target.checked);
-              if (e.target.checked) {
-                setDados((prev) => ({ ...prev, vendedorWhatsApp: prev.vendedorTelefone.replace(/\s/g, '') }));
-              }
-            }}
-            className="rounded text-green-600 focus:ring-green-500"
-          />
-          WhatsApp igual ao Telefone
-        </label>
-        <div className="mt-3">
-          <label className="block text-xs font-semibold text-slate-500 mb-1">Email de Contacto</label>
-          <input
-            type="email"
-            placeholder="seu@email.com"
-            value={dados.vendedorEmail || ''}
-            onChange={(e) => atualizar('vendedorEmail', e.target.value)}
-            className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:border-accent"
-          />
         </div>
       </div>
 

@@ -30,13 +30,13 @@ export default function PecaForm({ onSuccess, onCancel }: PecaFormProps) {
   });
 
   const [erro, setErro] = useState('');
-  const [whatsappIgual, setWhatsappIgual] = useState(true);
+  const [telefoneDiferente, setTelefoneDiferente] = useState(false);
 
   const atualizar = (campo: string, valor: string) => {
     setForm((prev) => {
       const next = { ...prev, [campo]: valor };
-      if (whatsappIgual && campo === 'vendedorTelefone') {
-        next.vendedorWhatsApp = valor.replace(/\s/g, '');
+      if (!telefoneDiferente && campo === 'vendedorWhatsApp') {
+        next.vendedorTelefone = valor;
       }
       return next;
     });
@@ -221,55 +221,57 @@ export default function PecaForm({ onSuccess, onCancel }: PecaFormProps) {
         />
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
         <span className="block text-xs font-bold text-slate-500 mb-2 flex items-center gap-1">
           <i className="fa-solid fa-address-card text-blue-500"></i> Contacto do Vendedor
         </span>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
+        <div className="space-y-2">
           <div>
-            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">WhatsApp</label>
+            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">WhatsApp / Telefone</label>
             <input
               type="tel"
-              placeholder="351912345678"
+              placeholder="912345678"
               value={form.vendedorWhatsApp}
               onChange={(e) => atualizar('vendedorWhatsApp', e.target.value)}
               className="w-full border border-gray-300 rounded-xl p-2 text-sm focus:outline-none focus:border-green-500"
             />
           </div>
-          <div>
-            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Telefone</label>
+          <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-600 select-none">
             <input
-              type="tel"
-              placeholder="912345678"
-              value={form.vendedorTelefone}
-              onChange={(e) => atualizar('vendedorTelefone', e.target.value)}
+              type="checkbox"
+              checked={telefoneDiferente}
+              onChange={(e) => {
+                setTelefoneDiferente(e.target.checked);
+                if (!e.target.checked) {
+                  setForm((prev) => ({ ...prev, vendedorTelefone: prev.vendedorWhatsApp }));
+                }
+              }}
+              className="rounded text-accent focus:ring-accent"
+            />
+            Telefone diferente do WhatsApp
+          </label>
+          {telefoneDiferente && (
+            <div>
+              <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Telefone</label>
+              <input
+                type="tel"
+                placeholder="912345678"
+                value={form.vendedorTelefone}
+                onChange={(e) => atualizar('vendedorTelefone', e.target.value)}
+                className="w-full border border-gray-300 rounded-xl p-2 text-sm focus:outline-none focus:border-accent"
+              />
+            </div>
+          )}
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Email de Contacto</label>
+            <input
+              type="email"
+              placeholder="seu@email.com"
+              value={form.vendedorEmail}
+              onChange={(e) => atualizar('vendedorEmail', e.target.value)}
               className="w-full border border-gray-300 rounded-xl p-2 text-sm focus:outline-none focus:border-accent"
             />
           </div>
-        </div>
-        <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-600 select-none">
-          <input
-            type="checkbox"
-            checked={whatsappIgual}
-            onChange={(e) => {
-              setWhatsappIgual(e.target.checked);
-              if (e.target.checked) {
-                setForm((prev) => ({ ...prev, vendedorWhatsApp: prev.vendedorTelefone.replace(/\s/g, '') }));
-              }
-            }}
-            className="rounded text-green-600 focus:ring-green-500"
-          />
-          WhatsApp igual ao Telefone
-        </label>
-        <div className="mt-2">
-          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Email de Contacto</label>
-          <input
-            type="email"
-            placeholder="seu@email.com"
-            value={form.vendedorEmail}
-            onChange={(e) => atualizar('vendedorEmail', e.target.value)}
-            className="w-full border border-gray-300 rounded-xl p-2 text-sm focus:outline-none focus:border-accent"
-          />
         </div>
       </div>
 
@@ -281,14 +283,14 @@ export default function PecaForm({ onSuccess, onCancel }: PecaFormProps) {
         {onCancel && (
           <button
             onClick={onCancel}
-            className="flex-1 bg-white hover:bg-slate-50 text-brand-700 font-bold py-3 rounded-xl transition border border-slate-300"
+            className="flex-1 bg-white hover:bg-slate-50 text-brand-700 font-semibold py-2.5 rounded-xl transition border border-slate-300 text-sm"
           >
             Voltar
           </button>
         )}
         <button
           onClick={submit}
-          className="flex-1 bg-accent hover:bg-accent-hover text-white font-bold py-3 rounded-xl transition"
+          className="flex-1 bg-accent hover:bg-accent-hover text-white font-semibold py-2.5 rounded-xl transition text-sm"
         >
           <i className="fa-solid fa-circle-plus mr-1"></i> Publicar Anúncio
         </button>
