@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Modal from '@/components/ui/Modal';
 import Badge from '@/components/ui/Badge';
 import { formatarPreco, obterWhatsApp } from '@/lib/utils';
+import { getUserByEmail } from '@/lib/db';
 import { useApp } from '@/providers/AppProvider';
 import type { Peca, TipoPeca } from '@/types/peca';
 
@@ -19,9 +20,21 @@ interface DetalhesPecaModalProps {
 
 export default function DetalhesPecaModal({ show, onClose, peca }: DetalhesPecaModalProps) {
   const [mostrarTelefone, setMostrarTelefone] = useState(false);
+  const [vendedorUid, setVendedorUid] = useState<string | null>(null);
   const { auth, chat } = useApp();
   const { user } = auth;
   const { abrirChat } = chat;
+
+  useEffect(() => {
+    if (!peca) return;
+    if (peca.criadorUid) {
+      setVendedorUid(peca.criadorUid);
+      return;
+    }
+    getUserByEmail(peca.criador).then((u) => {
+      if (u) setVendedorUid(u.uid);
+    });
+  }, [peca?.id]);
 
   if (!peca) return null;
 
@@ -32,7 +45,7 @@ export default function DetalhesPecaModal({ show, onClose, peca }: DetalhesPecaM
   const temWhatsApp = !!whatsapp;
   const temTelefone = !!telefone;
   const temEmail = !!email;
-  const temChat = !!user && user.email !== peca.criador;
+  const temChat = !!user && !!vendedorUid && user.email !== peca.criador;
 
   return (
     <Modal show={show} onClose={onClose} titulo="Detalhes do Anúncio" tamanho="md">
@@ -128,7 +141,7 @@ export default function DetalhesPecaModal({ show, onClose, peca }: DetalhesPecaM
 
           {temChat && (
             <button
-              onClick={() => abrirChat(peca.id, 'peca', peca.titulo, peca.criador, peca.vendedorNome || peca.criador || 'Vendedor')}
+              onClick={() => abrirChat(peca.id, 'peca', peca.titulo, vendedorUid!, peca.vendedorNome || peca.criador || 'Vendedor')}
               className="flex items-center justify-center gap-2 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2.5 px-4 rounded-xl transition text-sm"
             >
               <i className="fa-solid fa-comment-dots"></i>

@@ -1,13 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useApp } from '@/providers/AppProvider';
 import { obterWhatsApp, gerarLinkWhatsApp } from '@/lib/utils';
+import { getUserByEmail } from '@/lib/db';
 import type { Carro } from '@/types/carro';
 
 export default function ContactSection({ carro }: { carro: Carro | null }) {
   const [mostrarTelefone, setMostrarTelefone] = useState(false);
+  const [vendedorUid, setVendedorUid] = useState<string | null>(null);
   const { auth, chat } = useApp();
   const { user } = auth;
   const { abrirChat } = chat;
+
+  useEffect(() => {
+    if (!carro) return;
+    if (carro.criadorUid) {
+      setVendedorUid(carro.criadorUid);
+      return;
+    }
+    getUserByEmail(carro.criador).then((u) => {
+      if (u) setVendedorUid(u.uid);
+    });
+  }, [carro?.id]);
 
   if (!carro) return null;
 
@@ -17,7 +30,7 @@ export default function ContactSection({ carro }: { carro: Carro | null }) {
   const temWhatsApp = !!whatsapp;
   const temTelefone = !!telefone;
   const temEmail = !!email;
-  const temChat = !!user && user.email !== carro.criador;
+  const temChat = !!user && !!vendedorUid && user.email !== carro.criador;
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
@@ -79,7 +92,7 @@ export default function ContactSection({ carro }: { carro: Carro | null }) {
       <div className="mt-3">
         {temChat && (
           <button
-            onClick={() => abrirChat(carro.id, 'carro', `${carro.marca} ${carro.modelo}`, carro.criador, carro.vendedorNome || carro.criador || 'Vendedor')}
+            onClick={() => abrirChat(carro.id, 'carro', `${carro.marca} ${carro.modelo}`, vendedorUid!, carro.vendedorNome || carro.criador || 'Vendedor')}
             className="flex items-center justify-center gap-2 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-xl transition text-sm"
           >
             <i className="fa-solid fa-comment-dots"></i>
