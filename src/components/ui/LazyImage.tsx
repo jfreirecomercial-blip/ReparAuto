@@ -36,7 +36,7 @@ export default function LazyImage({ src, alt, className = '' }: LazyImageProps) 
   return (
     <div ref={imgRef} className={`relative overflow-hidden ${className}`}>
       {!loaded && !error && (
-        <div className="absolute inset-0 animate-pulse bg-slate-200" aria-hidden="true" />
+        <div className="absolute inset-0 skeleton-shimmer" aria-hidden="true" />
       )}
       {error && (
         <div className="absolute inset-0 bg-slate-100 flex items-center justify-center text-slate-400 text-3xl">
@@ -48,6 +48,7 @@ export default function LazyImage({ src, alt, className = '' }: LazyImageProps) 
           src={src}
           alt={alt}
           className={`w-full h-full object-cover transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+          decoding="async"
           onLoad={() => setLoaded(true)}
           onError={() => setError(true)}
         />

@@ -12,11 +12,13 @@ interface SwipeBindings {
 }
 
 const THRESHOLD = 50;
+const MAX_DRAG = 120;
 
 export default function useSwipe(handlers: SwipeHandlers): SwipeBindings {
   const startX = useRef(0);
   const startY = useRef(0);
   const swiping = useRef(false);
+  const targetRef = useRef<HTMLElement | null>(null);
   const handlersRef = useRef(handlers);
   handlersRef.current = handlers;
 
@@ -24,18 +26,38 @@ export default function useSwipe(handlers: SwipeHandlers): SwipeBindings {
     startX.current = e.touches[0].clientX;
     startY.current = e.touches[0].clientY;
     swiping.current = false;
+    targetRef.current = e.currentTarget as HTMLElement;
+    targetRef.current.classList.remove('gallery-slide');
   }, []);
 
   const onTouchMove = useCallback((e: React.TouchEvent) => {
-    if (swiping.current) return;
-    const dx = Math.abs(e.touches[0].clientX - startX.current);
+    const dx = e.touches[0].clientX - startX.current;
     const dy = Math.abs(e.touches[0].clientY - startY.current);
-    if (dx > 10 && dx > dy) {
-      swiping.current = true;
+    const absDx = Math.abs(dx);
+
+    if (!swiping.current) {
+      if (absDx > 10 && absDx > dy) {
+        swiping.current = true;
+      } else {
+        return;
+      }
+    }
+
+    if (targetRef.current) {
+      const clamped = Math.max(-MAX_DRAG, Math.min(MAX_DRAG, dx));
+      targetRef.current.style.transform = `translateX(${clamped}px)`;
+      targetRef.current.style.opacity = String(1 - Math.abs(clamped) / (MAX_DRAG * 3));
     }
   }, []);
 
   const onTouchEnd = useCallback((e: React.TouchEvent) => {
+    const el = targetRef.current;
+    if (el) {
+      el.classList.add('gallery-slide');
+      el.style.transform = '';
+      el.style.opacity = '';
+    }
+
     if (!swiping.current) return;
     const dx = e.changedTouches[0].clientX - startX.current;
     if (Math.abs(dx) < THRESHOLD) return;
