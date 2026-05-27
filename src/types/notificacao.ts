@@ -1,6 +1,6 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export type TipoNotificacao = 'aprovado' | 'rejeitado' | 'info';
+export type TipoNotificacao = 'aprovado' | 'rejeitado' | 'info' | 'mensagem';
 
 export interface Notificacao {
   id: string;

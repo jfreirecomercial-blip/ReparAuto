@@ -10,6 +10,7 @@ import {
   orderBy,
   where,
   setDoc,
+  writeBatch,
   Timestamp,
   type DocumentData,
 } from 'firebase/firestore';
@@ -348,8 +349,35 @@ export async function initDatabase(): Promise<void> {
       localStorage.setItem(DB_VERSION_KEY, DB_VERSION);
       console.log('[DB] Seed data imported to Firestore');
     }
+    await migrarMensagens();
   } catch (err) {
     console.error('[DB] Erro ao inicializar:', err);
+  }
+}
+
+const MENSAGENS_COLLECTION = 'messages';
+const MIGRATION_KEY = 'reparauto_migration_participants';
+
+async function migrarMensagens(): Promise<void> {
+  if (localStorage.getItem(MIGRATION_KEY)) return;
+  try {
+    const snap = await getDocs(collection(db, MENSAGENS_COLLECTION));
+    const batch = writeBatch(db);
+    let count = 0;
+    snap.docs.forEach((d) => {
+      const data = d.data();
+      if (!data.participants && data.fromUid && data.toUid) {
+        batch.update(d.ref, { participants: [data.fromUid, data.toUid].sort() });
+        count++;
+      }
+    });
+    if (count > 0) {
+      await batch.commit();
+      console.log(`[DB] Migradas ${count} mensagens com participantes`);
+    }
+    localStorage.setItem(MIGRATION_KEY, 'done');
+  } catch {
+    // migration is best-effort
   }
 }
 

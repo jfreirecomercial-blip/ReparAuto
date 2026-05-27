@@ -33,7 +33,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
   const carros = useCarros();
   const pecas = usePecas();
   const favoritos = useFavoritos(auth.user);
-  const chat = useChat(auth.user?.uid || null);
+  const chat = useChat(auth.user?.uid || null, auth.user?.nome || '');
 
   const { isLoggedIn, loading, profileCompleted } = auth;
 

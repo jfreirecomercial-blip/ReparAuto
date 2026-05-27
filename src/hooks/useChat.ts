@@ -1,19 +1,23 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   collection,
   addDoc,
-  getDocs,
+  doc,
+  writeBatch,
   query,
   where,
   orderBy,
+  onSnapshot,
   Timestamp,
+  type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Mensagem, ListingType } from '@/types/chat';
 
 const MENSAGENS_COLLECTION = 'messages';
+const NOTIFICACOES_COLLECTION = 'notifications';
 
-export function useChat(uid: string | null) {
+export function useChat(uid: string | null, nome: string = '') {
   const [mensagensNaoLidas, setMensagensNaoLidas] = useState(0);
   const [chatAberto, setChatAberto] = useState(false);
   const [chatListingId, setChatListingId] = useState<string | null>(null);
@@ -24,24 +28,94 @@ export function useChat(uid: string | null) {
   const [conversa, setConversa] = useState<Mensagem[]>([]);
   const [carregandoConversa, setCarregandoConversa] = useState(false);
 
-  const recarregarMensagensNaoLidas = useCallback(async () => {
-    if (!uid) { setMensagensNaoLidas(0); return; }
-    try {
-      const q = query(
-        collection(db, MENSAGENS_COLLECTION),
-        where('toUid', '==', uid),
-        where('lida', '==', false),
-      );
-      const snap = await getDocs(q);
-      setMensagensNaoLidas(snap.size);
-    } catch {
-      setMensagensNaoLidas(0);
+  const unsubNaoLidas = useRef<Unsubscribe | null>(null);
+  const unsubConversa = useRef<Unsubscribe | null>(null);
+
+  useEffect(() => {
+    if (unsubNaoLidas.current) {
+      unsubNaoLidas.current();
+      unsubNaoLidas.current = null;
     }
+    if (!uid) {
+      setMensagensNaoLidas(0);
+      return;
+    }
+    const q = query(
+      collection(db, MENSAGENS_COLLECTION),
+      where('toUid', '==', uid),
+      where('lida', '==', false),
+    );
+    unsubNaoLidas.current = onSnapshot(
+      q,
+      (snap) => { setMensagensNaoLidas(snap.size); },
+      (err) => {
+        console.error('[Chat] Erro ao ouvir mensagens não lidas:', err);
+        setMensagensNaoLidas(0);
+      },
+    );
+    return () => {
+      if (unsubNaoLidas.current) {
+        unsubNaoLidas.current();
+        unsubNaoLidas.current = null;
+      }
+    };
   }, [uid]);
 
   useEffect(() => {
-    recarregarMensagensNaoLidas();
-  }, [recarregarMensagensNaoLidas]);
+    if (unsubConversa.current) {
+      unsubConversa.current();
+      unsubConversa.current = null;
+    }
+    if (!chatAberto || !uid || !chatVendedorUid || !chatListingId) {
+      setConversa([]);
+      setCarregandoConversa(false);
+      return;
+    }
+    setCarregandoConversa(true);
+    const q = query(
+      collection(db, MENSAGENS_COLLECTION),
+      where('participants', 'array-contains', uid),
+      where('listingId', '==', chatListingId),
+      orderBy('dataCriacao', 'asc'),
+    );
+    unsubConversa.current = onSnapshot(
+      q,
+      (snap) => {
+        const msgs = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }) as Mensagem);
+        setConversa(msgs);
+        setCarregandoConversa(false);
+      },
+      (err) => {
+        console.error('[Chat] Erro ao ouvir conversa:', err);
+        setConversa([]);
+        setCarregandoConversa(false);
+      },
+    );
+    return () => {
+      if (unsubConversa.current) {
+        unsubConversa.current();
+        unsubConversa.current = null;
+      }
+      setConversa([]);
+      setCarregandoConversa(true);
+    };
+  }, [chatAberto, uid, chatVendedorUid, chatListingId]);
+
+  useEffect(() => {
+    if (!uid || !chatAberto || conversa.length === 0) return;
+    const unreadIds = conversa
+      .filter((m) => m.toUid === uid && !m.lida)
+      .map((m) => m.id);
+    if (unreadIds.length === 0) return;
+    const batch = writeBatch(db);
+    unreadIds.forEach((id) => {
+      batch.update(doc(db, MENSAGENS_COLLECTION, id), { lida: true });
+    });
+    batch.commit().catch((err) => {
+      console.error('[Chat] Erro ao marcar mensagens como lidas:', err);
+    });
+  }, [uid, chatAberto, conversa]);
 
   const abrirChat = useCallback(
     (listingId: string, listingType: ListingType, listingTitle: string, vendedorUid: string, vendedorNome: string) => {
@@ -69,55 +143,47 @@ export function useChat(uid: string | null) {
   const enviarMensagem = useCallback(
     async (texto: string) => {
       if (!uid || !chatListingId || !chatListingType || !chatVendedorUid || !texto.trim()) return;
+      const trimmed = texto.trim();
+      const participants = [uid, chatVendedorUid].sort();
       try {
         await addDoc(collection(db, MENSAGENS_COLLECTION), {
           listingId: chatListingId,
           listingType: chatListingType,
           listingTitle: chatListingTitle,
           fromUid: uid,
-          fromNome: uid,
+          fromNome: nome || uid,
           toUid: chatVendedorUid,
           toNome: chatVendedorNome,
-          mensagem: texto.trim(),
+          participants,
+          mensagem: trimmed,
           lida: false,
           dataCriacao: Timestamp.now(),
         });
       } catch (err) {
         console.error('[Chat] Erro ao enviar mensagem:', err);
+        throw err;
+      }
+      if (uid !== chatVendedorUid) {
+        try {
+          await addDoc(collection(db, NOTIFICACOES_COLLECTION), {
+            uid: chatVendedorUid,
+            tipo: 'mensagem',
+            titulo: `Nova mensagem de ${nome || 'Alguém'}`,
+            mensagem: trimmed.length > 100 ? trimmed.substring(0, 97) + '...' : trimmed,
+            lida: false,
+            dataCriacao: Timestamp.now(),
+            link: null,
+          });
+        } catch (err) {
+          console.warn('[Chat] Notificação não criada (não crítico):', err);
+        }
       }
     },
-    [uid, chatListingId, chatListingType, chatListingTitle, chatVendedorUid, chatVendedorNome],
+    [uid, nome, chatListingId, chatListingType, chatListingTitle, chatVendedorUid, chatVendedorNome],
   );
-
-  const carregarConversa = useCallback(async () => {
-    if (!uid || !chatVendedorUid || !chatListingId) { setConversa([]); return; }
-    setCarregandoConversa(true);
-    try {
-      const q = query(
-        collection(db, MENSAGENS_COLLECTION),
-        where('listingId', '==', chatListingId),
-        orderBy('dataCriacao', 'asc'),
-      );
-      const snap = await getDocs(q);
-      const msgs = snap.docs
-        .map((d) => ({ id: d.id, ...d.data() } as Mensagem))
-        .filter((m) => (m.fromUid === uid && m.toUid === chatVendedorUid) || (m.fromUid === chatVendedorUid && m.toUid === uid));
-      setConversa(msgs);
-    } catch {
-      setConversa([]);
-    }
-    setCarregandoConversa(false);
-  }, [uid, chatVendedorUid, chatListingId]);
-
-  useEffect(() => {
-    if (chatAberto) {
-      carregarConversa();
-    }
-  }, [chatAberto, carregarConversa]);
 
   return {
     mensagensNaoLidas,
-    recarregarMensagensNaoLidas,
     abrirChat,
     chatAberto,
     fecharChat,

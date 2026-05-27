@@ -11,6 +11,7 @@ export interface Mensagem {
   fromNome: string;
   toUid: string;
   toNome: string;
+  participants: string[];
   mensagem: string;
   lida: boolean;
   dataCriacao: Timestamp;
@@ -31,5 +32,4 @@ export interface ChatContextValue {
   enviarMensagem: (texto: string) => Promise<void>;
   conversa: Mensagem[];
   carregandoConversa: boolean;
-  recarregarMensagensNaoLidas: () => Promise<void>;
 }

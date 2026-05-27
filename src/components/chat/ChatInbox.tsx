@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  onSnapshot,
+} from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useApp } from '@/providers/AppProvider';
-import type { Mensagem } from '@/types/chat';
+import type { Mensagem, ListingType } from '@/types/chat';
 
 interface ChatInboxProps {
   show: boolean;
@@ -10,25 +17,29 @@ interface ChatInboxProps {
 }
 
 export default function ChatInbox({ show, onClose }: ChatInboxProps) {
-  const { auth } = useApp();
+  const { auth, chat } = useApp();
   const { user } = auth;
+  const { abrirChat } = chat;
   const [conversas, setConversas] = useState<Mensagem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!show || !user) return;
+    if (!show || !user) {
+      setConversas([]);
+      return;
+    }
     const uid = user.uid;
-    async function load() {
-      setLoading(true);
-      try {
-        const q = query(
-          collection(db, 'messages'),
-          where('toUid', '==', uid),
-          orderBy('dataCriacao', 'desc'),
-        );
-        const snap = await getDocs(q);
-        const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Mensagem));
-
+    setLoading(true);
+    const q = query(
+      collection(db, 'messages'),
+      where('toUid', '==', uid),
+      orderBy('dataCriacao', 'desc'),
+      limit(50),
+    );
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Mensagem);
         const latest = new Map<string, Mensagem>();
         for (const msg of todas) {
           const key = `${msg.listingId}_${msg.fromUid}`;
@@ -37,12 +48,15 @@ export default function ChatInbox({ show, onClose }: ChatInboxProps) {
           }
         }
         setConversas(Array.from(latest.values()));
-      } catch {
+        setLoading(false);
+      },
+      (err) => {
+        console.error('[ChatInbox] Erro ao carregar mensagens:', err);
         setConversas([]);
-      }
-      setLoading(false);
-    }
-    load();
+        setLoading(false);
+      },
+    );
+    return () => unsub();
   }, [show, user]);
 
   if (!show) return null;
@@ -77,7 +91,16 @@ export default function ChatInbox({ show, onClose }: ChatInboxProps) {
               <div
                 key={msg.id}
                 className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-accent transition cursor-pointer"
-                onClick={onClose}
+                onClick={() => {
+                  abrirChat(
+                    msg.listingId,
+                    msg.listingType as ListingType,
+                    msg.listingTitle,
+                    msg.fromUid,
+                    msg.fromNome,
+                  );
+                  onClose();
+                }}
               >
                 <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
                   <i className="fa-solid fa-user text-accent text-sm"></i>
