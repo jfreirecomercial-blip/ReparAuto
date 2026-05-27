@@ -47,7 +47,11 @@ export default function Anunciar() {
   const [publicado, setPublicado] = useState(false);
 
   const [fotos, setFotos] = useState<string[]>([]);
-  const [dados, setDados] = useState<CarroFormData>({ ...initialDados });
+  const [dados, setDados] = useState<CarroFormData>(() => ({
+    ...initialDados,
+    vendedorTelefone: user?.telefone || '',
+    vendedorEmail: user?.email || '',
+  }));
 
   const handlePublicar = async () => {
     if (!user) {

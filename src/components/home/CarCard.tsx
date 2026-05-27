@@ -9,6 +9,7 @@ export default function CarCard({ carro }: { carro: Carro }) {
   const { toggleFavorito, isFavorito } = favoritos;
 
   const isLowCost = carro.preco <= 2000;
+  const isNovo = carro.dataAprovacao && (Date.now() - carro.dataAprovacao.toMillis()) < 24 * 60 * 60 * 1000;
 
   return (
     <div
@@ -27,11 +28,18 @@ export default function CarCard({ carro }: { carro: Carro }) {
             <i className="fa-solid fa-car"></i>
           </div>
         )}
-        {isLowCost && (
-          <span className="absolute top-2 left-2 bg-accent text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
-            Low-Cost
-          </span>
-        )}
+        <div className="absolute top-2 left-2 flex flex-col gap-1">
+          {isNovo && (
+            <span className="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
+              Novo
+            </span>
+          )}
+          {isLowCost && (
+            <span className="bg-accent text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
+              Low-Cost
+            </span>
+          )}
+        </div>
         <button
           onClick={(e) => {
             e.stopPropagation();

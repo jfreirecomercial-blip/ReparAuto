@@ -14,6 +14,8 @@ export default function CriarPecaModal({ show, onClose }: CriarPecaModalProps) {
   const { publicarPeca } = pecas;
   const { user } = auth;
 
+  const telefoneInicial = user?.telefone || '';
+
   const [form, setForm] = useState({
     tipo: 'venda',
     titulo: '',
@@ -23,15 +25,22 @@ export default function CriarPecaModal({ show, onClose }: CriarPecaModalProps) {
     preco: '',
     descricao: '',
     localizacao: 'Portugal',
-    vendedorTelefone: user?.telefone || '',
-    vendedorWhatsApp: '',
+    vendedorTelefone: telefoneInicial,
+    vendedorWhatsApp: telefoneInicial,
     vendedorEmail: user?.email || '',
   });
 
   const [erro, setErro] = useState('');
+  const [whatsappIgual, setWhatsappIgual] = useState(true);
 
   const atualizar = (campo: string, valor: string) => {
-    setForm((prev) => ({ ...prev, [campo]: valor }));
+    setForm((prev) => {
+      const next = { ...prev, [campo]: valor };
+      if (whatsappIgual && campo === 'vendedorTelefone') {
+        next.vendedorWhatsApp = valor.replace(/\s/g, '');
+      }
+      return next;
+    });
     setErro('');
   };
 
@@ -226,19 +235,33 @@ export default function CriarPecaModal({ show, onClose }: CriarPecaModalProps) {
                 onChange={(e) => atualizar('vendedorWhatsApp', e.target.value)}
                 className="w-full border border-gray-300 rounded-xl p-2 text-sm focus:outline-none focus:border-green-500"
               />
-            </div>
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Telefone</label>
-              <input
-                type="tel"
-                placeholder="912345678"
-                value={form.vendedorTelefone}
-                onChange={(e) => atualizar('vendedorTelefone', e.target.value)}
-                className="w-full border border-gray-300 rounded-xl p-2 text-sm focus:outline-none focus:border-accent"
-              />
-            </div>
           </div>
           <div>
+            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Telefone</label>
+            <input
+              type="tel"
+              placeholder="912345678"
+              value={form.vendedorTelefone}
+              onChange={(e) => atualizar('vendedorTelefone', e.target.value)}
+              className="w-full border border-gray-300 rounded-xl p-2 text-sm focus:outline-none focus:border-accent"
+            />
+          </div>
+        </div>
+        <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-600 select-none">
+          <input
+            type="checkbox"
+            checked={whatsappIgual}
+            onChange={(e) => {
+              setWhatsappIgual(e.target.checked);
+              if (e.target.checked) {
+                setForm((prev) => ({ ...prev, vendedorWhatsApp: prev.vendedorTelefone.replace(/\s/g, '') }));
+              }
+            }}
+            className="rounded text-green-600 focus:ring-green-500"
+          />
+          WhatsApp igual ao Telefone
+        </label>
+        <div className="mt-2">
             <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Email de Contacto</label>
             <input
               type="email"

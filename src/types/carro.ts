@@ -41,6 +41,7 @@ export interface Carro {
   inspecao?: boolean;
   status: StatusAnuncio;
   dataCriacao: Timestamp;
+  dataAprovacao?: Timestamp;
 }
 
 export type CarroInput = Omit<Carro, 'id' | 'dataCriacao'> & { dataCriacao?: Timestamp };

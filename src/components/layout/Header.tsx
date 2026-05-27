@@ -1,26 +1,18 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useApp } from '@/providers/AppProvider';
-import { CONCELHOS } from '@/lib/constants';
 import NotificationBell from './NotificationBell';
 import ChatInbox from '@/components/chat/ChatInbox';
 import UserAvatar from '@/components/ui/UserAvatar';
 
 export default function Header() {
   const { auth, carros, chat } = useApp();
+  const location = useLocation();
   const { user, isLoggedIn, logout } = auth;
-  const { searchQuery, setSearchQuery, advPriceMin, setAdvPriceMin, advPriceMax, setAdvPriceMax, advLocation, setAdvLocation, sortOrdem, setSortOrdem, filtroAtivo, setFiltroAtivo } = carros;
+  const { filtroAtivo, setFiltroAtivo } = carros;
   const { mensagensNaoLidas } = chat;
 
   const [showChatInbox, setShowChatInbox] = useState(false);
-
-  const limparFiltrosAvancados = () => {
-    setAdvPriceMin(null);
-    setAdvPriceMax(null);
-    setAdvLocation('');
-    setSortOrdem(null);
-  };
-
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const chips = [
     { label: 'Destaques Low-Cost', value: 'lowcost' },
@@ -54,27 +46,6 @@ export default function Header() {
             </a>
           )}
         </nav>
-
-        <div className="flex-1 max-w-md mx-4 hidden lg:block">
-          <div className="relative flex items-center gap-2">
-            <div className="relative flex-1">
-              <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-              <input
-                type="text"
-                placeholder="Ex: Renault Clio, Peugeot 206..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-full bg-white/15 text-white placeholder-gray-300 border border-white/20 focus:outline-none focus:bg-white/25 focus:border-accent transition text-sm"
-              />
-            </div>
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="bg-white/10 hover:bg-white/25 border border-white/20 text-white px-3 py-2 rounded-full transition flex items-center justify-center gap-1 text-xs font-semibold flex-shrink-0"
-            >
-              <i className="fa-solid fa-sliders"></i> Filtros
-            </button>
-          </div>
-        </div>
 
         <div className="flex items-center gap-4 flex-shrink-0">
           {isLoggedIn && (
@@ -119,112 +90,7 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="lg:hidden max-w-6xl mx-auto px-4 pb-3 flex flex-wrap items-center gap-2">
-        <div className="flex-1 min-w-[200px]">
-          <div className="relative flex items-center gap-2">
-            <div className="relative flex-1">
-              <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-              <input
-                type="text"
-                placeholder="Ex: Renault Clio, Peugeot 206..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-full bg-white/15 text-white placeholder-gray-300 border border-white/20 focus:outline-none focus:bg-white/25 focus:border-accent transition text-sm"
-              />
-            </div>
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="bg-white/10 hover:bg-white/25 border border-white/20 text-white px-3 py-2 rounded-full transition flex items-center justify-center gap-1 text-xs font-semibold flex-shrink-0"
-            >
-              <i className="fa-solid fa-sliders"></i> Filtros
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {showAdvanced && (
-        <div className="max-w-6xl mx-auto px-4 pb-3 pt-1 border-t border-white/10 text-white">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-brand-800/90 backdrop-blur-md rounded-2xl p-4 border border-white/10 shadow-lg">
-            <div>
-              <label className="block text-xs font-bold text-gray-300 mb-1">Preço Mínimo (€)</label>
-              <input
-                type="number"
-                placeholder="Mínimo"
-                value={advPriceMin ?? ''}
-                onChange={(e) => setAdvPriceMin(e.target.value ? Number(e.target.value) : null)}
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-accent"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-gray-300 mb-1">Preço Máximo (€)</label>
-              <input
-                type="number"
-                placeholder="Máximo"
-                value={advPriceMax ?? ''}
-                onChange={(e) => setAdvPriceMax(e.target.value ? Number(e.target.value) : null)}
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-accent"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-gray-300 mb-1">Localização (Concelho)</label>
-              <div className="flex gap-1.5">
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    list="concelhos-list"
-                    placeholder="Escrever concelho..."
-                    value={advLocation}
-                    onChange={(e) => setAdvLocation(e.target.value)}
-                    className="w-full bg-white/10 border border-white/20 rounded-xl pl-3 pr-8 py-1.5 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-accent"
-                  />
-                  <datalist id="concelhos-list">
-                    {CONCELHOS.map((c) => (
-                      <option key={c} value={c} />
-                    ))}
-                  </datalist>
-                  <i className="fa-solid fa-location-dot absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                </div>
-              </div>
-            </div>
-            <div className="sm:col-span-3 flex flex-wrap items-center gap-2 pt-2 border-t border-white/10 text-xs">
-              <span className="block text-xs font-bold text-gray-300 mr-2">Ordenar por preço:</span>
-              <button
-                type="button"
-                onClick={() => setSortOrdem('crescente')}
-                className={`font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 ${
-                  sortOrdem === 'crescente' ? 'bg-accent text-white' : 'bg-white/10 hover:bg-white/20 border border-white/20 text-white'
-                }`}
-              >
-                <i className="fa-solid fa-arrow-trend-up"></i> Preço mais baixo
-              </button>
-              <button
-                type="button"
-                onClick={() => setSortOrdem('decrescente')}
-                className={`font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 ${
-                  sortOrdem === 'decrescente' ? 'bg-accent text-white' : 'bg-white/10 hover:bg-white/20 border border-white/20 text-white'
-                }`}
-              >
-                <i className="fa-solid fa-arrow-trend-down"></i> Preço mais caro
-              </button>
-            </div>
-            <div className="sm:col-span-3 flex justify-between items-center gap-2 pt-2 border-t border-white/10 text-xs">
-              <button
-                onClick={() => { limparFiltrosAvancados(); setShowAdvanced(false); }}
-                className="border border-white/30 hover:bg-white/10 text-white font-bold px-4 py-2 rounded-xl transition"
-              >
-                Limpar
-              </button>
-              <button
-                onClick={() => { setShowAdvanced(false); }}
-                className="bg-accent hover:bg-accent-hover text-white font-bold px-4 py-2 rounded-xl transition"
-              >
-                Aplicar Filtros
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
+      {location.pathname === '/' && (
       <div className="max-w-6xl mx-auto px-4 pb-2 flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide">
         {chips.map((chip) => (
           <button
@@ -240,6 +106,7 @@ export default function Header() {
           </button>
         ))}
       </div>
+      )}
 
       <ChatInbox show={showChatInbox} onClose={() => setShowChatInbox(false)} />
     </header>

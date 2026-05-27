@@ -11,9 +11,16 @@ interface StepPrecoProps {
 
 export default function StepPreco({ dados, setDados, onBack, onPublicar }: StepPrecoProps) {
   const [erros, setErros] = useState<Record<string, boolean>>({});
+  const [whatsappIgual, setWhatsappIgual] = useState(true);
 
   const atualizar = (campo: string, valor: unknown) => {
-    setDados((prev) => ({ ...prev, [campo]: valor }));
+    setDados((prev) => {
+      const next = { ...prev, [campo]: valor };
+      if (whatsappIgual && campo === 'vendedorTelefone') {
+        next.vendedorWhatsApp = (valor as string).replace(/\s/g, '');
+      }
+      return next;
+    });
     setErros((prev) => ({ ...prev, [campo]: false }));
   };
 
@@ -298,6 +305,20 @@ export default function StepPreco({ dados, setDados, onBack, onPublicar }: StepP
             />
           </div>
         </div>
+        <label className="flex items-center gap-2 mt-3 cursor-pointer text-xs text-slate-600 select-none">
+          <input
+            type="checkbox"
+            checked={whatsappIgual}
+            onChange={(e) => {
+              setWhatsappIgual(e.target.checked);
+              if (e.target.checked) {
+                setDados((prev) => ({ ...prev, vendedorWhatsApp: prev.vendedorTelefone.replace(/\s/g, '') }));
+              }
+            }}
+            className="rounded text-green-600 focus:ring-green-500"
+          />
+          WhatsApp igual ao Telefone
+        </label>
         <div className="mt-3">
           <label className="block text-xs font-semibold text-slate-500 mb-1">Email de Contacto</label>
           <input

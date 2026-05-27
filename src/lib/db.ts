@@ -12,6 +12,7 @@ import {
   setDoc,
   writeBatch,
   Timestamp,
+  onSnapshot,
   type DocumentData,
 } from 'firebase/firestore';
 import { db } from './firebase';
@@ -393,6 +394,24 @@ export async function getCarros(): Promise<Carro[]> {
   }
 }
 
+export function subscribeCarros(
+  onData: (carros: Carro[]) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  const q = query(collection(db, CARROS_COLLECTION), orderBy('dataCriacao', 'desc'));
+  return onSnapshot(
+    q,
+    (snap) => {
+      const todos = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Carro);
+      onData(todos.filter((c) => c.status === 'aprovado'));
+    },
+    (err) => {
+      console.error('[DB] Erro no snapshot de carros:', err);
+      onError?.(err);
+    },
+  );
+}
+
 export async function getCarrosByCreator(email: string): Promise<Carro[]> {
   try {
     const q = query(collection(db, CARROS_COLLECTION), where('criador', '==', email));
@@ -451,6 +470,24 @@ export async function getPecas(): Promise<Peca[]> {
     console.error('[DB] Erro ao buscar peças:', err);
     return [];
   }
+}
+
+export function subscribePecas(
+  onData: (pecas: Peca[]) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  const q = query(collection(db, PECAS_COLLECTION), orderBy('dataCriacao', 'desc'));
+  return onSnapshot(
+    q,
+    (snap) => {
+      const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Peca);
+      onData(todas.filter((p) => p.status === 'aprovado'));
+    },
+    (err) => {
+      console.error('[DB] Erro no snapshot de peças:', err);
+      onError?.(err);
+    },
+  );
 }
 
 export async function getPecasByCreator(email: string): Promise<Peca[]> {
@@ -596,7 +633,11 @@ export async function updatePeca(id: string, dados: Record<string, unknown>): Pr
 
 export async function updateCarroStatus(id: string, status: StatusAnuncio): Promise<void> {
   try {
-    await updateDoc(doc(db, CARROS_COLLECTION, id), { status });
+    const updates: Record<string, unknown> = { status };
+    if (status === 'aprovado') {
+      updates.dataAprovacao = Timestamp.now();
+    }
+    await updateDoc(doc(db, CARROS_COLLECTION, id), updates);
   } catch (err) {
     console.error('[DB] Erro ao atualizar status do carro:', err);
     throw err;
@@ -605,7 +646,11 @@ export async function updateCarroStatus(id: string, status: StatusAnuncio): Prom
 
 export async function updatePecaStatus(id: string, status: StatusAnuncio): Promise<void> {
   try {
-    await updateDoc(doc(db, PECAS_COLLECTION, id), { status });
+    const updates: Record<string, unknown> = { status };
+    if (status === 'aprovado') {
+      updates.dataAprovacao = Timestamp.now();
+    }
+    await updateDoc(doc(db, PECAS_COLLECTION, id), updates);
   } catch (err) {
     console.error('[DB] Erro ao atualizar status da peça:', err);
     throw err;

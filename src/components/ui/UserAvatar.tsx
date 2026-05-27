@@ -35,7 +35,6 @@ const sizeClasses = {
 
 export default function UserAvatar({ user, size = 'md', className = '' }: UserAvatarProps) {
   const nome = user?.nome || 'U';
-  const inicial = nome.charAt(0).toUpperCase();
   const cor = getColor(nome);
 
   if (user?.foto) {
@@ -48,9 +47,9 @@ export default function UserAvatar({ user, size = 'md', className = '' }: UserAv
 
   return (
     <div
-      className={`${sizeClasses[size]} ${cor} rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 ${className}`}
+      className={`${sizeClasses[size]} ${cor} rounded-full flex items-center justify-center text-white flex-shrink-0 ${className}`}
     >
-      {inicial}
+      <i className="fa-solid fa-user"></i>
     </div>
   );
 }

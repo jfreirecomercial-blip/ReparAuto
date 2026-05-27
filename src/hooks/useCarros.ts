@@ -1,28 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getCarros, addCarro, deleteCarro } from '@/lib/db';
+import { subscribeCarros, addCarro, deleteCarro } from '@/lib/db';
 import type { Carro } from '@/types/carro';
 import type { FiltroAtivo, SortOrdem } from '@/types/carro';
 
 export default function useCarros() {
   const [carros, setCarrosState] = useState<Carro[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filtroAtivo, setFiltroAtivo] = useState<FiltroAtivo>('lowcost');
+  const [filtroAtivo, setFiltroAtivo] = useState<FiltroAtivo>('qualquer');
   const [searchQuery, setSearchQuery] = useState('');
   const [advPriceMin, setAdvPriceMin] = useState<number | null>(null);
   const [advPriceMax, setAdvPriceMax] = useState<number | null>(null);
   const [advLocation, setAdvLocation] = useState('');
   const [sortOrdem, setSortOrdem] = useState<SortOrdem>(null);
 
-  const carregar = useCallback(async () => {
-    setLoading(true);
-    const data = await getCarros();
-    setCarrosState(data);
-    setLoading(false);
-  }, []);
-
   useEffect(() => {
-    carregar();
-  }, [carregar]);
+    const unsub = subscribeCarros(
+      (data) => {
+        setCarrosState(data);
+        setLoading(false);
+      },
+      () => setLoading(false),
+    );
+    return unsub;
+  }, []);
 
   const carrosFiltrados = useCallback(() => {
     let cs = [...carros];
@@ -70,18 +70,16 @@ export default function useCarros() {
   const publicarCarro = useCallback(
     async (dados: Record<string, unknown>) => {
       const novo = await addCarro(dados);
-      await carregar();
       return novo;
     },
-    [carregar]
+    []
   );
 
   const eliminarCarro = useCallback(
     async (id: string) => {
       await deleteCarro(id);
-      await carregar();
     },
-    [carregar]
+    []
   );
 
   const getCarroPorId = useCallback(
@@ -108,6 +106,6 @@ export default function useCarros() {
     publicarCarro,
     eliminarCarro,
     getCarroPorId,
-    recarregar: carregar,
+    recarregar: async () => {},
   };
 }

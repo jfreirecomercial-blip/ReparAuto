@@ -10,6 +10,7 @@ const tipoConfig: Record<TipoPeca, { cor: 'blue' | 'yellow' | 'gray'; icon: stri
 
 export default function PecasCard({ peca, onDetalhes }: { peca: Peca; onDetalhes: (peca: Peca) => void }) {
   const config = tipoConfig[peca.tipo] || tipoConfig.venda;
+  const isNovo = peca.dataAprovacao && (Date.now() - peca.dataAprovacao.toMillis()) < 24 * 60 * 60 * 1000;
 
   return (
     <div
@@ -18,9 +19,16 @@ export default function PecasCard({ peca, onDetalhes }: { peca: Peca; onDetalhes
     >
       <div className="p-4 flex flex-col flex-1">
         <div className="flex items-center justify-between mb-2">
-          <Badge cor={config.cor}>
-            <i className={`${config.icon} mr-1`}></i> {config.label}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge cor={config.cor}>
+              <i className={`${config.icon} mr-1`}></i> {config.label}
+            </Badge>
+            {isNovo && (
+              <span className="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                Novo
+              </span>
+            )}
+          </div>
           {peca.preco && (
             <span className="text-lg font-extrabold text-accent">
               {formatarPreco(peca.preco)}

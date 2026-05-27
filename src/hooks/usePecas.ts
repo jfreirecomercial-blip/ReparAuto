@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getPecas, addPeca, deletePeca } from '@/lib/db';
+import { subscribePecas, addPeca, deletePeca } from '@/lib/db';
 import type { Peca, FiltroTipoPeca } from '@/types/peca';
 
 export default function usePecas() {
@@ -10,16 +10,16 @@ export default function usePecas() {
   const [filtroCategoria, setFiltroCategoria] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('');
 
-  const carregar = useCallback(async () => {
-    setLoading(true);
-    const data = await getPecas();
-    setPecasState(data);
-    setLoading(false);
-  }, []);
-
   useEffect(() => {
-    carregar();
-  }, [carregar]);
+    const unsub = subscribePecas(
+      (data) => {
+        setPecasState(data);
+        setLoading(false);
+      },
+      () => setLoading(false),
+    );
+    return unsub;
+  }, []);
 
   const pecasFiltradas = useCallback(() => {
     let lista = [...pecas];
@@ -54,18 +54,16 @@ export default function usePecas() {
   const publicarPeca = useCallback(
     async (dados: Record<string, unknown>) => {
       const nova = await addPeca(dados);
-      await carregar();
       return nova;
     },
-    [carregar]
+    []
   );
 
   const eliminarPeca = useCallback(
     async (id: string) => {
       await deletePeca(id);
-      await carregar();
     },
-    [carregar]
+    []
   );
 
   const getPecaPorId = useCallback(
@@ -88,6 +86,6 @@ export default function usePecas() {
     publicarPeca,
     eliminarPeca,
     getPecaPorId,
-    recarregar: carregar,
+    recarregar: async () => {},
   };
 }
