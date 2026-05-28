@@ -1,3 +1,5 @@
+'use client';
+
 import { useApp } from '@/providers/AppProvider';
 import PecasCard from './PecasCard';
 import type { Peca } from '@/types/peca';

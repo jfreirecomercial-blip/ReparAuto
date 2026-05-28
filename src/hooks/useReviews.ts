@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useCallback } from 'react';
 import { subscribeReviews, addReview, deleteReview, updateSellerRating, getAllReviewsAdmin, updateReviewStatus } from '@/lib/db';
 import type { Review, ReviewInput, StatusReview } from '@/types/review';

@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useRef, useEffect } from 'react';
 import { useApp } from '@/providers/AppProvider';
 import useNotificacoes from '@/hooks/useNotificacoes';

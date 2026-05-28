@@ -1,3 +1,5 @@
+'use client';
+
 import { useApp } from '@/providers/AppProvider';
 
 const chips = [

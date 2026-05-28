@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { CONCELHOS, TIPOS_COMBUSTIVEL, TIPOS_CAMBIO } from '@/lib/constants';

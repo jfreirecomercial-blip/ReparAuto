@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useCallback } from 'react';
 import { getNotificacoes, marcarNotificacaoLida, marcarTodasNotificacoesLidas } from '@/lib/db';
 import type { Notificacao } from '@/types/notificacao';

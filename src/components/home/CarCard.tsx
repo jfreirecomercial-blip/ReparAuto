@@ -1,10 +1,12 @@
-import { useNavigate } from 'react-router-dom';
+'use client';
+
+import { useRouter } from 'next/navigation';
 import { formatarPreco, renderFoto } from '@/lib/utils';
 import { useApp } from '@/providers/AppProvider';
 import type { Carro } from '@/types/carro';
 
 export default function CarCard({ carro }: { carro: Carro }) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { favoritos } = useApp();
   const { toggleFavorito, isFavorito } = favoritos;
 
@@ -14,7 +16,7 @@ export default function CarCard({ carro }: { carro: Carro }) {
   return (
     <div
       className="card-car bg-white rounded-2xl shadow-md overflow-hidden flex flex-col"
-      onClick={() => navigate(`/detalhes/${carro.id}`)}
+      onClick={() => router.push(`/detalhes/${carro.id}`)}
     >
       <div className="relative h-44 bg-slate-200 overflow-hidden">
         {carro.fotos && carro.fotos.length > 0 ? (() => {

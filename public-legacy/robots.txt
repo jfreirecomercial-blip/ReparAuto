@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://reparauto-site.web.app/sitemap.xml

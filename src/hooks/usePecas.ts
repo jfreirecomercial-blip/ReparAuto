@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useCallback } from 'react';
 import { subscribePecas, addPeca, deletePeca } from '@/lib/db';
 import type { Peca, FiltroTipoPeca } from '@/types/peca';

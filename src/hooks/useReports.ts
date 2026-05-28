@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useCallback } from 'react';
 import { addReport, getAllReports, updateReportStatus } from '@/lib/db';
 import type { Report, ReportInput, StatusReport } from '@/types/report';

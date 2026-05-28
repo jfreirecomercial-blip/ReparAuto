@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { formatarPreco, obterWhatsApp, gerarLinkWhatsApp } from '@/lib/utils';
 import Badge from '@/components/ui/Badge';

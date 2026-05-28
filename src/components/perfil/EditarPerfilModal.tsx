@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useRef } from 'react';
 import Modal from '@/components/ui/Modal';
 import { useApp } from '@/providers/AppProvider';

@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import type { Carro, StatusAnuncio } from '@/types/carro';
 import type { Peca } from '@/types/peca';

@@ -1,8 +1,10 @@
+'use client';
+
 import { useState, useEffect, useCallback } from 'react';
 import { useApp } from '@/providers/AppProvider';
 import { getCarrosByCreator, getPecasByCreator, updateCarro, updatePeca, deleteCarro, deletePeca } from '@/lib/db';
 import { formatarPreco } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 import EditarPerfilModal from './EditarPerfilModal';
@@ -21,7 +23,7 @@ import type { Peca } from '@/types/peca';
 export default function ProfileLoggedIn() {
   const { auth } = useApp();
   const { user, logout, isAdmin, updateProfile, refreshProfile } = auth;
-  const navigate = useNavigate();
+  const router = useRouter();
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [meusCarros, setMeusCarros] = useState<Carro[]>([]);
   const [minhasPecas, setMinhasPecas] = useState<Peca[]>([]);
@@ -160,7 +162,7 @@ export default function ProfileLoggedIn() {
 
         <div className="mt-4 flex flex-wrap gap-2">
           <button
-            onClick={() => { logout(); navigate('/'); }}
+            onClick={() => { logout(); router.push('/'); }}
             className="text-xs text-red-500 hover:text-red-700 font-semibold border border-red-200 px-3 py-1.5 rounded-full transition"
           >
             <i className="fa-solid fa-right-from-bracket mr-1"></i> Sair
@@ -231,7 +233,7 @@ export default function ProfileLoggedIn() {
           <div className="text-center py-6 text-slate-400 text-sm bg-slate-50 rounded-xl">
             <p>Nenhum carro anunciado ainda.</p>
             <button
-              onClick={() => navigate('/anunciar')}
+              onClick={() => router.push('/anunciar')}
               className="mt-2 text-accent hover:text-accent-hover font-semibold text-xs"
             >
               <i className="fa-solid fa-circle-plus mr-1"></i> Anunciar carro ou moto
@@ -247,7 +249,7 @@ export default function ProfileLoggedIn() {
                 <div className="flex items-center justify-between">
                   <div
                     className="flex-1 cursor-pointer min-w-0"
-                    onClick={() => navigate(`/detalhes/${carro.id}`)}
+                    onClick={() => router.push(`/detalhes/${carro.id}`)}
                   >
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-bold text-brand-900 text-sm">

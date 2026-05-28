@@ -1,14 +1,17 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+'use client';
+
+import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '@/providers/AppProvider';
 
 export default function BottomNav() {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname();
+  const router = useRouter();
   const { auth } = useApp();
 
   const isActive = (path: string) => {
-    if (path === '/') return location.pathname === '/' || location.pathname === '';
-    return location.pathname.startsWith(path);
+    if (!pathname) return false;
+    if (path === '/') return pathname === '/' || pathname === '';
+    return pathname.startsWith(path);
   };
 
   const items = [
@@ -24,7 +27,7 @@ export default function BottomNav() {
       {items.map((item) => (
         <button
           key={item.path}
-          onClick={() => navigate(item.path)}
+          onClick={() => router.push(item.path)}
           className={isActive(item.path) ? 'active' : ''}
         >
           <i className={item.icon}></i>
