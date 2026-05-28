@@ -2,22 +2,60 @@
 
 import { useState } from 'react';
 import { useApp } from '@/providers/AppProvider';
-import { CONCELHOS } from '@/lib/constants';
+import { useDistritosConcelhos } from '@/hooks/useDistritosConcelhos';
 import CarCard from './CarCard';
+import { CarCardSkeleton } from '@/components/ui/Skeleton';
 
 export default function CarGrid() {
   const { carros } = useApp();
-  const { carrosFiltrados, filtroAtivo, searchQuery, setSearchQuery, advPriceMin, setAdvPriceMin, advPriceMax, setAdvPriceMax, advLocation, setAdvLocation, sortOrdem, setSortOrdem } = carros;
+  const {
+    carrosFiltrados,
+    filtroAtivo,
+    searchQuery,
+    setSearchQuery,
+    advPriceMin,
+    setAdvPriceMin,
+    advPriceMax,
+    setAdvPriceMax,
+    advDistrito,
+    setAdvDistrito,
+    advConcelho,
+    setAdvConcelho,
+    advRaioCentro,
+    setAdvRaioCentro,
+    advRaioKm,
+    setAdvRaioKm,
+    sortOrdem,
+    setSortOrdem,
+  } = carros;
+
+  const { distritos, getConcelhos } = useDistritosConcelhos();
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [raioMode, setRaioMode] = useState(false);
+  const [raioDist, setRaioDist] = useState('');
 
   const filtered = carrosFiltrados;
-
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const limparFiltrosAvancados = () => {
     setAdvPriceMin(null);
     setAdvPriceMax(null);
-    setAdvLocation('');
+    setAdvDistrito('');
+    setAdvConcelho('');
+    setAdvRaioCentro('');
+    setAdvRaioKm(null);
     setSortOrdem(null);
+    setRaioMode(false);
+    setRaioDist('');
+  };
+
+  const handleDistritoChange = (d: string) => {
+    setAdvDistrito(d);
+    setAdvConcelho('');
+  };
+
+  const handleRaioDistChange = (d: string) => {
+    setRaioDist(d);
+    setAdvRaioCentro('');
   };
 
   const getFiltroLabel = () => {
@@ -53,8 +91,9 @@ export default function CarGrid() {
         </div>
 
         {showAdvanced && (
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-700">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-700 space-y-4">
+            {/* Preço */}
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-500 mb-1">Preço Mínimo (€)</label>
                 <input
@@ -75,60 +114,140 @@ export default function CarGrid() {
                   className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-accent"
                 />
               </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1">Localização (Concelho)</label>
-                <div className="relative">
+            </div>
+
+            {/* Localização */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                  <i className="fa-solid fa-location-dot text-accent"></i> Localização
+                </span>
+                <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer select-none">
                   <input
-                    type="text"
-                    list="concelhos-list"
-                    placeholder="Escrever concelho..."
-                    value={advLocation}
-                    onChange={(e) => setAdvLocation(e.target.value)}
-                    className="w-full bg-white border border-slate-300 rounded-xl pl-3 pr-8 py-1.5 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-accent"
+                    type="checkbox"
+                    checked={raioMode}
+                    onChange={(e) => {
+                      setRaioMode(e.target.checked);
+                      if (!e.target.checked) {
+                        setAdvRaioCentro('');
+                        setAdvRaioKm(null);
+                        setRaioDist('');
+                      } else {
+                        setAdvDistrito('');
+                        setAdvConcelho('');
+                      }
+                    }}
+                    className="rounded text-accent focus:ring-accent"
                   />
-                  <datalist id="concelhos-list">
-                    {CONCELHOS.map((c) => (
-                      <option key={c} value={c} />
-                    ))}
-                  </datalist>
-                  <i className="fa-solid fa-location-dot absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                  Pesquisar por raio
+                </label>
+              </div>
+
+              {!raioMode ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <select
+                      value={advDistrito}
+                      onChange={(e) => handleDistritoChange(e.target.value)}
+                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-accent"
+                    >
+                      <option value="">Todos os distritos</option>
+                      {distritos.map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <select
+                      value={advConcelho}
+                      onChange={(e) => setAdvConcelho(e.target.value)}
+                      disabled={!advDistrito}
+                      className={`w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-accent ${!advDistrito ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : ''}`}
+                    >
+                      <option value="">{advDistrito ? 'Todos os concelhos' : 'Selecione um distrito'}</option>
+                      {getConcelhos(advDistrito).map((c) => (
+                        <option key={c.nome} value={c.nome}>{c.nome}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              </div>
-              <div className="sm:col-span-3 flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200 text-xs">
-                <span className="block text-xs font-bold text-slate-500 mr-2">Ordenar por preço:</span>
-                <button
-                  type="button"
-                  onClick={() => setSortOrdem('crescente')}
-                  className={`font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 ${
-                    sortOrdem === 'crescente' ? 'bg-accent text-white' : 'bg-white hover:bg-slate-100 border border-slate-300 text-slate-700'
-                  }`}
-                >
-                  <i className="fa-solid fa-arrow-trend-up"></i> Preço mais baixo
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSortOrdem('decrescente')}
-                  className={`font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 ${
-                    sortOrdem === 'decrescente' ? 'bg-accent text-white' : 'bg-white hover:bg-slate-100 border border-slate-300 text-slate-700'
-                  }`}
-                >
-                  <i className="fa-solid fa-arrow-trend-down"></i> Preço mais caro
-                </button>
-              </div>
-              <div className="sm:col-span-3 flex justify-between items-center gap-2 pt-2 border-t border-slate-200 text-xs">
-                <button
-                  onClick={() => { limparFiltrosAvancados(); setShowAdvanced(false); }}
-                  className="border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold px-4 py-2 rounded-xl transition"
-                >
-                  Limpar
-                </button>
-                <button
-                  onClick={() => { setShowAdvanced(false); }}
-                  className="bg-accent hover:bg-accent-hover text-white font-bold px-4 py-2 rounded-xl transition"
-                >
-                  Aplicar Filtros
-                </button>
-              </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <select
+                      value={raioDist}
+                      onChange={(e) => handleRaioDistChange(e.target.value)}
+                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-accent"
+                    >
+                      <option value="">Selecionar distrito</option>
+                      {distritos.map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={advRaioCentro}
+                      onChange={(e) => setAdvRaioCentro(e.target.value)}
+                      disabled={!raioDist}
+                      className={`w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-accent ${!raioDist ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : ''}`}
+                    >
+                      <option value="">{raioDist ? 'Selecionar centro' : 'Selecione um distrito'}</option>
+                      {getConcelhos(raioDist).map((c) => (
+                        <option key={c.nome} value={c.nome}>{c.nome}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min={1}
+                      max={500}
+                      placeholder="Raio em km"
+                      value={advRaioKm ?? ''}
+                      onChange={(e) => setAdvRaioKm(e.target.value ? Number(e.target.value) : null)}
+                      className="w-32 bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-accent"
+                    />
+                    <span className="text-xs text-slate-500">km a partir de {advRaioCentro || '—'}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Ordenação */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200 text-xs">
+              <span className="block text-xs font-bold text-slate-500 mr-2">Ordenar por preço:</span>
+              <button
+                type="button"
+                onClick={() => setSortOrdem('crescente')}
+                className={`font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 ${
+                  sortOrdem === 'crescente' ? 'bg-accent text-white' : 'bg-white hover:bg-slate-100 border border-slate-300 text-slate-700'
+                }`}
+              >
+                <i className="fa-solid fa-arrow-trend-up"></i> Preço mais baixo
+              </button>
+              <button
+                type="button"
+                onClick={() => setSortOrdem('decrescente')}
+                className={`font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 ${
+                  sortOrdem === 'decrescente' ? 'bg-accent text-white' : 'bg-white hover:bg-slate-100 border border-slate-300 text-slate-700'
+                }`}
+              >
+                <i className="fa-solid fa-arrow-trend-down"></i> Preço mais caro
+              </button>
+            </div>
+
+            <div className="flex justify-between items-center gap-2 pt-2 border-t border-slate-200 text-xs">
+              <button
+                onClick={() => { limparFiltrosAvancados(); setShowAdvanced(false); }}
+                className="border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold px-4 py-2 rounded-xl transition"
+              >
+                Limpar
+              </button>
+              <button
+                onClick={() => setShowAdvanced(false)}
+                className="bg-accent hover:bg-accent-hover text-white font-bold px-4 py-2 rounded-xl transition"
+              >
+                Aplicar Filtros
+              </button>
             </div>
           </div>
         )}
@@ -143,7 +262,13 @@ export default function CarGrid() {
         </span>
       </h2>
 
-      {filtered.length === 0 ? (
+      {carros.loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <CarCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-slate-500">
           <i className="fa-solid fa-car-side text-4xl mb-3 text-slate-300"></i>
           <p className="font-semibold">Nenhum anúncio encontrado</p>

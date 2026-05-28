@@ -83,6 +83,38 @@ Per-route metadata is the responsibility of each `app/**/page.tsx`:
 - `app/robots.ts` disallows `/admin`, `/perfil`, `/setup-perfil` and points to the sitemap.
 - The root `app/layout.tsx` declares site-wide `metadataBase`, default OG image, and the `Organization` JSON-LD.
 
+## PWA & Push Notifications
+
+Push messaging and offline assets are wired for client routes. Firestore uses `persistentLocalCache` for offline data when running in the browser. Workbox/`vite-plugin-pwa` was used in the previous SPA — under Next.js, offline shell is handled by Next's default static caching and the service worker at `public/firebase-messaging-sw.js`.
+
+### Firebase Cloud Messaging (FCM) — VAPID Key Setup
+
+Push notifications require a VAPID key. To obtain it:
+
+1. Go to [Firebase Console](https://console.firebase.google.com/) → project `reparauto-site`
+2. Navigate to **Project Settings** (gear icon) → **Cloud Messaging** tab
+3. Under **Web Push certificates**, click **Generate key pair** (or copy existing)
+4. Copy the **Key pair** value (a long base64 string)
+5. Create a `.env.local` file in the project root:
+   ```
+   NEXT_PUBLIC_FIREBASE_VAPID_KEY=your_vapid_key_here
+   ```
+6. Restart the dev server (`npm run dev`)
+
+Without the VAPID key, `requestNotificationPermission()` in `src/lib/fcm.ts` returns `null` gracefully — the app works fine, just without push notifications.
+
+### PWA Files
+
+- `src/lib/fcm.ts` — FCM token request + foreground message listener
+- `src/lib/lqip.ts` — LQIP blur-up placeholder generation + cache
+- `src/lib/offlineQueue.ts` — localStorage action queue for offline writes
+- `src/hooks/useInstallPrompt.ts` — PWA install prompt (engagement-based)
+- `src/hooks/useOnlineStatus.ts` — online/offline detection
+- `src/hooks/useNetworkStatus.ts` — Network Information API (speed detection)
+- `src/hooks/useSwipe.ts` — touch swipe with drag feedback
+- `src/hooks/usePinchZoom.ts` — two-finger zoom for gallery
+- `public/firebase-messaging-sw.js` — FCM background message service worker
+
 ## Key Files
 
 - `src/lib/firebase.ts` — Firebase Web SDK config (API keys are intentionally public per Firebase Web SDK convention)

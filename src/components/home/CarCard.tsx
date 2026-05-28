@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { formatarPreco, renderFoto } from '@/lib/utils';
 import { useApp } from '@/providers/AppProvider';
+import LazyImage from '@/components/ui/LazyImage';
 import type { Carro } from '@/types/carro';
 
 export default function CarCard({ carro }: { carro: Carro }) {
@@ -22,7 +23,7 @@ export default function CarCard({ carro }: { carro: Carro }) {
         {carro.fotos && carro.fotos.length > 0 ? (() => {
           const fotoData = renderFoto(carro.fotos[0]);
           if (fotoData.type === 'img') {
-            return <img src={fotoData.src} className={fotoData.classes} alt="Foto do anúncio" />;
+            return <LazyImage src={fotoData.src} alt="Foto do anúncio" className="w-full h-full" />;
           }
           return <div className="w-full h-full flex items-center justify-center text-5xl">{fotoData.emoji}</div>;
         })() : (
