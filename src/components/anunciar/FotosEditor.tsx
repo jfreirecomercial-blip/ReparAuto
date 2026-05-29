@@ -20,6 +20,16 @@ const lerComoDataURL = (file: File): Promise<string> =>
     reader.readAsDataURL(file);
   });
 
+const reordenar = (fotos: string[], from: number, to: number): string[] => {
+  if (from === to || from < 0 || to < 0 || from >= fotos.length || to >= fotos.length) {
+    return fotos;
+  }
+  const copia = [...fotos];
+  const [movida] = copia.splice(from, 1);
+  copia.splice(to, 0, movida);
+  return copia;
+};
+
 export default function FotosEditor({
   fotos,
   setFotos,
@@ -29,8 +39,11 @@ export default function FotosEditor({
 }: FotosEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const exibirCapa = mostrarCapa ?? max > 1;
+  const podeReordenar = max > 1 && fotos.length > 1;
 
   const processarFotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -76,6 +89,37 @@ export default function FotosEditor({
     setErro(null);
   };
 
+  const moverFoto = (from: number, to: number) => {
+    setFotos(reordenar(fotos, from, to));
+  };
+
+  const handleDragStart = (i: number) => (e: React.DragEvent<HTMLDivElement>) => {
+    setDraggingIndex(i);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(i));
+  };
+
+  const handleDragOver = (i: number) => (e: React.DragEvent<HTMLDivElement>) => {
+    if (draggingIndex === null) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (i !== dragOverIndex) setDragOverIndex(i);
+  };
+
+  const handleDrop = (i: number) => (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const fromStr = e.dataTransfer.getData('text/plain');
+    const from = fromStr ? Number(fromStr) : draggingIndex;
+    if (from !== null && !Number.isNaN(from)) moverFoto(from, i);
+    setDraggingIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingIndex(null);
+    setDragOverIndex(null);
+  };
+
   const podeAdicionar = fotos.length < max;
   const alturaFoto = max === 1 ? 'h-40' : 'h-20';
 
@@ -113,6 +157,7 @@ export default function FotosEditor({
       <p className="text-[11px] text-slate-400 mb-3">
         Máximo {max} {max === 1 ? 'foto' : 'fotos'} · até {MAX_FOTO_SIZE_MB} MB cada.
         {exibirCapa && ' A primeira foto será a capa do anúncio.'}
+        {podeReordenar && ' Arraste para reordenar.'}
       </p>
 
       {erro && (
@@ -124,26 +169,64 @@ export default function FotosEditor({
       <div className={`grid gap-3 ${max === 1 ? 'grid-cols-1' : 'grid-cols-3 sm:grid-cols-6'}`}>
         {fotos.map((foto, i) => {
           const isImg = foto.startsWith('data:') || foto.startsWith('http');
+          const isDragging = draggingIndex === i;
+          const isDragOver = dragOverIndex === i && draggingIndex !== i;
           return (
-            <div key={i} className="relative group">
+            <div
+              key={i}
+              draggable={podeReordenar}
+              onDragStart={podeReordenar ? handleDragStart(i) : undefined}
+              onDragOver={podeReordenar ? handleDragOver(i) : undefined}
+              onDrop={podeReordenar ? handleDrop(i) : undefined}
+              onDragEnd={podeReordenar ? handleDragEnd : undefined}
+              className={`relative group transition ${podeReordenar ? 'cursor-move' : ''} ${
+                isDragging ? 'opacity-40' : ''
+              } ${isDragOver ? 'ring-2 ring-accent rounded-lg' : ''}`}
+            >
               {isImg ? (
                 <img
                   src={foto}
                   alt={`Foto ${i + 1}`}
-                  className={`w-full object-cover rounded-lg border border-slate-200 ${alturaFoto}`}
+                  draggable={false}
+                  className={`w-full object-cover rounded-lg border border-slate-200 ${alturaFoto} pointer-events-none`}
                 />
               ) : (
                 <div
-                  className={`w-full flex items-center justify-center text-3xl bg-slate-50 rounded-lg border border-slate-200 ${alturaFoto}`}
+                  className={`w-full flex items-center justify-center text-3xl bg-slate-50 rounded-lg border border-slate-200 ${alturaFoto} pointer-events-none`}
                 >
                   {foto}
                 </div>
               )}
+
               {exibirCapa && i === 0 && (
-                <span className="absolute bottom-1 left-1 bg-accent text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                <span className="absolute bottom-1 left-1 bg-accent text-white text-[10px] font-bold px-1.5 py-0.5 rounded pointer-events-none">
                   Capa
                 </span>
               )}
+
+              {podeReordenar && (
+                <div className="absolute bottom-1 right-1 flex gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => moverFoto(i, i - 1)}
+                    disabled={i === 0}
+                    aria-label={`Mover foto ${i + 1} para a esquerda`}
+                    className="w-5 h-5 bg-white/90 text-slate-700 rounded text-[10px] flex items-center justify-center shadow border border-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white"
+                  >
+                    <i className="fa-solid fa-chevron-left"></i>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moverFoto(i, i + 1)}
+                    disabled={i === fotos.length - 1}
+                    aria-label={`Mover foto ${i + 1} para a direita`}
+                    className="w-5 h-5 bg-white/90 text-slate-700 rounded text-[10px] flex items-center justify-center shadow border border-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white"
+                  >
+                    <i className="fa-solid fa-chevron-right"></i>
+                  </button>
+                </div>
+              )}
+
               <button
                 type="button"
                 onClick={() => removerFoto(i)}

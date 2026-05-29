@@ -4,7 +4,7 @@ import { getAllConcelhos } from '@/lib/geo';
 
 // Limites
 export const MAX_FOTOS_CARRO = 6;
-export const MAX_FOTO_SIZE_MB = 2;
+export const MAX_FOTO_SIZE_MB = 3;
 export const MAX_FOTO_SIZE_BYTES = MAX_FOTO_SIZE_MB * 1024 * 1024;
 export const DB_VERSION = '2.2';
 export const DB_VERSION_KEY = 'reparauto_db_version';
