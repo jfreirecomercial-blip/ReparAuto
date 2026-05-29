@@ -1,15 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import usePriceEstimate from '@/hooks/usePriceEstimate';
 import { formatarPreco } from '@/lib/utils';
-import marcasModelos from '@/data/marcas-modelos.json';
-import { TIPOS_COMBUSTIVEL, TIPOS_CAMBIO } from '@/lib/constants';
-
-interface MarcaModelo {
-  marca: string;
-  modelos: string[];
-}
+import { PRICE_DISCLAIMERS, PRICE_THRESHOLDS, TIPOS_CAMBIO, TIPOS_COMBUSTIVEL } from '@/lib/constants';
+import BrandModelSelect from '@/components/preco/BrandModelSelect';
 
 const ANO_ATUAL = new Date().getFullYear();
 
@@ -20,13 +15,6 @@ export default function PriceEstimator() {
   const [km, setKm] = useState<string>('');
   const [combustivel, setCombustivel] = useState('');
   const [cambio, setCambio] = useState('');
-
-  const lista = marcasModelos as MarcaModelo[];
-  const marcas = useMemo(() => lista.map((m) => m.marca).sort(), [lista]);
-  const modelos = useMemo(() => {
-    const found = lista.find((m) => m.marca === marca);
-    return found ? found.modelos : [];
-  }, [lista, marca]);
 
   const input = marca && modelo && ano
     ? {
@@ -47,48 +35,24 @@ export default function PriceEstimator() {
     baixa: 'text-slate-600 bg-slate-50 border-slate-200',
   }[estimate.confidence];
 
+  const showLowConfidenceWarning =
+    estimate.sampleSize > 0 && estimate.sampleSize < PRICE_THRESHOLDS.lowConfidenceSampleSize;
+
   return (
     <div className="bg-white rounded-2xl shadow-md p-5 sm:p-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        <div>
-          <label className="block text-xs font-bold text-slate-600 mb-1">Marca</label>
-          <select
-            value={marca}
-            onChange={(e) => {
-              setMarca(e.target.value);
-              setModelo('');
-            }}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-          >
-            <option value="">Selecionar marca</option>
-            {marcas.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
-        </div>
+        <BrandModelSelect
+          marca={marca}
+          modelo={modelo}
+          onMarcaChange={setMarca}
+          onModeloChange={setModelo}
+          required
+        />
 
         <div>
-          <label className="block text-xs font-bold text-slate-600 mb-1">Modelo</label>
-          <select
-            value={modelo}
-            onChange={(e) => setModelo(e.target.value)}
-            disabled={!marca}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent disabled:bg-slate-100 disabled:text-slate-400"
-          >
-            <option value="">Selecionar modelo</option>
-            {modelos.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-xs font-bold text-slate-600 mb-1">Ano</label>
+          <label htmlFor="ano-input" className="block text-xs font-bold text-slate-600 mb-1">Ano</label>
           <input
+            id="ano-input"
             type="number"
             value={ano}
             onChange={(e) => setAno(e.target.value)}
@@ -100,8 +64,9 @@ export default function PriceEstimator() {
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-600 mb-1">Quilómetros</label>
+          <label htmlFor="km-input" className="block text-xs font-bold text-slate-600 mb-1">Quilómetros</label>
           <input
+            id="km-input"
             type="number"
             value={km}
             onChange={(e) => setKm(e.target.value)}
@@ -112,33 +77,31 @@ export default function PriceEstimator() {
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-600 mb-1">Combustível</label>
+          <label htmlFor="combustivel-select" className="block text-xs font-bold text-slate-600 mb-1">Combustível</label>
           <select
+            id="combustivel-select"
             value={combustivel}
             onChange={(e) => setCombustivel(e.target.value)}
             className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
           >
             <option value="">Qualquer</option>
             {TIPOS_COMBUSTIVEL.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
+              <option key={c} value={c}>{c}</option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-600 mb-1">Caixa</label>
+          <label htmlFor="cambio-select" className="block text-xs font-bold text-slate-600 mb-1">Caixa</label>
           <select
+            id="cambio-select"
             value={cambio}
             onChange={(e) => setCambio(e.target.value)}
             className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
           >
             <option value="">Qualquer</option>
             {TIPOS_CAMBIO.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
+              <option key={c} value={c}>{c}</option>
             ))}
           </select>
         </div>
@@ -146,32 +109,32 @@ export default function PriceEstimator() {
 
       {!input ? (
         <div className="text-center py-8 text-slate-400 text-sm border border-dashed border-slate-200 rounded-xl">
-          <i className="fa-solid fa-circle-info mr-2"></i>
+          <i className="fa-solid fa-circle-info mr-2" aria-hidden="true"></i>
           Preencha marca, modelo e ano para receber uma estimativa.
         </div>
       ) : estimate.sampleSize === 0 ? (
         <div className="text-center py-8 text-slate-500 text-sm border border-dashed border-slate-200 rounded-xl">
-          <i className="fa-solid fa-magnifying-glass text-2xl mb-2 text-slate-300"></i>
+          <i className="fa-solid fa-magnifying-glass text-2xl mb-2 text-slate-300" aria-hidden="true"></i>
           <p>Não encontrámos anúncios suficientes para este modelo.</p>
           <p className="text-xs text-slate-400 mt-1">Tente um ano próximo ou outro modelo.</p>
         </div>
       ) : (
         <>
           <div className="bg-brand-50 border border-brand-100 rounded-xl p-5 text-center">
-            <p className="text-xs text-slate-600 mb-2">Estimativa de mercado</p>
-            <p className="text-3xl sm:text-4xl font-extrabold text-accent">
-              {formatarPreco(estimate.estimate)}
+            <p className="text-xs text-slate-600 mb-2">Intervalo de mercado</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-accent leading-tight">
+              {formatarPreco(estimate.rangeMin)} – {formatarPreco(estimate.rangeMax)}
             </p>
-            <p className="text-xs text-slate-500 mt-2">
-              Intervalo provável: <strong>{formatarPreco(estimate.rangeMin)}</strong> –{' '}
-              <strong>{formatarPreco(estimate.rangeMax)}</strong>
+            <p className="text-xs text-slate-500 mt-3">
+              Estimativa central: <strong>{formatarPreco(estimate.estimate)}</strong>
             </p>
-            <div className="mt-3 flex items-center justify-center gap-2 text-[11px]">
+            <div className="mt-3 flex items-center justify-center gap-2 text-[11px] flex-wrap">
               <span className={`px-2 py-1 rounded-full border ${confidenceColor}`}>
                 Confiança {estimate.confidence}
               </span>
               <span className="text-slate-500">
-                {estimate.sampleSize} {estimate.sampleSize === 1 ? 'anúncio similar' : 'anúncios similares'}
+                {estimate.sampleSize}{' '}
+                {estimate.sampleSize === 1 ? 'anúncio similar' : 'anúncios similares'}
               </span>
             </div>
           </div>
@@ -196,12 +159,19 @@ export default function PriceEstimator() {
               </div>
             </div>
           )}
+
+          {showLowConfidenceWarning && (
+            <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-2 mt-3">
+              <i className="fa-solid fa-circle-info mr-1" aria-hidden="true"></i>
+              {PRICE_DISCLAIMERS.lowConfidence}
+            </p>
+          )}
         </>
       )}
 
-      <p className="text-[10px] text-slate-400 mt-4 text-center">
-        <i className="fa-solid fa-circle-info mr-1"></i>
-        Estimativa indicativa, baseada em anúncios aprovados no ReparAuto. Não substitui uma avaliação profissional.
+      <p className="text-[10px] text-slate-400 mt-4 leading-relaxed">
+        <i className="fa-solid fa-circle-info mr-1" aria-hidden="true"></i>
+        {PRICE_DISCLAIMERS.estimator}
       </p>
     </div>
   );

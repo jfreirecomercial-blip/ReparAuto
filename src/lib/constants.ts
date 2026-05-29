@@ -72,29 +72,54 @@ export const MOTIVOS_DENUNCIA = [
 ];
 
 // ============ PRICE INTELLIGENCE ============
+// 5-tier badge system aligned with CarGurus / AutoUncle / Auto Trader.
+// Tiers are derived from deviation from the (outlier-trimmed) median:
+//   ≤ -greatThreshold      → excelente
+//   between -great and -ok → bom
+//   |dev| < ok             → justo
+//   ok ≤ dev < bad         → acima
+//   ≥ bad                  → sobrevalorizado
+//
+// "ok" widens with market dispersion (CV) but is clamped between adaptiveMin
+// and adaptiveMax to keep the "fair" zone reasonable.
+// minSampleSize prevents misleading badges; minPublicSampleSize hides
+// aggregate stats that could leak individual prices.
 export const PRICE_THRESHOLDS = {
-  abaixo: -0.10,
-  acima: 0.10,
-  minSampleSize: 3,
+  adaptiveMin: 0.07,
+  adaptiveMax: 0.15,
+  greatDeal: 0.20,
+  minSampleSize: 5,
+  lowConfidenceSampleSize: 15,
+  minPublicSampleSize: 5,
   similarYearRange: 2,
   similarKmRange: 50000,
+  outlierIqrMultiplier: 1.5,
 } as const;
 
-export const PRICE_LABELS: Record<'abaixo' | 'justo' | 'acima' | 'indisponivel', string> = {
-  abaixo: 'Abaixo do mercado',
+export const PRICE_LABELS: Record<
+  'excelente' | 'bom' | 'justo' | 'acima' | 'sobrevalorizado' | 'indisponivel',
+  string
+> = {
+  excelente: 'Excelente negócio',
+  bom: 'Bom preço',
   justo: 'Preço justo',
   acima: 'Acima do mercado',
-  indisponivel: 'Sem dados de mercado',
+  sobrevalorizado: 'Sobrevalorizado',
+  indisponivel: 'Sem dados suficientes',
 };
 
-export const PRICE_COLORS: Record<'abaixo' | 'justo' | 'acima' | 'indisponivel', {
-  bg: string;
-  text: string;
-  border: string;
-  icon: string;
-  hex: string;
-}> = {
-  abaixo: {
+export const PRICE_COLORS: Record<
+  'excelente' | 'bom' | 'justo' | 'acima' | 'sobrevalorizado' | 'indisponivel',
+  { bg: string; text: string; border: string; icon: string; hex: string }
+> = {
+  excelente: {
+    bg: 'bg-green-100',
+    text: 'text-green-800',
+    border: 'border-green-300',
+    icon: 'fa-solid fa-rocket',
+    hex: '#15803d',
+  },
+  bom: {
     bg: 'bg-green-50',
     text: 'text-green-700',
     border: 'border-green-200',
@@ -109,10 +134,17 @@ export const PRICE_COLORS: Record<'abaixo' | 'justo' | 'acima' | 'indisponivel',
     hex: '#2563eb',
   },
   acima: {
+    bg: 'bg-amber-50',
+    text: 'text-amber-700',
+    border: 'border-amber-200',
+    icon: 'fa-solid fa-arrow-trend-up',
+    hex: '#d97706',
+  },
+  sobrevalorizado: {
     bg: 'bg-red-50',
     text: 'text-red-700',
     border: 'border-red-200',
-    icon: 'fa-solid fa-arrow-trend-up',
+    icon: 'fa-solid fa-triangle-exclamation',
     hex: '#dc2626',
   },
   indisponivel: {
@@ -122,6 +154,17 @@ export const PRICE_COLORS: Record<'abaixo' | 'justo' | 'acima' | 'indisponivel',
     icon: 'fa-solid fa-circle-question',
     hex: '#64748b',
   },
+};
+
+export const PRICE_DISCLAIMERS = {
+  badge:
+    'Classificação baseada na mediana de anúncios semelhantes (mesma marca, modelo, ano ±2). Não reflete o estado do veículo.',
+  estimator:
+    'A avaliação apresentada tem caráter meramente indicativo e não vinculativo, sendo calculada com base em anúncios ativos no ReparAuto à data da consulta. Não constitui uma proposta de compra nem uma peritagem. O valor real depende do estado de conservação, histórico e equipamento.',
+  market:
+    'Dados agregados a partir de anúncios publicados no ReparAuto. Os valores podem não refletir transações efetivamente concretizadas.',
+  lowConfidence:
+    'Estimativa com baixa confiança — poucos anúncios comparáveis disponíveis.',
 };
 
 export const BADGES_CONFIANCA = [

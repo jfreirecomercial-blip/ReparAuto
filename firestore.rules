@@ -136,7 +136,6 @@ service cloud.firestore {
 
     match /savedSearches/{searchId} {
       allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
-      allow list: if isAuthenticated();
       allow create: if isAuthenticated()
         && request.resource.data.uid == request.auth.uid;
       allow update, delete: if isAuthenticated()

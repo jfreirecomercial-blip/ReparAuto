@@ -14,6 +14,7 @@ import PriceIndicatorBadge from '@/components/preco/PriceIndicatorBadge';
 import MarketWidget from '@/components/preco/MarketWidget';
 import usePriceIndicator from '@/hooks/usePriceIndicator';
 import { formatarPreco as fmt } from '@/lib/utils';
+import { PRICE_DISCLAIMERS, PRICE_THRESHOLDS } from '@/lib/constants';
 import Badge from '@/components/ui/Badge';
 import ShareButton from '@/components/ui/ShareButton';
 import FotoRender from '@/components/ui/FotoRender';
@@ -195,7 +196,7 @@ export default function DetalhesCarro() {
           </div>
         )}
 
-        {priceInfo.indicator !== 'indisponivel' && (
+        {priceInfo.indicator !== 'indisponivel' && priceInfo.stats && (
           <div className="mb-6 bg-slate-50 border border-slate-200 rounded-xl p-4">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div>
@@ -212,24 +213,30 @@ export default function DetalhesCarro() {
                 indicator={priceInfo.indicator}
                 deviation={priceInfo.deviation}
                 sampleSize={priceInfo.sampleSize}
+                diffEuros={Math.round(carro.preco - priceInfo.stats.median)}
               />
             </div>
-            {priceInfo.stats && (
-              <div className="grid grid-cols-3 gap-2 mt-3 text-center text-xs">
-                <div className="bg-white rounded-lg p-2">
-                  <p className="text-[10px] text-slate-500">Mínimo</p>
-                  <p className="font-bold text-green-600">{fmt(priceInfo.stats.min)}</p>
-                </div>
-                <div className="bg-white rounded-lg p-2">
-                  <p className="text-[10px] text-slate-500">Mediana do mercado</p>
-                  <p className="font-bold text-brand-900">{fmt(priceInfo.stats.median)}</p>
-                </div>
-                <div className="bg-white rounded-lg p-2">
-                  <p className="text-[10px] text-slate-500">Máximo</p>
-                  <p className="font-bold text-red-600">{fmt(priceInfo.stats.max)}</p>
-                </div>
+            <div className="grid grid-cols-3 gap-2 mt-3 text-center text-xs">
+              <div className="bg-white rounded-lg p-2">
+                <p className="text-[10px] text-slate-500">Mínimo</p>
+                <p className="font-bold text-green-600">{fmt(priceInfo.stats.min)}</p>
               </div>
+              <div className="bg-white rounded-lg p-2">
+                <p className="text-[10px] text-slate-500">Mediana do mercado</p>
+                <p className="font-bold text-brand-900">{fmt(priceInfo.stats.median)}</p>
+              </div>
+              <div className="bg-white rounded-lg p-2">
+                <p className="text-[10px] text-slate-500">Máximo</p>
+                <p className="font-bold text-red-600">{fmt(priceInfo.stats.max)}</p>
+              </div>
+            </div>
+            {priceInfo.sampleSize < PRICE_THRESHOLDS.lowConfidenceSampleSize && (
+              <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 mt-3">
+                <i className="fa-solid fa-circle-info mr-1" aria-hidden="true"></i>
+                {PRICE_DISCLAIMERS.lowConfidence}
+              </p>
             )}
+            <p className="text-[10px] text-slate-400 mt-2">{PRICE_DISCLAIMERS.badge}</p>
           </div>
         )}
 

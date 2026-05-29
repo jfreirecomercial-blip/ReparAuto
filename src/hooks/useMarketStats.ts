@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useApp } from '@/providers/AppProvider';
-import { calculateMarketStats, normalizeMarca, normalizeModelo } from '@/lib/priceUtils';
+import { calculateMarketStats, isSameModel, normalizeMarca } from '@/lib/priceUtils';
 import type { Carro } from '@/types/carro';
 import type { MarketStats } from '@/types/preco';
 
@@ -26,14 +26,10 @@ export default function useMarketStats(filter: MarketStatsFilter = {}): MarketSt
 
   return useMemo(() => {
     const marcaNorm = filter.marca ? normalizeMarca(filter.marca) : '';
-    const modeloNorm = filter.modelo ? normalizeModelo(filter.modelo) : '';
 
     const filtrados = carros.carros.filter((c) => {
       if (marcaNorm && normalizeMarca(c.marca) !== marcaNorm) return false;
-      if (modeloNorm) {
-        const token = modeloNorm.split(' ')[0];
-        if (!normalizeModelo(c.modelo).includes(token)) return false;
-      }
+      if (filter.modelo && !isSameModel(filter.modelo, c.modelo)) return false;
       if (filter.combustivel && c.combustivel !== filter.combustivel) return false;
       if (filter.distrito && c.distrito !== filter.distrito && c.local !== filter.distrito) return false;
       if (filter.anoMin && c.anoFabricacao < filter.anoMin) return false;

@@ -33,7 +33,7 @@ import type {
   SavedSearch,
   SavedSearchInput,
 } from '@/types/preco';
-import { normalizeMarca, normalizeModelo } from '@/lib/priceUtils';
+import { isSameModel, normalizeModelo } from '@/lib/priceUtils';
 
 type CarroSeed = Omit<CarroInput, 'dataCriacao'> & { dataCriacao: ReturnType<typeof Timestamp.now> };
 type PecaSeed = Omit<PecaInput, 'dataCriacao'> & { dataCriacao: ReturnType<typeof Timestamp.now> };
@@ -1413,14 +1413,12 @@ export async function getCarrosSimilares(
       where('marca', '==', marca),
     );
     const snap = await getDocs(q);
-    const modeloNorm = normalizeModelo(modelo);
-    const baseToken = modeloNorm.split(' ')[0];
     return snap.docs
       .map((d) => ({ id: d.id, ...d.data() } as Carro))
       .filter((c) => c.status === 'aprovado')
       .filter((c) => {
         if (options?.excludeId && c.id === options.excludeId) return false;
-        if (!normalizeModelo(c.modelo).includes(baseToken)) return false;
+        if (!isSameModel(modelo, c.modelo)) return false;
         if (options?.anoMin && c.anoFabricacao < options.anoMin) return false;
         if (options?.anoMax && c.anoFabricacao > options.anoMax) return false;
         return true;

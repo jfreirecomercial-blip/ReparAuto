@@ -1,6 +1,12 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export type PriceIndicator = 'abaixo' | 'justo' | 'acima' | 'indisponivel';
+export type PriceIndicator =
+  | 'excelente'
+  | 'bom'
+  | 'justo'
+  | 'acima'
+  | 'sobrevalorizado'
+  | 'indisponivel';
 
 export interface MarketStats {
   count: number;

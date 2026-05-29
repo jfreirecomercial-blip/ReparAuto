@@ -4,14 +4,9 @@ import { useMemo, useState } from 'react';
 import useMarketStats from '@/hooks/useMarketStats';
 import { useApp } from '@/providers/AppProvider';
 import { formatarPreco } from '@/lib/utils';
-import { TIPOS_COMBUSTIVEL } from '@/lib/constants';
-import marcasModelos from '@/data/marcas-modelos.json';
+import { PRICE_DISCLAIMERS, TIPOS_COMBUSTIVEL } from '@/lib/constants';
+import BrandModelSelect from '@/components/preco/BrandModelSelect';
 import PriceDistribution from '@/components/preco/PriceDistribution';
-
-interface MarcaModelo {
-  marca: string;
-  modelos: string[];
-}
 
 export default function MarketDashboard() {
   const { carros: carrosCtx } = useApp();
@@ -20,10 +15,6 @@ export default function MarketDashboard() {
   const [combustivel, setCombustivel] = useState('');
   const [anoMin, setAnoMin] = useState<string>('');
   const [anoMax, setAnoMax] = useState<string>('');
-
-  const lista = marcasModelos as MarcaModelo[];
-  const marcas = useMemo(() => lista.map((m) => m.marca).sort(), [lista]);
-  const modelos = useMemo(() => lista.find((m) => m.marca === marca)?.modelos ?? [], [lista, marca]);
 
   const filtro = {
     marca: marca || undefined,
@@ -55,25 +46,19 @@ export default function MarketDashboard() {
         <h2 className="font-extrabold text-brand-900 mb-3 flex items-center gap-2">
           <i className="fa-solid fa-filter text-accent"></i> Filtros
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end">
+          <BrandModelSelect
+            marca={marca}
+            modelo={modelo}
+            onMarcaChange={setMarca}
+            onModeloChange={setModelo}
+            marcaLabel="Marca"
+            modeloLabel="Modelo"
+            marcaPlaceholder="Todas as marcas"
+            modeloPlaceholder="Todos os modelos"
+          />
           <select
-            value={marca}
-            onChange={(e) => { setMarca(e.target.value); setModelo(''); }}
-            className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
-          >
-            <option value="">Todas as marcas</option>
-            {marcas.map((m) => <option key={m} value={m}>{m}</option>)}
-          </select>
-          <select
-            value={modelo}
-            onChange={(e) => setModelo(e.target.value)}
-            disabled={!marca}
-            className="px-3 py-2 border border-slate-300 rounded-lg text-sm disabled:bg-slate-100"
-          >
-            <option value="">Todos os modelos</option>
-            {modelos.map((m) => <option key={m} value={m}>{m}</option>)}
-          </select>
-          <select
+            aria-label="Combustível"
             value={combustivel}
             onChange={(e) => setCombustivel(e.target.value)}
             className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
@@ -83,14 +68,16 @@ export default function MarketDashboard() {
           </select>
           <input
             type="number"
-            placeholder="Ano min"
+            aria-label="Ano mínimo"
+            placeholder="Ano mín."
             value={anoMin}
             onChange={(e) => setAnoMin(e.target.value)}
             className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
           />
           <input
             type="number"
-            placeholder="Ano máx"
+            aria-label="Ano máximo"
+            placeholder="Ano máx."
             value={anoMax}
             onChange={(e) => setAnoMax(e.target.value)}
             className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
@@ -143,6 +130,11 @@ export default function MarketDashboard() {
           </div>
         </div>
       )}
+
+      <p className="text-[10px] text-slate-400 text-center px-4">
+        <i className="fa-solid fa-circle-info mr-1" aria-hidden="true"></i>
+        {PRICE_DISCLAIMERS.market}
+      </p>
     </div>
   );
 }

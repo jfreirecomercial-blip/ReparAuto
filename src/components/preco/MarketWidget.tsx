@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import useMarketStats from '@/hooks/useMarketStats';
 import { formatarPreco } from '@/lib/utils';
+import { PRICE_THRESHOLDS } from '@/lib/constants';
 
 interface Props {
   marca?: string;
@@ -13,7 +14,7 @@ interface Props {
 export default function MarketWidget({ marca, modelo, title }: Props) {
   const { stats } = useMarketStats({ marca, modelo });
 
-  if (!stats || stats.count === 0) {
+  if (!stats || stats.count < PRICE_THRESHOLDS.minPublicSampleSize) {
     return (
       <Link
         href="/mercado"
