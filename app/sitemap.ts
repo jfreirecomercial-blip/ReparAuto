@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getCarrosServer } from '@/lib/db.server';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://reparauto.pt';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://recargarage.com';
 
 export const revalidate = 3600;
 

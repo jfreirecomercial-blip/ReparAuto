@@ -415,7 +415,7 @@ IMPORTANT CONSTRAINTS:
 - All new components must use the @/ import alias, never relative imports.
 - All UI text in Portuguese (PT-PT). Variable names and comments in English.
 - Follow existing code patterns: functional components, hooks, Tailwind classes.
-- The app uses HashRouter — URLs will be like https://reparauto.pt/#/detalhes/abc123.
+- The app uses HashRouter — URLs will be like https://recargarage.com/#/detalhes/abc123.
   Ensure shared URLs work correctly with hash routing.
 - Existing GalleryModal is in src/components/detalhes/GalleryModal.tsx and uses a state
   variable `indice` for current photo index with prev/next buttons.

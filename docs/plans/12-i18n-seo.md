@@ -275,7 +275,7 @@ match /config/{configId} {
 
 ### Decisao 1: Manter HashRouter vs Migrar para BrowserRouter
 
-**Contexto:** O ReparAuto usa HashRouter (React Router 7) o que significa que todas as URLs contem `#` (ex: `https://reparauto.pt/#/detalhes/abc`). Isso impede que crawlers do Google indexem paginas individuais e que previews do WhatsApp/Facebook funcionem corretamente, ja que a maioria dos crawlers ignora o fragmento hash.
+**Contexto:** O ReparAuto usa HashRouter (React Router 7) o que significa que todas as URLs contem `#` (ex: `https://recargarage.com/#/detalhes/abc`). Isso impede que crawlers do Google indexem paginas individuais e que previews do WhatsApp/Facebook funcionem corretamente, ja que a maioria dos crawlers ignora o fragmento hash.
 
 | Opcao | Pros | Contras |
 |---|---|---|
