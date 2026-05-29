@@ -1,5 +1,7 @@
+'use client';
+
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { usePathname, useRouter } from 'next/navigation';
 import { initDatabase } from '@/lib/db';
 import useAuth from '@/hooks/useAuth';
 import useCarros from '@/hooks/useCarros';
@@ -20,8 +22,8 @@ export function useApp(): AppContextValue {
 
 export default function AppProvider({ children }: { children: ReactNode }) {
   const [dbReady, setDbReady] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     initDatabase().then(() => {
@@ -39,10 +41,10 @@ export default function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (loading) return;
-    if (isLoggedIn && !profileCompleted && location.pathname !== '/setup-perfil') {
-      navigate('/setup-perfil', { replace: true });
+    if (isLoggedIn && !profileCompleted && pathname !== '/setup-perfil') {
+      router.replace('/setup-perfil');
     }
-  }, [isLoggedIn, loading, profileCompleted, navigate, location.pathname]);
+  }, [isLoggedIn, loading, profileCompleted, router, pathname]);
 
   const value: AppContextValue = {
     dbReady,

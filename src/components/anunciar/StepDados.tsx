@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useMemo } from 'react';
 import { TIPOS_COMBUSTIVEL, TIPOS_CAMBIO } from '@/lib/constants';
 import { useMarcasModelos } from '@/hooks/useMarcasModelos';

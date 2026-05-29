@@ -24,7 +24,7 @@ export async function requestNotificationPermission(): Promise<string | null> {
   try {
     const m = getMessagingInstance();
     const token = await getToken(m, {
-      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY || '',
+      vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY || '',
     });
     return token;
   } catch {

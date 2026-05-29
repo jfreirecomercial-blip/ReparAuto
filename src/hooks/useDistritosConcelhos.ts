@@ -1,3 +1,5 @@
+'use client';
+
 import { useMemo } from 'react';
 import { DISTRITOS, getConcelhos } from '@/lib/geo';
 import type { ConcelhoDado } from '@/lib/geo';

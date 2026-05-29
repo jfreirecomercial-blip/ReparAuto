@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useCallback, useEffect } from 'react';
 import Modal from '@/components/ui/Modal';
 import FotoRender from '@/components/ui/FotoRender';

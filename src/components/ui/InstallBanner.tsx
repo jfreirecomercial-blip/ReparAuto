@@ -1,3 +1,5 @@
+'use client';
+
 import useInstallPrompt from '@/hooks/useInstallPrompt';
 
 export default function InstallBanner() {

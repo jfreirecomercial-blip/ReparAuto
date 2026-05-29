@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { useApp } from '@/providers/AppProvider';
 import { useDistritosConcelhos } from '@/hooks/useDistritosConcelhos';

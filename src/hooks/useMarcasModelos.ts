@@ -1,3 +1,5 @@
+'use client';
+
 import { useMemo } from 'react';
 import dados from '@/data/marcas-modelos.json';
 

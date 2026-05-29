@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { formatarDataHora } from '@/lib/utils';
 import Badge from '@/components/ui/Badge';

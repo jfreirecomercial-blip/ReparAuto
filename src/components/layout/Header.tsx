@@ -1,5 +1,8 @@
+'use client';
+
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { useApp } from '@/providers/AppProvider';
 import NotificationBell from './NotificationBell';
 import ChatInbox from '@/components/chat/ChatInbox';
@@ -7,7 +10,7 @@ import UserAvatar from '@/components/ui/UserAvatar';
 
 export default function Header() {
   const { auth, carros, chat } = useApp();
-  const location = useLocation();
+  const pathname = usePathname();
   const { user, isLoggedIn, logout } = auth;
   const { filtroAtivo, setFiltroAtivo } = carros;
   const { mensagensNaoLidas } = chat;
@@ -24,26 +27,26 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-brand-900 text-white shadow-lg">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-        <a href="#/" className="flex items-center gap-2 flex-shrink-0 no-underline text-white">
+        <Link href="/" className="flex items-center gap-2 flex-shrink-0 no-underline text-white">
           <i className="fa-solid fa-wrench text-accent text-2xl"></i>
           <span className="font-extrabold text-xl tracking-tight">Repar<span className="text-accent">Auto</span></span>
           <span className="text-xs bg-accent text-white px-2 py-0.5 rounded-full font-semibold hidden sm:inline">PT</span>
-        </a>
+        </Link>
 
         <nav className="hidden md:flex items-center gap-5 text-xs font-bold uppercase tracking-wider ml-4 flex-shrink-0">
-          <a href="#/" className="hover:text-accent transition flex items-center gap-1 text-accent">
+          <Link href="/" className="hover:text-accent transition flex items-center gap-1 text-accent">
             <i className="fa-solid fa-car"></i> Anúncios
-          </a>
-          <a href="#/anunciar" className="hover:text-accent transition flex items-center gap-1 text-white">
+          </Link>
+          <Link href="/anunciar" className="hover:text-accent transition flex items-center gap-1 text-white">
             <i className="fa-solid fa-circle-plus"></i> Vender
-          </a>
-          <a href="#/pecas" className="hover:text-accent transition flex items-center gap-1 text-white">
+          </Link>
+          <Link href="/pecas" className="hover:text-accent transition flex items-center gap-1 text-white">
             <i className="fa-solid fa-gears"></i> Peças & Desmonte
-          </a>
+          </Link>
           {auth.isAdmin && (
-            <a href="#/admin" className="hover:text-accent transition flex items-center gap-1 text-white">
+            <Link href="/admin" className="hover:text-accent transition flex items-center gap-1 text-white">
               <i className="fa-solid fa-shield-halved"></i> Admin
-            </a>
+            </Link>
           )}
         </nav>
 
@@ -63,15 +66,15 @@ export default function Header() {
             </button>
           )}
           <NotificationBell />
-          <a href="#/perfil" className="relative text-white hover:text-accent transition" aria-label="Favoritos">
+          <Link href="/perfil" className="relative text-white hover:text-accent transition" aria-label="Favoritos">
             <i className="fa-solid fa-heart text-xl"></i>
-          </a>
+          </Link>
           {isLoggedIn ? (
             <div className="flex items-center gap-2">
-              <a href="#/perfil" className="hidden sm:flex items-center gap-2 no-underline group">
+              <Link href="/perfil" className="hidden sm:flex items-center gap-2 no-underline group">
                 <UserAvatar user={user} size="sm" />
                 <span className="text-xs text-white/70 group-hover:text-accent transition">{user?.nome}</span>
-              </a>
+              </Link>
               <button
                 onClick={logout}
                 className="text-xs border border-white/30 px-3 py-1.5 rounded-full hover:bg-white/10 transition"
@@ -80,17 +83,17 @@ export default function Header() {
               </button>
             </div>
           ) : (
-            <a
-              href="#/perfil"
+            <Link
+              href="/perfil"
               className="text-xs border border-white/30 px-3 py-1.5 rounded-full hover:bg-white/10 transition no-underline text-white"
             >
               <i className="fa-solid fa-user mr-1"></i> Entrar
-            </a>
+            </Link>
           )}
         </div>
       </div>
 
-      {location.pathname === '/' && (
+      {pathname === '/' && (
       <div className="max-w-6xl mx-auto px-4 pb-2 flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide touch-pan-x overscroll-x-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
         {chips.map((chip) => (
           <button

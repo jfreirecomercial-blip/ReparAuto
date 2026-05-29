@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { getCachedLqip, cacheLqip, generateLqipFromImage } from '@/lib/lqip';
 

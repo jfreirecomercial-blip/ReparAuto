@@ -1,3 +1,5 @@
+'use client';
+
 import { useDistritosConcelhos } from '@/hooks/useDistritosConcelhos';
 
 interface SeletorLocalizacaoProps {

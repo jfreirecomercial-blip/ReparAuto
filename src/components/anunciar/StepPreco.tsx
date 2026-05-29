@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { TIPOS_MANUTENCAO } from '@/lib/constants';
 import type { CarroFormData } from '@/types/carro';

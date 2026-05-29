@@ -1,3 +1,5 @@
+'use client';
+
 import { useApp } from '@/providers/AppProvider';
 import PecasCard from './PecasCard';
 import { PecaCardSkeleton } from '@/components/ui/Skeleton';

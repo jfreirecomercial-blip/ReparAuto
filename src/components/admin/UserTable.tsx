@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import type { Usuario, Role } from '@/types/usuario';
 import { formatarData } from '@/lib/utils';

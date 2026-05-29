@@ -88,12 +88,20 @@ export function renderFoto(foto: string, classes = 'w-full h-full object-cover')
     foto &&
     (foto.startsWith('data:image/') ||
       foto.startsWith('blob:') ||
+      foto.startsWith('https://') ||
+      foto.startsWith('http://') ||
       foto.endsWith('.png') ||
       foto.endsWith('.jpg') ||
       foto.endsWith('.jpeg') ||
       foto.includes('images/'))
   ) {
-    return { type: 'img', src: foto, classes };
+    let src = foto;
+    if (src.startsWith('http://')) {
+      src = 'https://' + src.slice('http://'.length);
+    } else if (!src.startsWith('https://') && !src.startsWith('data:') && !src.startsWith('blob:') && !src.startsWith('/')) {
+      src = '/' + src;
+    }
+    return { type: 'img', src, classes };
   }
   const emoji = foto || '🚗';
   return { type: 'emoji', emoji };

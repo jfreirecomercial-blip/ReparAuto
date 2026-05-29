@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { MOTIVOS_DENUNCIA } from '@/lib/constants';
 import { formatarDataHora } from '@/lib/utils';

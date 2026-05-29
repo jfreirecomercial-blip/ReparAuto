@@ -1,3 +1,5 @@
+'use client';
+
 import { renderFoto } from '@/lib/utils';
 
 export default function FotoRender({ foto, classes }: { foto: string; classes?: string }) {

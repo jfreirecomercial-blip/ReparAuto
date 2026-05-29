@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { MOTIVOS_DENUNCIA } from '@/lib/constants';
 import type { MotivoReport, TipoReport } from '@/types/report';

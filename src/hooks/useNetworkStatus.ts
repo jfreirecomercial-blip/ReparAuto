@@ -1,3 +1,5 @@
+'use client';
+
 import { useSyncExternalStore } from 'react';
 
 type ConnectionSpeed = 'fast' | 'slow' | 'offline';

@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useCallback } from 'react';
 import { requestNotificationPermission } from '@/lib/fcm';
 import { doc, setDoc } from 'firebase/firestore';
