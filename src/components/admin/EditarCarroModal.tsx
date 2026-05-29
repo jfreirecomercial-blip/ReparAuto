@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
-import { TIPOS_COMBUSTIVEL, TIPOS_CAMBIO } from '@/lib/constants';
+import { TIPOS_COMBUSTIVEL, TIPOS_CAMBIO, MAX_FOTOS_CARRO } from '@/lib/constants';
 import { getDistritoForConcelho, getCoordenadas } from '@/lib/geo';
 import SeletorLocalizacao from '@/components/ui/SeletorLocalizacao';
 import FotosEditor from '@/components/anunciar/FotosEditor';
@@ -121,7 +121,7 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
 
       <div className="mb-4">
         <label className="block text-xs font-semibold text-slate-500 mb-2">Fotos</label>
-        <FotosEditor fotos={fotos} setFotos={setFotos} max={6} />
+        <FotosEditor fotos={fotos} setFotos={setFotos} max={MAX_FOTOS_CARRO} />
         {fotos.length === 0 && (
           <p className="text-xs text-red-500 mt-2">Adicione pelo menos 1 foto do veículo.</p>
         )}

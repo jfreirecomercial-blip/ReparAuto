@@ -1,54 +1,87 @@
 'use client';
 
-import { useRef } from 'react';
-import { EMOJIS_CARRO } from '@/lib/constants';
+import { useRef, useState } from 'react';
+import { EMOJIS_CARRO, MAX_FOTO_SIZE_BYTES, MAX_FOTO_SIZE_MB } from '@/lib/constants';
 
 interface FotosEditorProps {
   fotos: string[];
   setFotos: (fotos: string[]) => void;
   max?: number;
   mostrarEmoji?: boolean;
+  /** Show a "Capa" badge on the first photo. Defaults to true when max > 1. */
+  mostrarCapa?: boolean;
 }
+
+const lerComoDataURL = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error ?? new Error('Falha a ler ficheiro'));
+    reader.readAsDataURL(file);
+  });
 
 export default function FotosEditor({
   fotos,
   setFotos,
   max = 6,
   mostrarEmoji = true,
+  mostrarCapa,
 }: FotosEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [erro, setErro] = useState<string | null>(null);
 
-  const processarFotos = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const exibirCapa = mostrarCapa ?? max > 1;
+
+  const processarFotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const novasFotos: string[] = [];
-    files.forEach((file) => {
-      if (novasFotos.length + fotos.length >= max) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        novasFotos.push(ev.target?.result as string);
-        if (novasFotos.length === files.length || novasFotos.length + fotos.length >= max) {
-          setFotos([...fotos, ...novasFotos].slice(0, max));
-        }
-      };
-      reader.readAsDataURL(file);
-    });
     if (fileInputRef.current) fileInputRef.current.value = '';
+    if (files.length === 0) return;
+
+    const espacoLivre = Math.max(0, max - fotos.length);
+    const candidatos = files.slice(0, espacoLivre);
+    const tooMany = files.length > espacoLivre;
+
+    const oversize = candidatos.filter((f) => f.size > MAX_FOTO_SIZE_BYTES);
+    const validos = candidatos.filter((f) => f.size <= MAX_FOTO_SIZE_BYTES);
+
+    try {
+      const dataURLs = await Promise.all(validos.map(lerComoDataURL));
+      if (dataURLs.length > 0) {
+        setFotos([...fotos, ...dataURLs].slice(0, max));
+      }
+    } catch {
+      setErro('Não foi possível processar uma das imagens.');
+      return;
+    }
+
+    if (oversize.length > 0) {
+      setErro(
+        `${oversize.length === 1 ? 'Uma imagem excedeu' : `${oversize.length} imagens excederam`} o limite de ${MAX_FOTO_SIZE_MB} MB e ${oversize.length === 1 ? 'foi ignorada' : 'foram ignoradas'}.`,
+      );
+    } else if (tooMany) {
+      setErro(`Só pode adicionar até ${max} fotos no total.`);
+    } else {
+      setErro(null);
+    }
   };
 
   const adicionarEmoji = () => {
     const emoji = EMOJIS_CARRO[Math.floor(Math.random() * EMOJIS_CARRO.length)];
     setFotos([...fotos, emoji].slice(0, max));
+    setErro(null);
   };
 
   const removerFoto = (index: number) => {
     setFotos(fotos.filter((_, i) => i !== index));
+    setErro(null);
   };
 
   const podeAdicionar = fotos.length < max;
+  const alturaFoto = max === 1 ? 'h-40' : 'h-20';
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row gap-3 mb-3">
         <label
           className={`flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold px-4 py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 border-dashed ${
             podeAdicionar ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
@@ -77,45 +110,60 @@ export default function FotosEditor({
         )}
       </div>
 
+      <p className="text-[11px] text-slate-400 mb-3">
+        Máximo {max} {max === 1 ? 'foto' : 'fotos'} · até {MAX_FOTO_SIZE_MB} MB cada.
+        {exibirCapa && ' A primeira foto será a capa do anúncio.'}
+      </p>
+
+      {erro && (
+        <p className="text-xs text-red-500 mb-3" role="alert">
+          {erro}
+        </p>
+      )}
+
       <div className={`grid gap-3 ${max === 1 ? 'grid-cols-1' : 'grid-cols-3 sm:grid-cols-6'}`}>
-        {fotos.map((foto, i) => (
-          <div key={i} className="relative group">
-            {foto.startsWith('data:') || foto.startsWith('http') ? (
-              <img
-                src={foto}
-                alt={`Foto ${i + 1}`}
-                className={`w-full object-cover rounded-lg border border-slate-200 ${
-                  max === 1 ? 'h-40' : 'h-20'
-                }`}
-              />
-            ) : (
-              <div
-                className={`w-full flex items-center justify-center text-3xl bg-slate-50 rounded-lg border border-slate-200 ${
-                  max === 1 ? 'h-40' : 'h-20'
-                }`}
+        {fotos.map((foto, i) => {
+          const isImg = foto.startsWith('data:') || foto.startsWith('http');
+          return (
+            <div key={i} className="relative group">
+              {isImg ? (
+                <img
+                  src={foto}
+                  alt={`Foto ${i + 1}`}
+                  className={`w-full object-cover rounded-lg border border-slate-200 ${alturaFoto}`}
+                />
+              ) : (
+                <div
+                  className={`w-full flex items-center justify-center text-3xl bg-slate-50 rounded-lg border border-slate-200 ${alturaFoto}`}
+                >
+                  {foto}
+                </div>
+              )}
+              {exibirCapa && i === 0 && (
+                <span className="absolute bottom-1 left-1 bg-accent text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                  Capa
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => removerFoto(i)}
+                aria-label={`Remover foto ${i + 1}`}
+                className="absolute -top-1.5 -right-1.5 w-6 h-6 sm:w-5 sm:h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition shadow"
               >
-                {foto}
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={() => removerFoto(i)}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow"
-            >
-              <i className="fa-solid fa-times"></i>
-            </button>
-          </div>
-        ))}
+                <i className="fa-solid fa-times"></i>
+              </button>
+            </div>
+          );
+        })}
         {Array.from({ length: Math.max(0, max - fotos.length) }).map((_, i) => (
-          <div
+          <button
+            type="button"
             key={`empty-${i}`}
             onClick={() => fileInputRef.current?.click()}
-            className={`w-full border-2 border-dashed border-slate-200 rounded-lg flex items-center justify-center text-slate-300 text-xs cursor-pointer hover:bg-slate-50 transition ${
-              max === 1 ? 'h-40' : 'h-20'
-            }`}
+            className={`w-full border-2 border-dashed border-slate-200 rounded-lg flex items-center justify-center text-slate-300 text-xs cursor-pointer hover:bg-slate-50 transition ${alturaFoto}`}
           >
             {fotos.length + i + 1}
-          </div>
+          </button>
         ))}
       </div>
     </div>

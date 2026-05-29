@@ -1,6 +1,7 @@
 'use client';
 
 import FotosEditor from '@/components/anunciar/FotosEditor';
+import { MAX_FOTOS_CARRO } from '@/lib/constants';
 
 interface StepFotosProps {
   fotos: string[];
@@ -14,10 +15,10 @@ export default function StepFotos({ fotos, setFotos, onNext, onBack }: StepFotos
     <div>
       <h3 className="font-bold text-lg mb-3">📸 Fotos do carro</h3>
       <p className="text-sm text-gray-500 mb-4">
-        Carregue ou adicione fotos reais para mostrar o estado do veículo (máximo 6 fotos, mínimo 1).
+        Carregue ou adicione fotos reais para mostrar o estado do veículo (máximo {MAX_FOTOS_CARRO} fotos, mínimo 1).
       </p>
 
-      <FotosEditor fotos={fotos} setFotos={setFotos} max={6} />
+      <FotosEditor fotos={fotos} setFotos={setFotos} max={MAX_FOTOS_CARRO} />
 
       {fotos.length === 0 && (
         <p className="text-xs text-red-500 mt-4 block">
