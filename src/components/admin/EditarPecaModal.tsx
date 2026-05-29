@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
+import Button from '@/components/ui/Button';
 import { CATEGORIAS_PECAS } from '@/lib/constants';
 import FotosEditor from '@/components/anunciar/FotosEditor';
 import type { Peca, TipoPeca } from '@/types/peca';
@@ -59,7 +60,7 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
     <Modal show={show} onClose={onClose} titulo={`Editar Peça — ${peca.titulo}`} tamanho="md">
       <div className="space-y-4">
         <div>
-          <label className="block text-xs font-bold text-slate-500 mb-2">Tipo</label>
+          <label className="block text-xs font-bold text-fg-subtle mb-2">Tipo</label>
           <div className="flex gap-2">
             {(['venda', 'desmonte', 'procura'] as TipoPeca[]).map((opt) => (
               <label
@@ -67,7 +68,7 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
                 className={`flex-1 flex items-center justify-center p-2 border-2 rounded-xl cursor-pointer transition text-center select-none text-xs font-bold ${
                   form.tipo === opt
                     ? 'border-accent bg-orange-50/30 text-accent'
-                    : 'border-slate-200 bg-slate-50 text-slate-600'
+                    : 'border-slate-200 bg-slate-50 text-fg-muted'
                 }`}
               >
                 <input
@@ -85,7 +86,7 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-500 mb-1">Título</label>
+          <label className="block text-xs font-bold text-fg-subtle mb-1">Título</label>
           <input
             type="text"
             value={form.titulo}
@@ -96,7 +97,7 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-bold text-slate-500 mb-1">Categoria</label>
+            <label className="block text-xs font-bold text-fg-subtle mb-1">Categoria</label>
             <select
               value={form.categoria}
               onChange={(e) => atualizar('categoria', e.target.value)}
@@ -108,7 +109,7 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
             </select>
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-500 mb-1">Estado</label>
+            <label className="block text-xs font-bold text-fg-subtle mb-1">Estado</label>
             <input
               type="text"
               value={form.estado}
@@ -120,7 +121,7 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-bold text-slate-500 mb-1">Marca Carro</label>
+            <label className="block text-xs font-bold text-fg-subtle mb-1">Marca Carro</label>
             <input
               type="text"
               value={form.marcaCarro}
@@ -129,7 +130,7 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-500 mb-1">Modelo (opcional)</label>
+            <label className="block text-xs font-bold text-fg-subtle mb-1">Modelo (opcional)</label>
             <input
               type="text"
               value={form.modeloCarro}
@@ -141,7 +142,7 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-bold text-slate-500 mb-1">Preço (€)</label>
+            <label className="block text-xs font-bold text-fg-subtle mb-1">Preço (€)</label>
             <input
               type="number"
               value={form.preco}
@@ -150,7 +151,7 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-500 mb-1">Local</label>
+            <label className="block text-xs font-bold text-fg-subtle mb-1">Local</label>
             <input
               type="text"
               value={form.local}
@@ -161,12 +162,12 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-500 mb-2">Foto</label>
+          <label className="block text-xs font-bold text-fg-subtle mb-2">Foto</label>
           <FotosEditor fotos={fotos} setFotos={setFotos} max={1} />
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-500 mb-1">Descrição</label>
+          <label className="block text-xs font-bold text-fg-subtle mb-1">Descrição</label>
           <textarea
             rows={4}
             value={form.descricao}
@@ -176,19 +177,20 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
         </div>
 
         <div className="flex gap-3 justify-end border-t border-slate-200 pt-4">
-          <button
+          <Button
+            tipo="secundario"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-bold rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 transition"
           >
             Cancelar
-          </button>
-          <button
+          </Button>
+          <Button
+            tipo="primario"
             onClick={handleSave}
             disabled={saving}
-            className="px-6 py-2 text-sm font-bold rounded-xl bg-accent text-white hover:bg-accent-hover transition disabled:opacity-50"
+            carregando={saving}
           >
             {saving ? 'A guardar...' : 'Guardar Alterações'}
-          </button>
+          </Button>
         </div>
       </div>
     </Modal>

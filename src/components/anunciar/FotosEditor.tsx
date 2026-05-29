@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { CaretLeft, CaretRight, UploadSimple, X } from '@phosphor-icons/react';
 import { EMOJIS_CARRO, MAX_FOTO_SIZE_BYTES, MAX_FOTO_SIZE_MB } from '@/lib/constants';
 
 interface FotosEditorProps {
@@ -127,11 +128,11 @@ export default function FotosEditor({
     <div>
       <div className="flex flex-col sm:flex-row gap-3 mb-3">
         <label
-          className={`flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold px-4 py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 border-dashed ${
+          className={`flex-1 bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 text-fg font-semibold px-4 py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 border-dashed ${
             podeAdicionar ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
           }`}
         >
-          <i className="fa-solid fa-upload"></i> Carregar Imagens Reais
+          <UploadSimple /> Carregar Imagens Reais
           <input
             ref={fileInputRef}
             type="file"
@@ -147,14 +148,14 @@ export default function FotosEditor({
             type="button"
             onClick={adicionarEmoji}
             disabled={!podeAdicionar}
-            className="bg-white hover:bg-slate-50 text-slate-600 font-medium px-4 py-3 rounded-xl text-xs transition border border-slate-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-white hover:bg-neutral-50 text-fg-subtle font-medium px-4 py-3 rounded-xl text-xs transition border border-neutral-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             🎲 Adicionar Emoji Rápido
           </button>
         )}
       </div>
 
-      <p className="text-[11px] text-slate-400 mb-3">
+      <p className="text-[11px] text-fg-muted mb-3">
         Máximo {max} {max === 1 ? 'foto' : 'fotos'} · até {MAX_FOTO_SIZE_MB} MB cada.
         {exibirCapa && ' A primeira foto será a capa do anúncio.'}
         {podeReordenar && ' Arraste para reordenar.'}
@@ -188,11 +189,11 @@ export default function FotosEditor({
                   src={foto}
                   alt={`Foto ${i + 1}`}
                   draggable={false}
-                  className={`w-full object-cover rounded-lg border border-slate-200 ${alturaFoto} pointer-events-none`}
+                  className={`w-full object-cover rounded-lg border border-neutral-200 ${alturaFoto} pointer-events-none`}
                 />
               ) : (
                 <div
-                  className={`w-full flex items-center justify-center text-3xl bg-slate-50 rounded-lg border border-slate-200 ${alturaFoto} pointer-events-none`}
+                  className={`w-full flex items-center justify-center text-3xl bg-neutral-50 rounded-lg border border-neutral-200 ${alturaFoto} pointer-events-none`}
                 >
                   {foto}
                 </div>
@@ -211,18 +212,18 @@ export default function FotosEditor({
                     onClick={() => moverFoto(i, i - 1)}
                     disabled={i === 0}
                     aria-label={`Mover foto ${i + 1} para a esquerda`}
-                    className="w-5 h-5 bg-white/90 text-slate-700 rounded text-[10px] flex items-center justify-center shadow border border-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white"
+                    className="w-5 h-5 bg-white/90 text-fg rounded flex items-center justify-center shadow border border-neutral-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white"
                   >
-                    <i className="fa-solid fa-chevron-left"></i>
+                    <CaretLeft size={10} weight="bold" />
                   </button>
                   <button
                     type="button"
                     onClick={() => moverFoto(i, i + 1)}
                     disabled={i === fotos.length - 1}
                     aria-label={`Mover foto ${i + 1} para a direita`}
-                    className="w-5 h-5 bg-white/90 text-slate-700 rounded text-[10px] flex items-center justify-center shadow border border-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white"
+                    className="w-5 h-5 bg-white/90 text-fg rounded flex items-center justify-center shadow border border-neutral-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white"
                   >
-                    <i className="fa-solid fa-chevron-right"></i>
+                    <CaretRight size={10} weight="bold" />
                   </button>
                 </div>
               )}
@@ -231,9 +232,9 @@ export default function FotosEditor({
                 type="button"
                 onClick={() => removerFoto(i)}
                 aria-label={`Remover foto ${i + 1}`}
-                className="absolute -top-1.5 -right-1.5 w-6 h-6 sm:w-5 sm:h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition shadow"
+                className="absolute -top-1.5 -right-1.5 w-6 h-6 sm:w-5 sm:h-5 bg-danger-600 text-white rounded-full flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition shadow"
               >
-                <i className="fa-solid fa-times"></i>
+                <X size={12} weight="bold" />
               </button>
             </div>
           );
@@ -243,7 +244,7 @@ export default function FotosEditor({
             type="button"
             key={`empty-${i}`}
             onClick={() => fileInputRef.current?.click()}
-            className={`w-full border-2 border-dashed border-slate-200 rounded-lg flex items-center justify-center text-slate-300 text-xs cursor-pointer hover:bg-slate-50 transition ${alturaFoto}`}
+            className={`w-full border-2 border-dashed border-neutral-200 rounded-lg flex items-center justify-center text-fg-muted text-xs cursor-pointer hover:bg-neutral-50 transition ${alturaFoto}`}
           >
             {fotos.length + i + 1}
           </button>

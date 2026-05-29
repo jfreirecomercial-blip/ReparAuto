@@ -1,6 +1,7 @@
 'use client';
 
 import FotosEditor from '@/components/anunciar/FotosEditor';
+import Button from '@/components/ui/Button';
 import { MAX_FOTOS_CARRO } from '@/lib/constants';
 
 interface StepFotosProps {
@@ -14,7 +15,7 @@ export default function StepFotos({ fotos, setFotos, onNext, onBack }: StepFotos
   return (
     <div>
       <h3 className="font-bold text-lg mb-3">📸 Fotos do carro</h3>
-      <p className="text-sm text-gray-500 mb-4">
+      <p className="text-sm text-fg-subtle mb-4">
         Carregue ou adicione fotos reais para mostrar o estado do veículo (máximo {MAX_FOTOS_CARRO} fotos, mínimo 1).
       </p>
 
@@ -28,24 +29,24 @@ export default function StepFotos({ fotos, setFotos, onNext, onBack }: StepFotos
 
       <div className="flex gap-3 mt-6">
         {onBack && (
-          <button
+          <Button
+            tipo="secundario"
+            tamanho="lg"
             onClick={onBack}
-            className="flex-1 bg-white hover:bg-slate-50 text-brand-700 font-bold py-3 rounded-xl transition border border-slate-300"
+            className="flex-1"
           >
             Voltar
-          </button>
+          </Button>
         )}
-        <button
+        <Button
+          tipo="primario"
+          tamanho="lg"
           onClick={onNext}
           disabled={fotos.length === 0}
-          className={`flex-1 font-bold py-3 rounded-xl transition ${
-            fotos.length === 0
-              ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-              : 'bg-accent hover:bg-accent-hover text-white'
-          }`}
+          className="flex-1"
         >
           Continuar
-        </button>
+        </Button>
       </div>
     </div>
   );
