@@ -4,6 +4,24 @@ import type { StatusAnuncio } from './carro';
 export type TipoPeca = 'venda' | 'desmonte' | 'procura';
 export type FiltroTipoPeca = 'todos' | TipoPeca;
 
+export type PartCategory =
+  | 'Motor e Transmissão'
+  | 'Carroçaria e Chaparia'
+  | 'Iluminação e Óticas'
+  | 'Interior e Bancos'
+  | 'Suspensão e Travões'
+  | 'Eletrónica e Sensores'
+  | 'Carro Completo p/ Desmonte'
+  | 'Outros';
+
+export interface CompatibilityEntry {
+  marca: string;
+  modelo?: string;
+  anoInicio?: number;
+  anoFim?: number;
+  motor?: string;
+}
+
 export interface Peca {
   id: string;
   tipo: TipoPeca;
@@ -11,6 +29,8 @@ export interface Peca {
   categoria: string;
   marcaCarro: string;
   modeloCarro?: string;
+  compatibilidades?: CompatibilityEntry[];
+  precoNovoReferencia?: number;
   preco: number | null;
   estado: string;
   local: string;
@@ -30,6 +50,7 @@ export interface Peca {
   dataAprovacao?: Timestamp;
   visualizacoes?: number;
   contagemMensagens?: number;
+  bulkLoteId?: string;
 }
 
 export type PecaInput = Omit<Peca, 'id' | 'dataCriacao'> & { dataCriacao?: Timestamp };
@@ -47,4 +68,5 @@ export interface PecaFormData {
   vendedorTelefone: string;
   vendedorWhatsApp: string;
   vendedorEmail: string;
+  compatibilidades?: CompatibilityEntry[];
 }

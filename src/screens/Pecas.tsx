@@ -6,6 +6,7 @@ import PecasFilter from '@/components/pecas/PecasFilter';
 import PecasGrid from '@/components/pecas/PecasGrid';
 import CriarPecaModal from '@/components/pecas/CriarPecaModal';
 import DetalhesPecaModal from '@/components/pecas/DetalhesPecaModal';
+import DesmancharCarroModal from '@/components/pecas/DesmancharCarroModal';
 import type { Peca } from '@/types/peca';
 
 export default function Pecas() {
@@ -13,6 +14,7 @@ export default function Pecas() {
   const { pecasFiltradas } = pecas;
 
   const [criarModalAberto, setCriarModalAberto] = useState(false);
+  const [desmancharAberto, setDesmancharAberto] = useState(false);
   const [detalhesPeca, setDetalhesPeca] = useState<Peca | null>(null);
 
   const filtered = pecasFiltradas;
@@ -26,12 +28,20 @@ export default function Pecas() {
             <p className="mt-2 text-gray-300 text-sm sm:text-base">
               Compra, venda e procura de peças automóveis ou veículos completos para desmantelamento.
             </p>
-            <button
-              onClick={() => setCriarModalAberto(true)}
-              className="mt-4 bg-accent hover:bg-accent-hover text-white font-bold px-5 py-2.5 rounded-full transition text-sm sm:text-base shadow-md flex items-center gap-2"
-            >
-              <i className="fa-solid fa-circle-plus"></i> Publicar Peça ou Pedido
-            </button>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                onClick={() => setCriarModalAberto(true)}
+                className="bg-accent hover:bg-accent-hover text-white font-bold px-5 py-2.5 rounded-full transition text-sm sm:text-base shadow-md flex items-center gap-2"
+              >
+                <i className="fa-solid fa-circle-plus"></i> Publicar Peça ou Pedido
+              </button>
+              <button
+                onClick={() => setDesmancharAberto(true)}
+                className="bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold px-5 py-2.5 rounded-full transition text-sm sm:text-base flex items-center gap-2"
+              >
+                <i className="fa-solid fa-car-burst"></i> Desmanchar Carro
+              </button>
+            </div>
           </div>
         </div>
         <i className="fa-solid fa-gears absolute right-[-20px] bottom-[-20px] text-white/5 text-[15rem] pointer-events-none transform -rotate-12"></i>
@@ -43,6 +53,10 @@ export default function Pecas() {
       <CriarPecaModal
         show={criarModalAberto}
         onClose={() => setCriarModalAberto(false)}
+      />
+      <DesmancharCarroModal
+        show={desmancharAberto}
+        onClose={() => setDesmancharAberto(false)}
       />
       <DetalhesPecaModal
         show={!!detalhesPeca}

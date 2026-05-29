@@ -9,6 +9,7 @@ import TechnicalSheet from '@/components/detalhes/TechnicalSheet';
 import StatusPanel from '@/components/detalhes/StatusPanel';
 import ContactSection from '@/components/detalhes/ContactSection';
 import GalleryModal from '@/components/detalhes/GalleryModal';
+import CompatibleParts from '@/components/pecas/CompatibleParts';
 import VinCheckPanel from '@/components/trust/VinCheckPanel';
 import Badge from '@/components/ui/Badge';
 import ShareButton from '@/components/ui/ShareButton';
@@ -198,6 +199,10 @@ export default function DetalhesCarro() {
 
         <div className="mt-6">
           <VinCheckPanel />
+        </div>
+
+        <div className="mt-6">
+          <CompatibleParts carro={carro} />
         </div>
       </div>
 

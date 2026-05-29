@@ -6,6 +6,8 @@ import { useApp } from '@/providers/AppProvider';
 import { getAdminUsers, criarNotificacao } from '@/lib/db';
 import { getCoordenadas } from '@/lib/geo';
 import SeletorLocalizacao from '@/components/ui/SeletorLocalizacao';
+import CompatibilitySelector from '@/components/pecas/CompatibilitySelector';
+import type { CompatibilityEntry } from '@/types/peca';
 
 interface PecaFormProps {
   onSuccess?: () => void;
@@ -24,8 +26,8 @@ export default function PecaForm({ onSuccess, onCancel }: PecaFormProps) {
     titulo: '',
     categoria: 'Motor e Transmissão',
     estado: 'Usado',
-    marcaCarro: '',
     preco: '',
+    precoNovoReferencia: '',
     descricao: '',
     localizacao: '',
     localizacaoDistrito: '',
@@ -34,6 +36,7 @@ export default function PecaForm({ onSuccess, onCancel }: PecaFormProps) {
     vendedorEmail: user?.email || '',
   });
 
+  const [compatibilidades, setCompatibilidades] = useState<CompatibilityEntry[]>([]);
   const [erro, setErro] = useState('');
   const [telefoneDiferente, setTelefoneDiferente] = useState(false);
 
@@ -53,19 +56,25 @@ export default function PecaForm({ onSuccess, onCancel }: PecaFormProps) {
       setErro('O título é obrigatório.');
       return;
     }
-    if (!form.marcaCarro.trim()) {
-      setErro('A marca do carro compatível é obrigatória.');
+    if (compatibilidades.length === 0) {
+      setErro('Adicione pelo menos uma compatibilidade (marca/modelo).');
       return;
     }
 
     try {
+      const primaria = compatibilidades[0];
+      const precoNovoNum = form.precoNovoReferencia ? Number(form.precoNovoReferencia) : null;
+      const { precoNovoReferencia: _precoRef, localizacao: _loc, localizacaoDistrito: _locDist, ...formBase } = form;
+      void _precoRef; void _loc; void _locDist;
       await publicarPeca({
-        ...form,
+        ...formBase,
+        marcaCarro: primaria.marca,
+        modeloCarro: primaria.modelo || undefined,
+        compatibilidades,
+        ...(precoNovoNum && precoNovoNum > 0 ? { precoNovoReferencia: precoNovoNum } : {}),
         local: form.localizacao,
         distrito: form.localizacaoDistrito || undefined,
         coordenadas: form.localizacao ? getCoordenadas(form.localizacao) : undefined,
-        localizacao: undefined,
-        localizacaoDistrito: undefined,
         preco: form.preco ? Number(form.preco) : null,
         criador: user?.email || '',
         criadorUid: user?.uid || '',
@@ -85,8 +94,8 @@ export default function PecaForm({ onSuccess, onCancel }: PecaFormProps) {
         titulo: '',
         categoria: 'Motor e Transmissão',
         estado: 'Usado',
-        marcaCarro: '',
         preco: '',
+        precoNovoReferencia: '',
         descricao: '',
         localizacao: '',
         localizacaoDistrito: '',
@@ -94,6 +103,7 @@ export default function PecaForm({ onSuccess, onCancel }: PecaFormProps) {
         vendedorWhatsApp: '',
         vendedorEmail: '',
       });
+      setCompatibilidades([]);
 
       onSuccess?.();
     } catch (err) {
@@ -181,19 +191,13 @@ export default function PecaForm({ onSuccess, onCancel }: PecaFormProps) {
         </div>
       </div>
 
+      <CompatibilitySelector
+        value={compatibilidades}
+        onChange={setCompatibilidades}
+        required
+      />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs font-bold text-slate-500 mb-1">
-            Marca do Carro Compatível <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Ex: Seat, Peugeot, BMW"
-            value={form.marcaCarro}
-            onChange={(e) => atualizar('marcaCarro', e.target.value)}
-            className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:border-accent"
-          />
-        </div>
         <div>
           <label className="block text-xs font-bold text-slate-500 mb-1">
             Preço (€) {form.tipo !== 'procura' ? <span className="text-red-500">*</span> : '(opcional)'}
@@ -203,6 +207,18 @@ export default function PecaForm({ onSuccess, onCancel }: PecaFormProps) {
             placeholder={form.tipo === 'procura' ? 'Opcional' : 'Ex: 150'}
             value={form.preco}
             onChange={(e) => atualizar('preco', e.target.value)}
+            className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:border-accent"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-slate-500 mb-1">
+            Preço de Referência Novo (€) <span className="text-slate-400 font-normal">opcional</span>
+          </label>
+          <input
+            type="number"
+            placeholder="Preço novo em catálogo"
+            value={form.precoNovoReferencia}
+            onChange={(e) => atualizar('precoNovoReferencia', e.target.value)}
             className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:border-accent"
           />
         </div>

@@ -6,6 +6,9 @@ import Badge from '@/components/ui/Badge';
 import { formatarPreco, obterWhatsApp } from '@/lib/utils';
 import { getUserByEmail, incrementCampo } from '@/lib/db';
 import { useApp } from '@/providers/AppProvider';
+import { formatCompatibilityEntry } from '@/lib/compatibility';
+import CompatibleVehicles from '@/components/pecas/CompatibleVehicles';
+import PriceReferenceBadge from '@/components/pecas/PriceReferenceBadge';
 import type { Peca, TipoPeca } from '@/types/peca';
 
 const tipoConfig: Record<TipoPeca, { cor: 'blue' | 'yellow' | 'gray'; icon: string; label: string }> = {
@@ -70,6 +73,8 @@ export default function DetalhesPecaModal({ show, onClose, peca }: DetalhesPecaM
 
         <h3 className="text-xl font-extrabold text-brand-900">{peca.titulo}</h3>
 
+        <PriceReferenceBadge peca={peca} />
+
         <div className="grid grid-cols-2 gap-3 text-sm bg-slate-50 rounded-xl p-4">
           <div>
             <span className="text-xs font-semibold text-slate-500">Categoria</span>
@@ -88,6 +93,27 @@ export default function DetalhesPecaModal({ show, onClose, peca }: DetalhesPecaM
             <p className="font-semibold text-brand-800">{peca.local || 'Portugal'}</p>
           </div>
         </div>
+
+        {peca.compatibilidades && peca.compatibilidades.length > 0 && (
+          <div>
+            <span className="text-xs font-semibold text-slate-500 block mb-2">
+              <i className="fa-solid fa-car-side text-accent mr-1"></i>
+              Compatível com
+            </span>
+            <ul className="flex flex-wrap gap-1.5">
+              {peca.compatibilidades.map((entry, i) => (
+                <li
+                  key={i}
+                  className="text-[11px] font-semibold bg-orange-50 border border-orange-200 text-brand-800 rounded-full px-2.5 py-1"
+                >
+                  {formatCompatibilityEntry(entry)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <CompatibleVehicles peca={peca} />
 
         {peca.descricao && (
           <div>

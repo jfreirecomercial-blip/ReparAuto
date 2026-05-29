@@ -676,6 +676,62 @@ export async function updatePecaStatus(id: string, status: StatusAnuncio): Promi
   }
 }
 
+export async function matchAndNotifyForPeca(peca: Peca): Promise<number> {
+  try {
+    if (peca.tipo === 'procura') return 0;
+    const qProcuras = query(
+      collection(db, PECAS_COLLECTION),
+      where('status', '==', 'aprovado'),
+      where('tipo', '==', 'procura'),
+    );
+    const snap = await getDocs(qProcuras);
+    const procuras = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Peca));
+    const matchesProcura = (oferta: Peca, procura: Peca): boolean => {
+      if (procura.categoria && oferta.categoria && procura.categoria !== oferta.categoria) return false;
+      const ofertaCompats = oferta.compatibilidades || [];
+      const procuraCompats = procura.compatibilidades || [];
+      if (procuraCompats.length > 0 && ofertaCompats.length > 0) {
+        return procuraCompats.some((pc) =>
+          ofertaCompats.some((oc) => {
+            if (pc.marca.toLowerCase() !== oc.marca.toLowerCase()) return false;
+            if (pc.modelo && oc.modelo) {
+              const a = pc.modelo.toLowerCase();
+              const b = oc.modelo.toLowerCase();
+              if (!a.includes(b) && !b.includes(a)) return false;
+            }
+            return true;
+          }),
+        );
+      }
+      if (procura.marcaCarro && oferta.marcaCarro) {
+        return procura.marcaCarro.toLowerCase() === oferta.marcaCarro.toLowerCase();
+      }
+      return false;
+    };
+    const matches = procuras.filter(
+      (p) => p.criadorUid && p.criadorUid !== peca.criadorUid && matchesProcura(peca, p),
+    );
+    const seen = new Set<string>();
+    let notified = 0;
+    for (const procura of matches) {
+      if (!procura.criadorUid || seen.has(procura.criadorUid)) continue;
+      seen.add(procura.criadorUid);
+      await criarNotificacao(
+        procura.criadorUid,
+        'info',
+        'Peça encontrada!',
+        `Foi publicada uma peça que corresponde ao seu pedido "${procura.titulo}".`,
+        `/pecas`,
+      );
+      notified++;
+    }
+    return notified;
+  } catch (err) {
+    console.error('[DB] Erro em matchAndNotifyForPeca:', err);
+    return 0;
+  }
+}
+
 export async function getAllCarrosAdmin(): Promise<Carro[]> {
   try {
     const q = query(collection(db, CARROS_COLLECTION), orderBy('dataCriacao', 'desc'));

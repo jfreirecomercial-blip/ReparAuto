@@ -16,6 +16,7 @@ import {
   updateCarro,
   updatePeca,
   criarNotificacao,
+  matchAndNotifyForPeca,
   getAllIntencoesAdmin,
   updateIntencaoStatus,
   getDenunciasIntencao,
@@ -200,7 +201,13 @@ export default function Admin() {
       await updatePecaStatus(id, 'aprovado');
       setPecas((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'aprovado' } : p)));
       toast?.sucesso('Peça aprovada!');
-      if (p) await notificarUtilizador(p.criador, 'aprovado', p.titulo);
+      if (p) {
+        await notificarUtilizador(p.criador, 'aprovado', p.titulo);
+        const aprovada = { ...p, status: 'aprovado' as const };
+        matchAndNotifyForPeca(aprovada).then((n) => {
+          if (n > 0) toast?.info(`${n} compradores com pedidos compatíveis foram notificados.`);
+        });
+      }
     } catch {
       toast?.erro('Erro ao aprovar peça.');
     }
