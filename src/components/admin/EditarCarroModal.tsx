@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
-import { TIPOS_COMBUSTIVEL, TIPOS_CAMBIO } from '@/lib/constants';
+import { TIPOS_COMBUSTIVEL, TIPOS_CAMBIO, MAX_FOTOS_CARRO } from '@/lib/constants';
 import { getDistritoForConcelho, getCoordenadas } from '@/lib/geo';
 import SeletorLocalizacao from '@/components/ui/SeletorLocalizacao';
+import FotosEditor from '@/components/anunciar/FotosEditor';
 import type { Carro } from '@/types/carro';
 
 interface EditarCarroModalProps {
@@ -32,6 +33,7 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
     descricao: carro.descricao,
     estadoVeiculo: carro.estadoVeiculo,
   });
+  const [fotos, setFotos] = useState<string[]>(carro.fotos || []);
   const [saving, setSaving] = useState(false);
 
   const atualizar = (campo: string, valor: string) => {
@@ -57,6 +59,7 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
         coordenadas: form.local ? getCoordenadas(form.local) : undefined,
         descricao: form.descricao,
         estadoVeiculo: form.estadoVeiculo,
+        fotos,
       });
       onClose();
     } catch (err) {
@@ -118,6 +121,14 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
       </div>
 
       <div className="mb-4">
+        <label className="block text-xs font-semibold text-fg-subtle mb-2">Fotos</label>
+        <FotosEditor fotos={fotos} setFotos={setFotos} max={MAX_FOTOS_CARRO} />
+        {fotos.length === 0 && (
+          <p className="text-xs text-red-500 mt-2">Adicione pelo menos 1 foto do veículo.</p>
+        )}
+      </div>
+
+      <div className="mb-4">
         <label className="block text-xs font-semibold text-fg-subtle mb-1">Descrição</label>
         <textarea
           rows={4}
@@ -165,7 +176,7 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
         <Button
           tipo="primario"
           onClick={handleSave}
-          disabled={saving}
+          disabled={saving || fotos.length === 0}
           carregando={saving}
         >
           {saving ? 'A guardar...' : 'Guardar Alterações'}
