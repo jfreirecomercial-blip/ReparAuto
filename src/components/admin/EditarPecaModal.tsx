@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { CATEGORIAS_PECAS } from '@/lib/constants';
+import FotosEditor from '@/components/anunciar/FotosEditor';
 import type { Peca, TipoPeca } from '@/types/peca';
 
 interface EditarPecaModalProps {
@@ -24,6 +25,7 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
     local: peca.local,
     descricao: peca.descricao,
   });
+  const [fotos, setFotos] = useState<string[]>(peca.foto ? [peca.foto] : []);
   const [saving, setSaving] = useState(false);
 
   const atualizar = (campo: string, valor: string) => {
@@ -43,6 +45,7 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
         preco: form.preco ? Number(form.preco) : null,
         local: form.local,
         descricao: form.descricao,
+        foto: fotos[0] ?? null,
       });
       onClose();
     } catch (err) {
@@ -155,6 +158,11 @@ export default function EditarPecaModal({ show, onClose, peca, onSave }: EditarP
               className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:border-accent"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-slate-500 mb-2">Foto</label>
+          <FotosEditor fotos={fotos} setFotos={setFotos} max={1} />
         </div>
 
         <div>
