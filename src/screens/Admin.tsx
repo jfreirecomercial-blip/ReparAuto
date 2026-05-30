@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { ChartBar, Users, List, StarHalf, MagnifyingGlass, Flag, ShieldCheck, CircleNotch, ArrowsClockwise, type Icon } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
+import { Timestamp } from 'firebase/firestore';
 import { useApp } from '@/providers/AppProvider';
 import { useToast } from '@/components/ui/Toast';
 import {
@@ -17,6 +18,7 @@ import {
   updateCarro,
   updatePeca,
   criarNotificacao,
+  matchAndNotifyForPeca,
   getAllIntencoesAdmin,
   updateIntencaoStatus,
   getDenunciasIntencao,
@@ -200,9 +202,16 @@ export default function Admin() {
     try {
       const p = pecas.find((p) => p.id === id);
       await updatePecaStatus(id, 'aprovado');
-      setPecas((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'aprovado' } : p)));
+      const aprovadaTs = Timestamp.now();
+      setPecas((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'aprovado', dataAprovacao: aprovadaTs } : p)));
       toast?.sucesso('Peça aprovada!');
-      if (p) await notificarUtilizador(p.criador, 'aprovado', p.titulo);
+      if (p) {
+        await notificarUtilizador(p.criador, 'aprovado', p.titulo);
+        const aprovada = { ...p, status: 'aprovado' as const, dataAprovacao: aprovadaTs };
+        matchAndNotifyForPeca(aprovada).then((n) => {
+          if (n > 0) toast?.info(`${n} compradores com pedidos compatíveis foram notificados.`);
+        });
+      }
     } catch {
       toast?.erro('Erro ao aprovar peça.');
     }
