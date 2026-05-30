@@ -1,10 +1,10 @@
 'use client';
 
-import { ArrowLeft, Calendar, ChatCircleDots, Envelope, GasCan, Gear, IdentificationCard, MapPin, Money, Phone, SignIn, Speedometer, Star, User, WhatsappLogo } from '@phosphor-icons/react';
+import { ArrowLeft, Calendar, ChatCircleDots, CircleNotch, Envelope, GasCan, Gear, IdentificationCard, MapPin, Money, Phone, SignIn, Speedometer, Star, User, Warning, WhatsappLogo } from '@phosphor-icons/react';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useApp } from '@/providers/AppProvider';
-import { getUserByEmail } from '@/lib/db';
+import { getIntencaoCompra, getUserByEmail } from '@/lib/db';
 import { formatarPreco, formatarData, obterWhatsApp, gerarLinkWhatsApp } from '@/lib/utils';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
@@ -12,22 +12,54 @@ import SellerBadges from '@/components/trust/SellerBadges';
 import type { IntencaoCompra } from '@/types/intencao';
 import type { Usuario } from '@/types/usuario';
 
-export default function DetalhesIntencao({ intencao }: { intencao: IntencaoCompra }) {
+export default function DetalhesIntencao() {
+  const params = useParams<{ id: string }>();
+  const id = params?.id;
   const router = useRouter();
   const { auth, chat, loginModal } = useApp();
   const { user } = auth;
   const { abrirChat } = chat;
+  const [intencao, setIntencao] = useState<IntencaoCompra | null>(null);
+  const [loading, setLoading] = useState(true);
   const [mostrarTelefone, setMostrarTelefone] = useState(false);
   const [compradorProfile, setCompradorProfile] = useState<Usuario | null>(null);
 
   useEffect(() => {
-    if (!intencao.vendedorEmail) return;
+    if (!id) return;
+    getIntencaoCompra(id).then((data) => {
+      setIntencao(data);
+      setLoading(false);
+    });
+  }, [id]);
+
+  useEffect(() => {
+    if (!intencao?.vendedorEmail) return;
     let stale = false;
     getUserByEmail(intencao.vendedorEmail).then((found) => {
       if (!stale && found) setCompradorProfile(found);
     });
     return () => { stale = true; };
-  }, [intencao.vendedorEmail]);
+  }, [intencao?.vendedorEmail]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <CircleNotch className="animate-spin text-3xl text-accent" />
+      </div>
+    );
+  }
+
+  if (!intencao) {
+    return (
+      <div className="text-center py-12">
+        <Warning className="text-4xl text-slate-300 mb-3" />
+        <p className="font-semibold text-fg-muted">Intenção não encontrada</p>
+        <Button tipo="terciario" tamanho="sm" icone={<ArrowLeft />} onClick={() => router.push('/')} className="mt-4">
+          Voltar à página inicial
+        </Button>
+      </div>
+    );
+  }
 
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
   const whatsapp = obterWhatsApp(intencao.vendedorWhatsApp, intencao.vendedorTelefone);

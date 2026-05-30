@@ -32,10 +32,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function Page({ params }: PageProps) {
-  const { id } = await params;
-  const intencao = await getIntencaoPorIdServer(id);
-  if (!intencao || (intencao.status !== 'ativa' && intencao.status !== 'pausada')) notFound();
-
-  return <DetalhesIntencao intencao={intencao} />;
+export default async function Page() {
+  return <DetalhesIntencao />;
 }
