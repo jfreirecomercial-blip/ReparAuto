@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getIntencaoCompra } from '@/lib/db';
+import { getIntencaoPorIdServer } from '@/lib/db.server';
 import DetalhesIntencao from '@/screens/DetalhesIntencao';
 
 export const dynamic = 'force-dynamic';
@@ -11,7 +11,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://recargarage.com';
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const intencao = await getIntencaoCompra(id);
+  const intencao = await getIntencaoPorIdServer(id);
   if (!intencao || intencao.status !== 'ativa') {
     return { title: 'Intenção não encontrada', robots: { index: false, follow: false } };
   }
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
-  const intencao = await getIntencaoCompra(id);
+  const intencao = await getIntencaoPorIdServer(id);
   if (!intencao || (intencao.status !== 'ativa' && intencao.status !== 'pausada')) notFound();
 
   return <DetalhesIntencao intencao={intencao} />;
