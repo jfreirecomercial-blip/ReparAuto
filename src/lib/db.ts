@@ -1076,14 +1076,12 @@ export async function getIntencaoCompra(id: string): Promise<IntencaoCompra | nu
   try {
     const docRef = doc(db, INTENCOES_COLLECTION, id);
     const snap = await getDoc(docRef);
-    if (snap.exists()) {
-      await updateDoc(docRef as any, {
-        'stats.visualizacoes': increment(1),
-        'stats.visualizacoes7Dias': increment(1),
-      } as any);
-      return { id: snap.id, ...snap.data() } as IntencaoCompra;
-    }
-    return null;
+    if (!snap.exists()) return null;
+    updateDoc(docRef as any, {
+      'stats.visualizacoes': increment(1),
+      'stats.visualizacoes7Dias': increment(1),
+    } as any).catch(() => {});
+    return { id: snap.id, ...snap.data() } as IntencaoCompra;
   } catch (err) {
     console.error('[DB] Erro ao buscar intenção:', err);
     return null;
