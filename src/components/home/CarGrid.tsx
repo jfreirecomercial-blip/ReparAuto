@@ -10,7 +10,7 @@ import CarCard from './CarCard';
 import { CarCardSkeleton } from '@/components/ui/Skeleton';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 import { formatarPreco } from '@/lib/utils';
-import { buscarIntencoesMatch } from '@/lib/db';
+import { buscarIntencoesMatch, getIntencoesAtivas } from '@/lib/db';
 import type { IntencaoCompra } from '@/types/intencao';
 
 type TipoGrid = 'carros' | 'intencoes';
@@ -91,11 +91,18 @@ export default function CarGrid() {
   useEffect(() => {
     if (tipo !== 'intencoes') return;
     setLoadingIntencoes(true);
-    const carroExemplo = { marca: searchQuery || undefined, preco: advPriceMax || undefined, local: advDistrito || undefined };
-    buscarIntencoesMatch(carroExemplo, auth.user?.uid || '')
-      .then(setIntencoesMatch)
-      .catch(() => setIntencoesMatch([]))
-      .finally(() => setLoadingIntencoes(false));
+    if (searchQuery) {
+      const carroExemplo = { marca: searchQuery, preco: advPriceMax || undefined, local: advDistrito || undefined };
+      buscarIntencoesMatch(carroExemplo, auth.user?.uid || '')
+        .then(setIntencoesMatch)
+        .catch(() => setIntencoesMatch([]))
+        .finally(() => setLoadingIntencoes(false));
+    } else {
+      getIntencoesAtivas()
+        .then(setIntencoesMatch)
+        .catch(() => setIntencoesMatch([]))
+        .finally(() => setLoadingIntencoes(false));
+    }
   }, [tipo, searchQuery, advPriceMax, advDistrito, auth.user?.uid]);
 
   return (

@@ -7,6 +7,7 @@ import { useApp } from '@/providers/AppProvider';
 import { useToast } from '@/components/ui/Toast';
 import Button from '@/components/ui/Button';
 import { gerarTituloIntencao, validarIntencaoCompra } from '@/lib/utils';
+import { getAdminUsers, criarNotificacao } from '@/lib/db';
 import StepBasico from './StepBasico';
 import StepPrecoCombustivel from './StepPrecoCombustivel';
 import StepLocalizacao from './StepLocalizacao';
@@ -122,12 +123,17 @@ export default function CriarIntencaoCompra() {
         },
         contatoPreferido: form.contatoPreferido,
         mostrarTelefone: form.mostrarTelefone,
-        status: 'ativa',
         prioritaria: false,
       };
       if (form.descricao) dados.descricao = form.descricao;
       if (form.preferencias && Object.keys(form.preferencias).length > 0) dados.preferencias = form.preferencias;
-      await intencoes.criarIntencao(dados as any);
+      const intencaoId = await intencoes.criarIntencao(dados as any);
+      const admins = await getAdminUsers();
+      admins.forEach((a) => {
+        criarNotificacao(a.uid, 'info', 'Nova intenção pendente',
+          `Uma nova intenção de compra foi publicada: ${titulo}.`,
+          `/admin`);
+      });
       setSucesso(true);
       toast?.sucesso('Intenção de compra publicada com sucesso!');
     } catch (err: any) {

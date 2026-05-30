@@ -1,6 +1,6 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export type StatusIntencao = 'ativa' | 'pausada' | 'expirada' | 'deletada';
+export type StatusIntencao = 'pendente' | 'ativa' | 'pausada' | 'expirada' | 'deletada';
 export type ContatoPreferido = 'chat' | 'whatsapp' | 'ambos';
 export type StatusContato = 'aberto' | 'respondido' | 'aceito' | 'rejeitado' | 'finalizado';
 export type StatusDenunciaIntencao = 'aberta' | 'investigando' | 'resolvida';

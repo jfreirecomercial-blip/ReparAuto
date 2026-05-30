@@ -84,6 +84,15 @@ export default function Admin() {
   const carrosOrdenados = sortPendentesTop(carros);
   const pecasOrdenados = sortPendentesTop(pecas);
 
+  const intencoesOrdenadas = [...intencoesAdmin].sort((a, b) => {
+    const ordem: Record<string, number> = { pendente: 0, ativa: 1, pausada: 2, expirada: 3, deletada: 4 };
+    const diff = (ordem[a.status] ?? 99) - (ordem[b.status] ?? 99);
+    if (diff !== 0) return diff;
+    const aTime = a.atualizadaEm?.toDate?.()?.getTime() || 0;
+    const bTime = b.atualizadaEm?.toDate?.()?.getTime() || 0;
+    return bTime - aTime;
+  });
+
   const carregarDados = async () => {
     setLoading(true);
     try {
@@ -232,6 +241,39 @@ export default function Admin() {
       setIntencoesAdmin((prev) => prev.map((i) => (i.id === id ? { ...i, status: status as any } : i)));
       toast?.sucesso(`Intenção ${status}.`);
     } catch { toast?.erro('Erro ao atualizar intenção.'); }
+  };
+
+  const handleApproveIntencao = async (id: string) => {
+    try {
+      const intencao = intencoesAdmin.find((i) => i.id === id);
+      await updateIntencaoStatus(id, 'ativa');
+      setIntencoesAdmin((prev) => prev.map((i) => (i.id === id ? { ...i, status: 'ativa' as any } : i)));
+      toast?.sucesso('Intenção aprovada!');
+      if (intencao) {
+        const user = users.find((u) => u.uid === intencao.userId);
+        if (user) {
+          await criarNotificacao(user.uid, 'aprovado', 'Intenção aprovada!',
+            `A sua intenção de compra "${intencao.titulo}" foi aprovada e já está visível para vendedores.`,
+            `/minhas-intencoes`);
+        }
+      }
+    } catch { toast?.erro('Erro ao aprovar intenção.'); }
+  };
+
+  const handleRejectIntencao = async (id: string) => {
+    try {
+      const intencao = intencoesAdmin.find((i) => i.id === id);
+      await updateIntencaoStatus(id, 'deletada');
+      setIntencoesAdmin((prev) => prev.filter((i) => i.id !== id));
+      toast?.sucesso('Intenção rejeitada.');
+      if (intencao) {
+        const user = users.find((u) => u.uid === intencao.userId);
+        if (user) {
+          await criarNotificacao(user.uid, 'rejeitado', 'Intenção rejeitada',
+            `A sua intenção de compra "${intencao.titulo}" foi rejeitada.`);
+        }
+      }
+    } catch { toast?.erro('Erro ao rejeitar intenção.'); }
   };
 
   const intencoesDenunciasPendentes = denunciasIntencao.filter((d) => d.status === 'aberta').length;
@@ -413,7 +455,7 @@ export default function Admin() {
               <p className="text-sm text-fg-subtle">Nenhuma intenção encontrada.</p>
             ) : (
               <div className="space-y-2">
-                {intencoesAdmin.map((intencao) => (
+                {intencoesOrdenadas.map((intencao) => (
                   <div key={intencao.id} className="flex items-center justify-between bg-slate-50 rounded-xl p-3 border border-slate-200">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-fg-heading truncate">{intencao.titulo}</p>
@@ -422,13 +464,21 @@ export default function Admin() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                      {intencao.status === 'pendente' && (
+                        <>
+                          <Button tipo="verde" tamanho="sm" onClick={() => handleApproveIntencao(intencao.id)}>Aprovar</Button>
+                          <Button tipo="perigo" tamanho="sm" onClick={() => handleRejectIntencao(intencao.id)}>Rejeitar</Button>
+                        </>
+                      )}
                       {intencao.status === 'ativa' && (
                         <Button tipo="aviso" tamanho="sm" onClick={() => handleUpdateIntencaoStatus(intencao.id, 'pausada')}>Pausar</Button>
                       )}
                       {intencao.status === 'pausada' && (
                         <Button tipo="verde" tamanho="sm" onClick={() => handleUpdateIntencaoStatus(intencao.id, 'ativa')}>Ativar</Button>
                       )}
-                      <Button tipo="perigo" tamanho="sm" onClick={() => handleUpdateIntencaoStatus(intencao.id, 'deletada')}>Remover</Button>
+                      {intencao.status !== 'pendente' && (
+                        <Button tipo="perigo" tamanho="sm" onClick={() => handleUpdateIntencaoStatus(intencao.id, 'deletada')}>Remover</Button>
+                      )}
                     </div>
                   </div>
                 ))}

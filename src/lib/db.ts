@@ -1054,7 +1054,7 @@ export async function criarIntencaoCompra(dados: IntencaoCompraInput): Promise<s
     await setDoc(doc(db, INTENCOES_COLLECTION, intencaoId), cleanUndefined({
       id: intencaoId,
       ...dados as any,
-      status: 'ativa',
+      status: 'pendente',
       prioritaria: false,
       stats: {
         visualizacoes: 0,
@@ -1377,6 +1377,20 @@ export async function getAllIntencoesAdmin(): Promise<IntencaoCompra[]> {
     return results;
   } catch (err) {
     console.error('[DB] Erro ao buscar intenções (admin):', err);
+    return [];
+  }
+}
+
+export async function getIntencoesAtivas(): Promise<IntencaoCompra[]> {
+  try {
+    const q = query(
+      collection(db, INTENCOES_COLLECTION),
+      where('status', '==', 'ativa'),
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as IntencaoCompra));
+  } catch (err) {
+    console.error('[DB] Erro ao buscar intenções ativas:', err);
     return [];
   }
 }
