@@ -39,6 +39,10 @@ export interface IntencaoCompra {
   };
   contatoPreferido: ContatoPreferido;
   mostrarTelefone: boolean;
+  vendedorNome?: string;
+  vendedorTelefone?: string;
+  vendedorWhatsApp?: string;
+  vendedorEmail?: string;
   status: StatusIntencao;
   prioritaria: boolean;
   destaque?: {

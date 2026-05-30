@@ -123,6 +123,10 @@ export default function CriarIntencaoCompra() {
         },
         contatoPreferido: form.contatoPreferido,
         mostrarTelefone: form.mostrarTelefone,
+        vendedorNome: auth.user.nome,
+        vendedorEmail: auth.user.email,
+        vendedorTelefone: auth.user.telefone || null,
+        vendedorWhatsApp: auth.user.telefone || null,
         prioritaria: false,
       };
       if (form.descricao) dados.descricao = form.descricao;

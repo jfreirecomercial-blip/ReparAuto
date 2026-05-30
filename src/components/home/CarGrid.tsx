@@ -1,15 +1,14 @@
 'use client';
 
-import { Car, Lightning, MagnifyingGlass, MapPin, Question, SlidersHorizontal, TrendDown, TrendUp } from '@phosphor-icons/react';
+import { Car, ChatCircleDots, Envelope, Lightning, MagnifyingGlass, MapPin, Phone, Question, SignIn, SlidersHorizontal, TrendDown, TrendUp, User, WhatsappLogo } from '@phosphor-icons/react';
 import Button from '@/components/ui/Button';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useApp } from '@/providers/AppProvider';
 import { useDistritosConcelhos } from '@/hooks/useDistritosConcelhos';
 import CarCard from './CarCard';
 import { CarCardSkeleton } from '@/components/ui/Skeleton';
 import SegmentedControl from '@/components/ui/SegmentedControl';
-import { formatarPreco } from '@/lib/utils';
+import { formatarPreco, obterWhatsApp } from '@/lib/utils';
 import { buscarIntencoesMatch, getIntencoesAtivas } from '@/lib/db';
 import type { IntencaoCompra } from '@/types/intencao';
 
@@ -23,10 +22,12 @@ const quickChips = [
 ] as const;
 
 export default function CarGrid() {
-  const { carros, auth } = useApp();
+  const { carros, auth, chat } = useApp();
   const [tipo, setTipo] = useState<TipoGrid>('carros');
   const [intencoesMatch, setIntencoesMatch] = useState<IntencaoCompra[]>([]);
   const [loadingIntencoes, setLoadingIntencoes] = useState(false);
+  const [telefonesVisiveis, setTelefonesVisiveis] = useState<Set<string>>(new Set());
+  const { user } = auth;
   const {
     carrosFiltrados,
     filtroAtivo,
@@ -308,7 +309,16 @@ export default function CarGrid() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                {intencoesMatch.map((intencao) => (
+                {intencoesMatch.map((intencao) => {
+                  const whatsapp = obterWhatsApp(intencao.vendedorWhatsApp, intencao.vendedorTelefone);
+                  const email = intencao.vendedorEmail || '';
+                  const temWhatsApp = !!whatsapp && (intencao.contatoPreferido === 'whatsapp' || intencao.contatoPreferido === 'ambos');
+                  const temTelefone = !!intencao.vendedorTelefone && intencao.mostrarTelefone;
+                  const isOwn = user?.uid === intencao.userId;
+                  const temChat = !!user && !!intencao.userId && !isOwn;
+                  const mostrarTel = telefonesVisiveis.has(intencao.id);
+
+                  return (
                   <div key={intencao.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 hover:border-accent/40 transition flex flex-col">
                     <div className="flex-1">
                       <h3 className="font-bold text-fg-heading text-sm mb-2">{intencao.titulo}</h3>
@@ -320,14 +330,77 @@ export default function CarGrid() {
                         <p><span className="text-fg-subtle">Km máx:</span> {intencao.criterios.quilometragemMaxima.toLocaleString('pt-PT')} km</p>
                       </div>
                     </div>
-                    <div className="mt-3 pt-3 border-t border-slate-100">
-                      <Link href={`/anunciar?intencao=${intencao.id}`}
-                        className="block text-center text-xs font-bold bg-accent text-white px-3 py-2 rounded-xl hover:bg-accent-hover transition">
-                        Tenho um que se adequa
-                      </Link>
+                    <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                      <p className="text-xs font-semibold text-fg-subtle flex items-center gap-1">
+                        <User className="text-slate-400" />
+                        {intencao.vendedorNome || 'Comprador'}
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {temWhatsApp && (
+                          <a
+                            href={`https://wa.me/${whatsapp}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-1.5 bg-green-500 hover:bg-green-600 text-white font-bold py-1.5 px-3 rounded-xl transition text-xs"
+                          >
+                            <WhatsappLogo size={14} />
+                            WhatsApp
+                          </a>
+                        )}
+                        {!!email && (
+                          <a
+                            href={`mailto:${email}`}
+                            className="flex items-center justify-center gap-1.5 bg-white hover:bg-slate-50 text-fg font-semibold py-1.5 px-3 rounded-xl transition border border-slate-300 text-xs"
+                          >
+                            <Envelope size={14} />
+                            Email
+                          </a>
+                        )}
+                      </div>
+                      {temTelefone && !mostrarTel && (
+                        <Button
+                          tipo="primario"
+                          tamanho="sm"
+                          blocoCompleto
+                          icone={<Phone size={14} />}
+                          onClick={() => setTelefonesVisiveis(new Set(telefonesVisiveis).add(intencao.id))}
+                        >
+                          Ver Telefone
+                        </Button>
+                      )}
+                      {temTelefone && mostrarTel && (
+                        <a
+                          href={`tel:${intencao.vendedorTelefone}`}
+                          className="flex items-center justify-center gap-1.5 w-full bg-accent hover:bg-accent-hover text-white font-bold py-1.5 px-3 rounded-xl transition text-xs"
+                        >
+                          <Phone size={14} />
+                          {intencao.vendedorTelefone}
+                        </a>
+                      )}
+                      {temChat && (
+                        <Button
+                          tipo="azul"
+                          tamanho="sm"
+                          blocoCompleto
+                          icone={<ChatCircleDots size={14} />}
+                          onClick={() => chat?.abrirChat(intencao.id, 'intencao', intencao.titulo, intencao.userId, intencao.vendedorNome || 'Comprador')}
+                        >
+                          Enviar Mensagem
+                        </Button>
+                      )}
+                      {!user && (
+                        <a
+                          href="#/perfil"
+                          className="flex items-center justify-center gap-1.5 w-full bg-slate-100 hover:bg-slate-200 text-fg-muted font-semibold py-1.5 px-3 rounded-xl transition text-xs"
+                        >
+                          <SignIn size={14} />
+                          Faça login para contactar
+                        </a>
+                      )}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </>
