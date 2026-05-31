@@ -7,7 +7,7 @@ runConfig:
 
 env:
   - variable: NEXT_PUBLIC_SITE_URL
-    value: https://recargarage.com
+    value: https://reparauto-site.web.app
     availability:
       - BUILD
       - RUNTIME
