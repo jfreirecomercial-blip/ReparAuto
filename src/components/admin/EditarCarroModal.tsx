@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
 import { TIPOS_COMBUSTIVEL, TIPOS_CAMBIO, MAX_FOTOS_CARRO } from '@/lib/constants';
 import { getDistritoForConcelho, getCoordenadas } from '@/lib/geo';
+import { useApp } from '@/providers/AppProvider';
 import SeletorLocalizacao from '@/components/ui/SeletorLocalizacao';
 import FotosEditor from '@/components/anunciar/FotosEditor';
+import { uploadFileToStorage } from '@/lib/upload';
 import type { Carro } from '@/types/carro';
 
 interface EditarCarroModalProps {
@@ -17,6 +19,9 @@ interface EditarCarroModalProps {
 }
 
 export default function EditarCarroModal({ show, onClose, carro, onSave }: EditarCarroModalProps) {
+  const { auth } = useApp();
+  const pendingFilesRef = useRef<Map<string, File>>(new Map());
+
   const [form, setForm] = useState({
     marca: carro.marca,
     modelo: carro.modelo,
@@ -43,6 +48,24 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
   const handleSave = async () => {
     setSaving(true);
     try {
+      const fotosFinais: string[] = await Promise.all(
+        fotos.map(async (foto, index) => {
+          if (foto.startsWith('blob:')) {
+            const file = pendingFilesRef.current.get(foto);
+            if (file) {
+              const folder = `ads/${auth.user?.uid || 'admin'}`;
+              const ext = file.name.split('.').pop() || 'jpg';
+              const fileName = `${Date.now()}_${index}.${ext}`;
+              const downloadUrl = await uploadFileToStorage(file, folder, fileName);
+              URL.revokeObjectURL(foto);
+              pendingFilesRef.current.delete(foto);
+              return downloadUrl;
+            }
+          }
+          return foto;
+        }),
+      );
+
       await onSave(carro.id, {
         marca: form.marca,
         modelo: form.modelo,
@@ -59,7 +82,7 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
         coordenadas: form.local ? getCoordenadas(form.local) : undefined,
         descricao: form.descricao,
         estadoVeiculo: form.estadoVeiculo,
-        fotos,
+        fotos: fotosFinais,
       });
       onClose();
     } catch (err) {
@@ -122,7 +145,7 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
 
       <div className="mb-4">
         <label className="block text-xs font-semibold text-fg-subtle mb-2">Fotos</label>
-        <FotosEditor fotos={fotos} setFotos={setFotos} max={MAX_FOTOS_CARRO} />
+        <FotosEditor fotos={fotos} setFotos={setFotos} max={MAX_FOTOS_CARRO} filesRef={pendingFilesRef} />
         {fotos.length === 0 && (
           <p className="text-xs text-red-500 mt-2">Adicione pelo menos 1 foto do veículo.</p>
         )}

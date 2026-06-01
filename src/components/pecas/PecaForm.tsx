@@ -80,7 +80,7 @@ export default function PecaForm({ onSuccess, onCancel }: PecaFormProps) {
       // Upload photo to Storage if selected
       let fotoUrl: string | undefined;
       if (fotoFile) {
-        const folder = `anuncios/${user?.uid || 'anonimo'}`;
+        const folder = `ads/${user?.uid || 'anonimo'}`;
         const ext = fotoFile.name.split('.').pop() || 'jpg';
         const fileName = `${Date.now()}_peca.${ext}`;
         fotoUrl = await uploadFileToStorage(fotoFile, folder, fileName);

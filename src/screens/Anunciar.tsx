@@ -82,7 +82,7 @@ export default function Anunciar() {
           if (foto.startsWith('blob:')) {
             const file = pendingFilesRef.current.get(foto);
             if (file) {
-              const folder = `anuncios/${user.uid}`;
+              const folder = `ads/${user.uid}`;
               const ext = file.name.split('.').pop() || 'jpg';
               const fileName = `${Date.now()}_${index}.${ext}`;
               const downloadUrl = await uploadFileToStorage(file, folder, fileName);
