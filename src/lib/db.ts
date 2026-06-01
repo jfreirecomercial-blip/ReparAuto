@@ -659,6 +659,53 @@ export async function updateUserProfile(uid: string, data: Record<string, unknow
   }
 }
 
+/**
+ * Permanently delete all Firestore/Storage data owned by a user.
+ * Required for the in-app "delete account" flow (Apple Guideline 5.1.1 v).
+ * Best-effort per section: a failure in one collection (e.g. blocked by rules)
+ * does not abort the rest. The Firebase Auth account itself is deleted
+ * separately via `eliminarContaAuth` in auth.ts.
+ */
+export async function deleteUserData(uid: string, email: string): Promise<void> {
+  // Remove Storage photos referenced by the user's listings (best-effort).
+  const apagarFotos = async (urls?: string[]) => {
+    for (const url of urls || []) {
+      if (typeof url === 'string' && url.startsWith('https://firebasestorage.googleapis.com')) {
+        await deleteObject(ref(storage, url)).catch(() => {});
+      }
+    }
+  };
+
+  try {
+    const [carros, pecas, oficinas, intencoes, notificacoes, verificacao] = await Promise.all([
+      getCarrosByCreator(email),
+      getPecasByCreator(email),
+      getOficinasByCreator(email),
+      getIntencoesPorUsuario(uid).catch(() => [] as IntencaoCompra[]),
+      getNotificacoes(uid).catch(() => [] as Notificacao[]),
+      getVerificationByUid(uid).catch(() => null),
+    ]);
+
+    await Promise.all([
+      ...carros.map((c) => apagarFotos(c.fotos)),
+      ...pecas.map((p) => apagarFotos(p.foto ? [p.foto] : [])),
+    ]);
+
+    const batch = writeBatch(db);
+    carros.forEach((c) => c.id && batch.delete(doc(db, CARROS_COLLECTION, c.id)));
+    pecas.forEach((p) => p.id && batch.delete(doc(db, PECAS_COLLECTION, p.id)));
+    oficinas.forEach((o) => o.id && batch.delete(doc(db, OFICINAS_COLLECTION, o.id)));
+    intencoes.forEach((i) => i.id && batch.delete(doc(db, INTENCOES_COLLECTION, i.id)));
+    notificacoes.forEach((n) => n.id && batch.delete(doc(db, NOTIFICACOES_COLLECTION, n.id)));
+    if (verificacao?.id) batch.delete(doc(db, VERIFICATIONS_COLLECTION, verificacao.id));
+    batch.delete(doc(db, USERS_COLLECTION, uid));
+    await batch.commit();
+  } catch (err) {
+    console.error('[DB] Erro ao eliminar dados do utilizador:', err);
+    throw err;
+  }
+}
+
 export async function getUserByEmail(email: string): Promise<Usuario | null> {
   try {
     const q = query(collection(db, USERS_COLLECTION), where('email', '==', email));

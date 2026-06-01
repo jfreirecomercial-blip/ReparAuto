@@ -6,13 +6,16 @@ import {
   loginComEmail,
   criarConta,
   loginComGoogle,
+  loginComApple,
   logoutFirebase,
+  eliminarContaAuth,
   onAuthChange,
 } from '@/lib/auth';
 import {
   getUserProfile,
   createUserProfile,
   updateUserProfile,
+  deleteUserData,
 } from '@/lib/db';
 import type { Usuario, Role, TipoConta } from '@/types/usuario';
 
@@ -128,10 +131,39 @@ export default function useAuth() {
     return base;
   }, []);
 
+  const loginApple = useCallback(async (): Promise<Usuario> => {
+    const fbUser = await loginComApple();
+    const base = criarUsuarioBase(fbUser);
+    try {
+      const profile = await getUserProfile(fbUser.uid);
+      if (profile) {
+        const merged = { ...base, ...profile };
+        setUser(merged);
+        return merged;
+      }
+    } catch {
+      // fallback
+    }
+    setUser(base);
+    return base;
+  }, []);
+
   const logout = useCallback(async (): Promise<void> => {
     await logoutFirebase();
     setUser(null);
   }, []);
+
+  /**
+   * Permanently delete the account: all Firestore/Storage data first, then the
+   * Firebase Auth account. May throw `auth/requires-recent-login` — the caller
+   * should ask the user to sign in again and retry.
+   */
+  const eliminarConta = useCallback(async (): Promise<void> => {
+    if (!user?.uid || !user.email) return;
+    await deleteUserData(user.uid, user.email);
+    await eliminarContaAuth();
+    setUser(null);
+  }, [user?.uid, user?.email]);
 
   const updateProfile = useCallback(async (data: Partial<Usuario>): Promise<void> => {
     if (!user?.uid) return;
@@ -145,7 +177,9 @@ export default function useAuth() {
     login,
     registar,
     loginGoogle,
+    loginApple,
     logout,
+    eliminarConta,
     isLoggedIn: !!user,
     isAdmin: user?.role === 'admin',
     profileCompleted: user?.profileCompleted ?? false,

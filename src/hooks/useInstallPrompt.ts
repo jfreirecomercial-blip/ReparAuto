@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { isNativePlatform } from '@/lib/native/platform';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -83,7 +84,9 @@ export default function useInstallPrompt() {
   }, []);
 
   return {
-    canInstall: !!deferredPrompt && !dismissed && !installed && engaged,
+    // The PWA install prompt is web-only; inside the native app shell the user
+    // already has the installed app, so never surface it there.
+    canInstall: !isNativePlatform() && !!deferredPrompt && !dismissed && !installed && engaged,
     install,
     dismiss,
   };

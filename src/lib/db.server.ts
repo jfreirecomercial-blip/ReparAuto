@@ -131,3 +131,19 @@ export async function getIntencaoPorIdServer(id: string): Promise<IntencaoCompra
   const doc = await restGet(INTENCOES_COLLECTION, id);
   return doc ? decodeDoc<IntencaoCompra>(doc) : null;
 }
+
+type IdStatus = { id: string; status?: string };
+
+// Lightweight id/status enumerators used by `generateStaticParams` to pre-render
+// dynamic routes for the native static export (and as build-time SSG hints on
+// the web). All these collections are publicly readable, so the REST fallback
+// works without credentials.
+export async function getOficinasServer(): Promise<IdStatus[]> {
+  const adminResult = await adminList<IdStatus>('services');
+  return adminResult ?? (await restList('services')).map((d) => decodeDoc<IdStatus>(d));
+}
+
+export async function getIntencoesServer(): Promise<IdStatus[]> {
+  const adminResult = await adminList<IdStatus>(INTENCOES_COLLECTION);
+  return adminResult ?? (await restList(INTENCOES_COLLECTION)).map((d) => decodeDoc<IdStatus>(d));
+}

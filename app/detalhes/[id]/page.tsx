@@ -1,13 +1,29 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Script from 'next/script';
-import { getCarroPorIdServer } from '@/lib/db.server';
+import { getCarroPorIdServer, getCarrosServer } from '@/lib/db.server';
 import DetalhesCarro from '@/screens/DetalhesCarro';
 import { renderFoto } from '@/lib/utils';
 
 export const revalidate = 60;
 
 type PageProps = { params: Promise<{ id: string }> };
+
+// Pre-render every approved listing. Required by the native static export
+// (`output: 'export'`) so deep links resolve to a bundled page; on the web build
+// it acts as an SSG hint while `dynamicParams` (default true) keeps new listings
+// rendering on-demand. In-app navigation is client-side and always fetches fresh
+// data via the Firebase client SDK. A placeholder id guards against an empty
+// collection (an empty array is rejected by `output: 'export'`).
+export async function generateStaticParams() {
+  try {
+    const carros = await getCarrosServer();
+    const params = carros.filter((c) => c.id).map((c) => ({ id: c.id as string }));
+    return params.length > 0 ? params : [{ id: '_' }];
+  } catch {
+    return [{ id: '_' }];
+  }
+}
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://reparauto-site.web.app';
 

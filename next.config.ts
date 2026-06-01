@@ -13,6 +13,11 @@ const FIREBASE_HOSTS = [
 
 const isDev = process.env.NODE_ENV !== 'production';
 
+// When building the native (Capacitor) app shell we produce a static client-only
+// export bundled into the binary. SEO/SSR concerns (headers, image optimizer, ISR)
+// only matter for the public website, so they are skipped in this mode.
+const isAppBuild = process.env.BUILD_TARGET === 'app';
+
 const scriptSrc = [
   "'self'",
   "'unsafe-inline'",
@@ -53,16 +58,25 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['@phosphor-icons/react'],
   },
-  images: {
-    remotePatterns: [
-      { protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
-      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
-      { protocol: 'https', hostname: '*.googleusercontent.com' },
-    ],
-  },
-  async headers() {
-    return [{ source: '/(.*)', headers: securityHeaders }];
-  },
+  ...(isAppBuild
+    ? {
+        // Static client-only export for the native app shell.
+        output: 'export' as const,
+        images: { unoptimized: true },
+      }
+    : {
+        images: {
+          remotePatterns: [
+            { protocol: 'https' as const, hostname: 'firebasestorage.googleapis.com' },
+            { protocol: 'https' as const, hostname: 'lh3.googleusercontent.com' },
+            { protocol: 'https' as const, hostname: '*.googleusercontent.com' },
+          ],
+        },
+        // `headers()` is ignored by `output: 'export'`; only register it for the web build.
+        async headers() {
+          return [{ source: '/(.*)', headers: securityHeaders }];
+        },
+      }),
 };
 
 export default nextConfig;

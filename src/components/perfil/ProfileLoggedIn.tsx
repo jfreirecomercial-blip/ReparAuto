@@ -13,6 +13,7 @@ import EditarPerfilModal from './EditarPerfilModal';
 import EditarCarroModal from '@/components/admin/EditarCarroModal';
 import EditarPecaModal from '@/components/admin/EditarPecaModal';
 import Button from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
 import Badge from '@/components/ui/Badge';
 import UserAvatar from '@/components/ui/UserAvatar';
 import SellerBadges from '@/components/trust/SellerBadges';
@@ -26,9 +27,12 @@ import type { Peca } from '@/types/peca';
 
 export default function ProfileLoggedIn() {
   const { auth } = useApp();
-  const { user, logout, isAdmin, updateProfile, refreshProfile } = auth;
+  const { user, logout, eliminarConta, isAdmin, updateProfile, refreshProfile } = auth;
   const router = useRouter();
+  const toast = useToast();
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const [meusCarros, setMeusCarros] = useState<Carro[]>([]);
   const [minhasPecas, setMinhasPecas] = useState<Peca[]>([]);
   const [minhasIntencoes, setMinhasIntencoes] = useState<IntencaoCompra[]>([]);
@@ -83,6 +87,28 @@ export default function ProfileLoggedIn() {
       console.error('[Perfil] Erro ao eliminar:', err);
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      await eliminarConta();
+      setConfirmDeleteAccount(false);
+      toast?.sucesso('A sua conta foi eliminada permanentemente.');
+      router.push('/');
+    } catch (err: any) {
+      if (err?.code === 'auth/requires-recent-login') {
+        toast?.erro('Por segurança, volte a iniciar sessão e tente eliminar a conta novamente.');
+        setConfirmDeleteAccount(false);
+        await logout();
+        router.push('/');
+      } else {
+        console.error('[Perfil] Erro ao eliminar conta:', err);
+        toast?.erro('Não foi possível eliminar a conta. Tente novamente.');
+      }
+    } finally {
+      setDeletingAccount(false);
     }
   };
 
@@ -181,6 +207,12 @@ export default function ProfileLoggedIn() {
             className="inline-flex items-center gap-1.5 text-xs text-danger-600 hover:text-white hover:bg-danger-600 font-bold border border-danger-200 px-4 py-2 rounded-full transition"
           >
             <SignOut /> Sair
+          </button>
+          <button
+            onClick={() => setConfirmDeleteAccount(true)}
+            className="inline-flex items-center gap-1.5 text-xs text-fg-subtle hover:text-white hover:bg-danger-600 font-bold border border-neutral-200 px-4 py-2 rounded-full transition"
+          >
+            <Trash /> Eliminar conta
           </button>
         </div>
       </div>
@@ -470,6 +502,37 @@ export default function ProfileLoggedIn() {
           onClose={() => setEditPeca(null)}
           onSave={handleSavePeca}
         />
+      )}
+
+      {confirmDeleteAccount && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+            <h4 className="font-bold text-danger-600 mb-2">Eliminar conta permanentemente</h4>
+            <p className="text-sm text-fg-muted mb-4">
+              Esta ação é <strong>irreversível</strong>. Vamos eliminar para sempre o seu perfil,
+              os seus anúncios, fotos, intenções de compra e notificações. Tem a certeza de que
+              quer continuar?
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button
+                tipo="secundario"
+                onClick={() => setConfirmDeleteAccount(false)}
+                disabled={deletingAccount}
+              >
+                Cancelar
+              </Button>
+              <Button
+                tipo="perigo"
+                icone={<Trash />}
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount}
+                carregando={deletingAccount}
+              >
+                Eliminar conta
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
       {confirmDelete && (

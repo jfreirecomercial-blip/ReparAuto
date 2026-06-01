@@ -1,9 +1,11 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { CaretLeft, CaretRight, UploadSimple, Spinner, X } from '@phosphor-icons/react';
+import { Camera, CaretLeft, CaretRight, UploadSimple, Spinner, X } from '@phosphor-icons/react';
 import { EMOJIS_CARRO, MAX_FOTO_SIZE_BYTES, MAX_FOTO_SIZE_MB } from '@/lib/constants';
 import { comprimirImagem } from '@/lib/compressImage';
+import { isNativePlatform } from '@/lib/native/platform';
+import { tirarFoto } from '@/lib/native/camera';
 
 interface FotosEditorProps {
   fotos: string[];
@@ -43,9 +45,21 @@ export default function FotosEditor({
   const exibirCapa = mostrarCapa ?? max > 1;
   const podeReordenar = max > 1 && fotos.length > 1;
 
+  const nativo = isNativePlatform();
+
+  const tirarFotoNativa = async () => {
+    if (!podeAdicionar || comprimindo) return;
+    const file = await tirarFoto();
+    if (file) await adicionarFiles([file]);
+  };
+
   const processarFotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (fileInputRef.current) fileInputRef.current.value = '';
+    await adicionarFiles(files);
+  };
+
+  const adicionarFiles = async (files: File[]) => {
     if (files.length === 0) return;
 
     const espacoLivre = Math.max(0, max - fotos.length);
@@ -160,6 +174,16 @@ export default function FotosEditor({
             onChange={processarFotos}
           />
         </label>
+        {nativo && (
+          <button
+            type="button"
+            onClick={tirarFotoNativa}
+            disabled={!podeAdicionar || comprimindo}
+            className="bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 border-dashed text-fg font-semibold px-4 py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Camera /> Tirar Foto
+          </button>
+        )}
         {mostrarEmoji && (
           <button
             type="button"

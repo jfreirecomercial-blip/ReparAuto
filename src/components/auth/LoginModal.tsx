@@ -1,6 +1,6 @@
 'use client';
 
-import { GoogleLogo, WarningCircle, Eye, EyeSlash } from '@phosphor-icons/react';
+import { AppleLogo, GoogleLogo, WarningCircle, Eye, EyeSlash } from '@phosphor-icons/react';
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import Alert from '@/components/ui/Alert';
@@ -17,7 +17,7 @@ interface LoginModalProps {
 
 export default function LoginModal({ show, onClose, onSuccess }: LoginModalProps) {
   const { auth } = useApp();
-  const { login, registar, loginGoogle } = auth;
+  const { login, registar, loginGoogle, loginApple } = auth;
   const toast = useToast();
 
   const [modo, setModo] = useState<'login' | 'registar'>('login');
@@ -82,6 +82,22 @@ export default function LoginModal({ show, onClose, onSuccess }: LoginModalProps
     }
   };
 
+  const handleApple = async () => {
+    setLoading(true);
+    setErro('');
+    try {
+      await loginApple();
+      toast?.sucesso('Login com Apple efetuado!');
+      onClose();
+      onSuccess?.();
+    } catch (err: any) {
+      const msg = traduzirErroFirebase(err.code);
+      setErro(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Modal show={show} onClose={onClose} titulo={modo === 'login' ? 'Entrar na Plataforma' : 'Criar Conta'} tamanho="sm">
       <div className="space-y-4">
@@ -95,6 +111,18 @@ export default function LoginModal({ show, onClose, onSuccess }: LoginModalProps
           disabled={loading}
         >
           Continuar com Google
+        </Button>
+
+        <Button
+          tipo="secundario"
+          tamanho="lg"
+          blocoCompleto
+          icone={<AppleLogo weight="fill" />}
+          carregando={loading}
+          onClick={handleApple}
+          disabled={loading}
+        >
+          Continuar com a Apple
         </Button>
 
         <div className="flex items-center gap-3 text-xs font-semibold text-fg-subtle">

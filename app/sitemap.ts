@@ -3,7 +3,9 @@ import { getCarrosServer } from '@/lib/db.server';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://recargarage.com';
 
-export const revalidate = 3600;
+// `force-static` lets the file be emitted under `output: 'export'` (app build).
+// On the web build the sitemap is regenerated at deploy/build time.
+export const dynamic = 'force-static';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const carros = await getCarrosServer().catch(() => []);
