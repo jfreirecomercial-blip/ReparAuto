@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { CaretLeft, CaretRight, UploadSimple, Spinner, X } from '@phosphor-icons/react';
 import { EMOJIS_CARRO, MAX_FOTO_SIZE_BYTES, MAX_FOTO_SIZE_MB } from '@/lib/constants';
 import { comprimirImagem } from '@/lib/compressImage';
@@ -39,18 +39,6 @@ export default function FotosEditor({
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [comprimindo, setComprimindo] = useState(false);
-
-  // Revoke all tracked blob URLs on unmount to avoid memory leaks
-  useEffect(() => {
-    const currentMap = filesRef?.current;
-    return () => {
-      if (!currentMap) return;
-      currentMap.forEach((_, url) => {
-        if (url.startsWith('blob:')) URL.revokeObjectURL(url);
-      });
-      currentMap.clear();
-    };
-  }, [filesRef]);
 
   const exibirCapa = mostrarCapa ?? max > 1;
   const podeReordenar = max > 1 && fotos.length > 1;
