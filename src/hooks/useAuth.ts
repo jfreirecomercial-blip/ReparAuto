@@ -57,6 +57,24 @@ export default function useAuth() {
     }
   }, [user?.uid]);
 
+  // Shared post-sign-in flow: build a base profile from the Firebase user, merge
+  // the stored Firestore profile when present, and update local state.
+  const aplicarPerfil = useCallback(async (fbUser: User, overrides?: Partial<Usuario>): Promise<Usuario> => {
+    const base = { ...criarUsuarioBase(fbUser), ...overrides };
+    try {
+      const profile = await getUserProfile(fbUser.uid);
+      if (profile) {
+        const merged = { ...base, ...profile };
+        setUser(merged);
+        return merged;
+      }
+    } catch {
+      // fallback: use the base profile
+    }
+    setUser(base);
+    return base;
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthChange(async (firebaseUser: User | null) => {
       if (firebaseUser) {
@@ -80,73 +98,20 @@ export default function useAuth() {
   }, []);
 
   const login = useCallback(async (email: string, password: string): Promise<Usuario> => {
-    const fbUser = await loginComEmail(email, password);
-    const base = criarUsuarioBase(fbUser);
-    try {
-      const profile = await getUserProfile(fbUser.uid);
-      if (profile) {
-        const merged = { ...base, ...profile };
-        setUser(merged);
-        return merged;
-      }
-    } catch {
-      // fallback
-    }
-    setUser(base);
-    return base;
-  }, []);
+    return aplicarPerfil(await loginComEmail(email, password));
+  }, [aplicarPerfil]);
 
   const registar = useCallback(async (nome: string, email: string, password: string): Promise<Usuario> => {
-    const fbUser = await criarConta(email, password, nome);
-    const base = criarUsuarioBase(fbUser);
-    base.nome = nome;
-    try {
-      const profile = await getUserProfile(fbUser.uid);
-      if (profile) {
-        const merged = { ...base, ...profile };
-        setUser(merged);
-        return merged;
-      }
-    } catch {
-      // fallback
-    }
-    setUser(base);
-    return base;
-  }, []);
+    return aplicarPerfil(await criarConta(email, password, nome), { nome });
+  }, [aplicarPerfil]);
 
   const loginGoogle = useCallback(async (): Promise<Usuario> => {
-    const fbUser = await loginComGoogle();
-    const base = criarUsuarioBase(fbUser);
-    try {
-      const profile = await getUserProfile(fbUser.uid);
-      if (profile) {
-        const merged = { ...base, ...profile };
-        setUser(merged);
-        return merged;
-      }
-    } catch {
-      // fallback
-    }
-    setUser(base);
-    return base;
-  }, []);
+    return aplicarPerfil(await loginComGoogle());
+  }, [aplicarPerfil]);
 
   const loginApple = useCallback(async (): Promise<Usuario> => {
-    const fbUser = await loginComApple();
-    const base = criarUsuarioBase(fbUser);
-    try {
-      const profile = await getUserProfile(fbUser.uid);
-      if (profile) {
-        const merged = { ...base, ...profile };
-        setUser(merged);
-        return merged;
-      }
-    } catch {
-      // fallback
-    }
-    setUser(base);
-    return base;
-  }, []);
+    return aplicarPerfil(await loginComApple());
+  }, [aplicarPerfil]);
 
   const logout = useCallback(async (): Promise<void> => {
     await logoutFirebase();
@@ -154,9 +119,12 @@ export default function useAuth() {
   }, []);
 
   /**
-   * Permanently delete the account: all Firestore/Storage data first, then the
-   * Firebase Auth account. May throw `auth/requires-recent-login` — the caller
-   * should ask the user to sign in again and retry.
+   * Permanently delete the account: all Firestore/Storage data first (security
+   * rules require the user to be authenticated), then the Firebase Auth account.
+   * May throw `auth/requires-recent-login` for stale sessions — the caller asks
+   * the user to sign in again and retry. For atomic server-side cleanup and
+   * Apple token revocation, move this to a callable Cloud Function in production
+   * (see docs/app-nativa-setup.md).
    */
   const eliminarConta = useCallback(async (): Promise<void> => {
     if (!user?.uid || !user.email) return;

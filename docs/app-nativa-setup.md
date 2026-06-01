@@ -87,6 +87,22 @@ A partir do Android Studio / Xcode, correr no emulador/simulador ou dispositivo.
 - Publicar anúncio com a **câmara nativa** → upload para Storage.
 - Permissão de notificações → token em `users/{uid}` → push de teste pela consola Firebase.
 
+## Eliminação de conta — nota de produção
+
+A eliminação está implementada do lado do cliente (`deleteUserData` + `deleteUser`):
+funciona quando a sessão é recente. O Firebase exige *recent login* para `deleteUser`;
+se a sessão for antiga, lança `auth/requires-recent-login` — a UI pede para voltar a
+iniciar sessão e tentar de novo (os dados Firestore/Storage são apagados primeiro porque
+as regras exigem o utilizador autenticado).
+
+Para robustez e atomicidade em produção recomenda-se mover a limpeza para uma
+**Cloud Function callable** (apaga dados como admin, independentemente das regras) e,
+para **Sign in with Apple**, revogar o token Apple com
+`FirebaseAuthentication.revokeAccessToken(...)` no momento da eliminação (requisito da
+Apple para contas criadas com Apple). Ver:
+- https://firebase.google.com/docs/auth/web/apple (revogação de token)
+- https://cloud.google.com/firestore/docs/solutions/delete-collections (eliminação via função)
+
 ## Fluxo de atualização
 
 Sempre que o site/UI muda, basta `npm run cap:sync` (rebuild do `out/` + cópia para os

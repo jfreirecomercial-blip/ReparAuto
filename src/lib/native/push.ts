@@ -20,6 +20,31 @@ export async function requestNativePushToken(): Promise<string | null> {
   }
 }
 
+/**
+ * Return the FCM token only if permission was already granted (does NOT trigger
+ * the OS permission dialog). Used to refresh the stored token on app launch.
+ */
+export async function getNativePushTokenIfAuthorized(): Promise<string | null> {
+  try {
+    const perm = await FirebaseMessaging.checkPermissions();
+    if (perm.receive !== 'granted') return null;
+    const { token } = await FirebaseMessaging.getToken();
+    return token || null;
+  } catch {
+    return null;
+  }
+}
+
+/** FCM token rotation — fires when Firebase issues a new registration token. */
+export function onNativeTokenRefresh(callback: (token: string) => void): () => void {
+  const handle = FirebaseMessaging.addListener('tokenReceived', (event) => {
+    if (event.token) callback(event.token);
+  });
+  return () => {
+    void handle.then((h) => h.remove());
+  };
+}
+
 /** Foreground messages received while the app is open. */
 export function onNativeMessage(
   callback: (notification: Notification) => void,

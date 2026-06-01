@@ -5,7 +5,7 @@ import { Camera, CaretLeft, CaretRight, UploadSimple, Spinner, X } from '@phosph
 import { EMOJIS_CARRO, MAX_FOTO_SIZE_BYTES, MAX_FOTO_SIZE_MB } from '@/lib/constants';
 import { comprimirImagem } from '@/lib/compressImage';
 import { isNativePlatform } from '@/lib/native/platform';
-import { tirarFoto } from '@/lib/native/camera';
+import { tirarFoto, escolherFotos } from '@/lib/native/camera';
 
 interface FotosEditorProps {
   fotos: string[];
@@ -51,6 +51,12 @@ export default function FotosEditor({
     if (!podeAdicionar || comprimindo) return;
     const file = await tirarFoto();
     if (file) await adicionarFiles([file]);
+  };
+
+  const escolherFotosNativas = async () => {
+    if (!podeAdicionar || comprimindo) return;
+    const files = await escolherFotos(Math.max(1, max - fotos.length));
+    if (files.length) await adicionarFiles(files);
   };
 
   const processarFotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,23 +163,35 @@ export default function FotosEditor({
   return (
     <div>
       <div className="flex flex-col sm:flex-row gap-3 mb-3">
-        <label
-          className={`flex-1 bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 text-fg font-semibold px-4 py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 border-dashed ${
-            podeAdicionar && !comprimindo ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
-          }`}
-        >
-          {comprimindo ? <Spinner className="animate-spin" /> : <UploadSimple />}
-          {comprimindo ? 'A comprimir…' : 'Carregar Imagens Reais'}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            multiple={max > 1}
+        {nativo ? (
+          <button
+            type="button"
+            onClick={escolherFotosNativas}
             disabled={!podeAdicionar || comprimindo}
-            onChange={processarFotos}
-          />
-        </label>
+            className={`flex-1 bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 text-fg font-semibold px-4 py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 border-dashed disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            {comprimindo ? <Spinner className="animate-spin" /> : <UploadSimple />}
+            {comprimindo ? 'A comprimir…' : 'Escolher da Galeria'}
+          </button>
+        ) : (
+          <label
+            className={`flex-1 bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 text-fg font-semibold px-4 py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 border-dashed ${
+              podeAdicionar && !comprimindo ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {comprimindo ? <Spinner className="animate-spin" /> : <UploadSimple />}
+            {comprimindo ? 'A comprimir…' : 'Carregar Imagens Reais'}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              multiple={max > 1}
+              disabled={!podeAdicionar || comprimindo}
+              onChange={processarFotos}
+            />
+          </label>
+        )}
         {nativo && (
           <button
             type="button"
@@ -284,7 +302,7 @@ export default function FotosEditor({
           <button
             type="button"
             key={`empty-${i}`}
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => (nativo ? escolherFotosNativas() : fileInputRef.current?.click())}
             className={`w-full border-2 border-dashed border-neutral-200 rounded-lg flex items-center justify-center text-fg-muted text-xs cursor-pointer hover:bg-neutral-50 transition ${alturaFoto}`}
           >
             {fotos.length + i + 1}
