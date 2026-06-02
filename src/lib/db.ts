@@ -19,6 +19,7 @@ import {
 import { ref, deleteObject } from 'firebase/storage';
 import { db, storage } from './firebase';
 import { DB_VERSION, DB_VERSION_KEY } from './constants';
+import { contemProfanity } from './profanity';
 import type { Carro, CarroInput, StatusAnuncio } from '@/types/carro';
 import type { Peca, PecaInput } from '@/types/peca';
 import type { Usuario, Role } from '@/types/usuario';
@@ -862,6 +863,9 @@ const REVIEWS_COLLECTION = 'reviews';
 
 export async function addReview(data: ReviewInput): Promise<Review> {
   try {
+    if (data.comentario && contemProfanity(data.comentario)) {
+      throw new Error('Comentário contém linguagem inapropriada.');
+    }
     const docRef = await addDoc(collection(db, REVIEWS_COLLECTION), {
       ...data,
       status: 'pendente',
@@ -1475,7 +1479,9 @@ export async function updateDenunciaIntencaoStatus(
 export async function getAllIntencoesAdmin(): Promise<IntencaoCompra[]> {
   try {
     const snap = await getDocs(collection(db, INTENCOES_COLLECTION));
-    const results = snap.docs.map((d) => ({ id: d.id, ...d.data() } as IntencaoCompra));
+    const results = snap.docs
+      .map((d) => ({ id: d.id, ...d.data() } as IntencaoCompra))
+      .filter((i) => i.status !== 'deletada');
     results.sort((a, b) => {
       const aTime = a.atualizadaEm?.toDate?.()?.getTime() || 0;
       const bTime = b.atualizadaEm?.toDate?.()?.getTime() || 0;

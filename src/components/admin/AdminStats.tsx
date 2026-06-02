@@ -1,4 +1,4 @@
-import { Users, Car, GearSix, List, Clock, Wrench, MagnifyingGlass, type Icon } from '@phosphor-icons/react';
+import { Users, Car, GearSix, List, Clock, Wrench, MagnifyingGlass, StarHalf, type Icon } from '@phosphor-icons/react';
 
 interface AdminStatsProps {
   totalUsers: number;
@@ -10,16 +10,19 @@ interface AdminStatsProps {
   oficinasPendentes: number;
   totalIntencoes: number;
   intencoesPendentes: number;
-  onNavigate: (tab: 'utilizadores' | 'anuncios' | 'oficinas' | 'intencoes', subTab?: 'carros' | 'pecas', filter?: 'pendente' | 'aprovado' | 'rejeitado') => void;
+  totalReviews: number;
+  reviewsPendentes: number;
+  onNavigate: (tab: 'utilizadores' | 'anuncios' | 'oficinas' | 'intencoes' | 'avaliacoes', subTab?: 'carros' | 'pecas', filter?: 'pendente' | 'aprovado' | 'rejeitado') => void;
 }
 
-export default function AdminStats({ totalUsers, totalCarros, totalPecas, carrosPendentes, pecasPendentes, totalOficinas, oficinasPendentes, totalIntencoes, intencoesPendentes, onNavigate }: AdminStatsProps) {
-  const stats: { label: string; value: number; Icon: Icon; cor: string; tab: 'utilizadores' | 'anuncios' | 'oficinas' | 'intencoes'; subTab?: 'carros' | 'pecas'; filter?: 'pendente' | 'aprovado' | 'rejeitado' }[] = [
+export default function AdminStats({ totalUsers, totalCarros, totalPecas, carrosPendentes, pecasPendentes, totalOficinas, oficinasPendentes, totalIntencoes, intencoesPendentes, totalReviews, reviewsPendentes, onNavigate }: AdminStatsProps) {
+  const stats: { label: string; value: number; pendentes?: number; Icon: Icon; cor: string; tab: 'utilizadores' | 'anuncios' | 'oficinas' | 'intencoes' | 'avaliacoes'; subTab?: 'carros' | 'pecas'; filter?: 'pendente' | 'aprovado' | 'rejeitado' }[] = [
     { label: 'Utilizadores', value: totalUsers, Icon: Users, cor: 'bg-blue-600', tab: 'utilizadores' },
     { label: 'Carros', value: totalCarros, Icon: Car, cor: 'bg-accent', tab: 'anuncios', subTab: 'carros' },
     { label: 'Peças', value: totalPecas, Icon: GearSix, cor: 'bg-green-600', tab: 'anuncios', subTab: 'pecas' },
     { label: 'Total Anúncios', value: totalCarros + totalPecas, Icon: List, cor: 'bg-purple-600', tab: 'anuncios' },
     { label: 'Pendentes', value: carrosPendentes + pecasPendentes, Icon: Clock, cor: 'bg-yellow-600', tab: 'anuncios', filter: 'pendente' },
+    { label: 'Avaliações', value: totalReviews, pendentes: reviewsPendentes, Icon: StarHalf, cor: 'bg-pink-600', tab: 'avaliacoes' },
     { label: 'Oficinas', value: totalOficinas, Icon: Wrench, cor: 'bg-orange-600', tab: 'oficinas' },
     { label: 'Intenções', value: totalIntencoes, Icon: MagnifyingGlass, cor: 'bg-cyan-600', tab: 'intencoes' },
   ];
@@ -38,6 +41,9 @@ export default function AdminStats({ totalUsers, totalCarros, totalPecas, carros
           <div>
             <p className="text-2xl font-extrabold text-fg-heading">{s.value}</p>
             <p className="text-xs text-fg-subtle font-semibold uppercase tracking-wider">{s.label}</p>
+            {s.pendentes != null && s.pendentes > 0 && (
+              <p className="text-[10px] text-yellow-600 font-bold mt-0.5">{s.pendentes} pendente{s.pendentes !== 1 ? 's' : ''}</p>
+            )}
           </div>
         </button>
       ))}
