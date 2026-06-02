@@ -442,16 +442,16 @@ export default function Admin() {
         </Button>
       </div>
 
-      <div className="flex gap-1 mb-6 bg-slate-100 rounded-xl p-1">
+      <div className="flex gap-1 mb-6 bg-slate-100 rounded-xl p-1 overflow-x-auto scrollbar-hide [-webkit-overflow-scrolling:touch] snap-x snap-mandatory">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold rounded-lg transition ${
+            className={`snap-start shrink-0 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-bold rounded-lg whitespace-nowrap transition ${
               tab === t.key ? 'bg-white text-accent shadow-sm' : 'text-fg-subtle hover:text-fg-heading'
             }`}
           >
-            <t.Icon /> {t.label}
+            <t.Icon className="shrink-0" /> {t.label}
           </button>
         ))}
       </div>

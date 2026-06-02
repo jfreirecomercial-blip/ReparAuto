@@ -258,17 +258,6 @@ h6,
   min-height: 100vh;
 }
 
-main {
-  flex: 1;
-  padding-bottom: 80px;
-}
-
-@media (min-width: 768px) {
-  main {
-    padding-bottom: 0;
-  }
-}
-
 /* ============ FOCUS VISÍVEL (Acessibilidade) ============ */
 button:focus-visible,
 input:focus-visible,
@@ -325,9 +314,11 @@ button:not(:disabled):active,
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 10px 0 12px;
+  padding: 10px 0 calc(12px + env(safe-area-inset-bottom, 0px));
   z-index: 50;
   box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+  gap: 4px;
 }
 
 .bottom-nav button {
@@ -337,11 +328,14 @@ button:not(:disabled):active,
   gap: 3px;
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--color-neutral-600); /* #54565a — ~7.5:1 on white (was #627d98 ~4.0:1) */
+  color: var(--color-neutral-600);
   transition: all 0.2s;
   background: none;
   border: none;
   cursor: pointer;
+  white-space: nowrap;
+  padding: 0 6px;
+  flex-shrink: 0;
 }
 
 .bottom-nav button.active {
