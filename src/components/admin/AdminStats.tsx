@@ -11,11 +11,11 @@ interface AdminStatsProps {
 
 export default function AdminStats({ totalUsers, totalCarros, totalPecas, carrosPendentes, pecasPendentes, onNavigate }: AdminStatsProps) {
   const stats: { label: string; value: number; Icon: Icon; cor: string; tab: 'utilizadores' | 'anuncios'; subTab?: 'carros' | 'pecas'; filter?: 'pendente' | 'aprovado' | 'rejeitado' }[] = [
+    { label: 'Pendentes', value: carrosPendentes + pecasPendentes, Icon: Clock, cor: 'bg-yellow-600', tab: 'anuncios', filter: 'pendente' },
     { label: 'Utilizadores', value: totalUsers, Icon: Users, cor: 'bg-blue-600', tab: 'utilizadores' },
     { label: 'Carros', value: totalCarros, Icon: Car, cor: 'bg-accent', tab: 'anuncios', subTab: 'carros' },
     { label: 'Peças', value: totalPecas, Icon: GearSix, cor: 'bg-green-600', tab: 'anuncios', subTab: 'pecas' },
     { label: 'Total Anúncios', value: totalCarros + totalPecas, Icon: List, cor: 'bg-purple-600', tab: 'anuncios' },
-    { label: 'Pendentes', value: carrosPendentes + pecasPendentes, Icon: Clock, cor: 'bg-yellow-600', tab: 'anuncios', filter: 'pendente' },
   ];
 
   return (
