@@ -1,4 +1,4 @@
-import { Users, Car, GearSix, List, Clock, type Icon } from '@phosphor-icons/react';
+import { Users, Car, GearSix, List, Clock, Wrench, MagnifyingGlass, type Icon } from '@phosphor-icons/react';
 
 interface AdminStatsProps {
   totalUsers: number;
@@ -6,16 +6,22 @@ interface AdminStatsProps {
   totalPecas: number;
   carrosPendentes: number;
   pecasPendentes: number;
-  onNavigate: (tab: 'utilizadores' | 'anuncios', subTab?: 'carros' | 'pecas', filter?: 'pendente' | 'aprovado' | 'rejeitado') => void;
+  totalOficinas: number;
+  oficinasPendentes: number;
+  totalIntencoes: number;
+  intencoesPendentes: number;
+  onNavigate: (tab: 'utilizadores' | 'anuncios' | 'oficinas' | 'intencoes', subTab?: 'carros' | 'pecas', filter?: 'pendente' | 'aprovado' | 'rejeitado') => void;
 }
 
-export default function AdminStats({ totalUsers, totalCarros, totalPecas, carrosPendentes, pecasPendentes, onNavigate }: AdminStatsProps) {
-  const stats: { label: string; value: number; Icon: Icon; cor: string; tab: 'utilizadores' | 'anuncios'; subTab?: 'carros' | 'pecas'; filter?: 'pendente' | 'aprovado' | 'rejeitado' }[] = [
+export default function AdminStats({ totalUsers, totalCarros, totalPecas, carrosPendentes, pecasPendentes, totalOficinas, oficinasPendentes, totalIntencoes, intencoesPendentes, onNavigate }: AdminStatsProps) {
+  const stats: { label: string; value: number; Icon: Icon; cor: string; tab: 'utilizadores' | 'anuncios' | 'oficinas' | 'intencoes'; subTab?: 'carros' | 'pecas'; filter?: 'pendente' | 'aprovado' | 'rejeitado' }[] = [
     { label: 'Utilizadores', value: totalUsers, Icon: Users, cor: 'bg-blue-600', tab: 'utilizadores' },
     { label: 'Carros', value: totalCarros, Icon: Car, cor: 'bg-accent', tab: 'anuncios', subTab: 'carros' },
     { label: 'Peças', value: totalPecas, Icon: GearSix, cor: 'bg-green-600', tab: 'anuncios', subTab: 'pecas' },
     { label: 'Total Anúncios', value: totalCarros + totalPecas, Icon: List, cor: 'bg-purple-600', tab: 'anuncios' },
     { label: 'Pendentes', value: carrosPendentes + pecasPendentes, Icon: Clock, cor: 'bg-yellow-600', tab: 'anuncios', filter: 'pendente' },
+    { label: 'Oficinas', value: totalOficinas, Icon: Wrench, cor: 'bg-orange-600', tab: 'oficinas' },
+    { label: 'Intenções', value: totalIntencoes, Icon: MagnifyingGlass, cor: 'bg-cyan-600', tab: 'intencoes' },
   ];
 
   return (

@@ -1,0 +1,7 @@
+tipo,titulo,categoria,marcaCarro,modeloCarro,preco,estado,local,distrito,descricao,vendedorTelefone,vendedorWhatsApp,vendedorEmail
+venda,Motor 1.9 TDI ASZ 130cv,Motor e Transmissão,Seat,Ibiza 6L,450,Usado,Braga,,Motor completo com turbo original. 210.000km.,912345678,351912345678,
+venda,Caixa de Velocidades MQ250 6 velocidades,Motor e Transmissão,Volkswagen,Golf IV,650,Usado,Porto,Porto,Caixa manual 6 velocidades em bom estado.,,
+desmonte,Peugeot 206 1.1 para desmonte completo,"Carro Completo p/ Desmonte",Peugeot,206,300,Usado,Porto,Porto,Carro completo para peças. Chaparia em bom estado.,933567890,351933567890,carlos@email.com
+procura,Procuro Farol Frontal Esquerdo Halogéneo,Iluminação e Óticas,Renault,Clio III,0,Usado,Lisboa,Lisboa,Farol esquerdo original para Clio III 2007.,,
+venda,Bancos Dianteiros Em Couro,Interior e Bancos,BMW,Série 3 E46,250,Usado,Coimbra,Coimbra,Bancos elétricos em couro bege.,,
+venda,Jogo Amortecedores Dianteiros,Suspensão e Travões,Toyota,Corolla E12,120,Novo (Em caixa),Aveiro,,Amortecedores novos originais Toyota.,,

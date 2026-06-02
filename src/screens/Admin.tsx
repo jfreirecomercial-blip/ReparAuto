@@ -238,7 +238,7 @@ export default function Admin() {
     }
   };
 
-  const handleNavigateStats = (targetTab: 'utilizadores' | 'anuncios', subTab?: 'carros' | 'pecas', filter?: StatusAnuncio) => {
+  const handleNavigateStats = (targetTab: 'utilizadores' | 'anuncios' | 'oficinas' | 'intencoes', subTab?: 'carros' | 'pecas', filter?: StatusAnuncio) => {
     setTab(targetTab);
     if (subTab) setSubTabAnuncios(subTab);
     setStatusFilter(filter ?? null);
@@ -463,6 +463,10 @@ export default function Admin() {
           totalPecas={pecas.length}
           carrosPendentes={carros.filter((c) => c.status === 'pendente').length}
           pecasPendentes={pecas.filter((p) => p.status === 'pendente').length}
+          totalOficinas={oficinasAdmin.length}
+          oficinasPendentes={oficinasAdmin.filter((o) => o.status === 'pendente').length}
+          totalIntencoes={intencoesAdmin.length}
+          intencoesPendentes={intencoesAdmin.filter((i) => i.status === 'pendente').length}
           onNavigate={handleNavigateStats}
         />
       )}
