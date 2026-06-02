@@ -82,7 +82,7 @@ export default function CarCard({ carro }: { carro: Carro }) {
         {carro.estadoVeiculo === 'manutencao' && (
           <Alert
             tipo="aviso"
-            icone={<Wrench />}
+            icone={<Wrench size={18} />}
             className="mt-2 !p-2 !rounded-lg !items-center font-semibold"
           >
             Precisa de manutenção

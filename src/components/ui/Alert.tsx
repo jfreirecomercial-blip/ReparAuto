@@ -26,7 +26,7 @@ export default function Alert({
         centered ? 'flex-col items-center text-center' : 'items-start'
       } ${className}`}
     >
-      {icone && <span className={`${estilo.icone} text-lg flex items-center shrink-0`}>{icone}</span>}
+      {icone && <span className={`${estilo.icone} text-lg flex items-center shrink-0 overflow-hidden`}>{icone}</span>}
       <div className={centered ? '' : 'min-w-0 flex-1'}>
         {titulo && <p className={`font-semibold text-sm ${estilo.titulo}`}>{titulo}</p>}
         {children && <div className={`text-xs ${estilo.texto} ${titulo ? 'mt-0.5' : ''}`}>{children}</div>}
