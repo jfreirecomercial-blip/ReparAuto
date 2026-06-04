@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "deploy:rules": "firebase deploy --only firestore:rules",
-    "deploy:hosting": "firebase deploy --only apphosting"
+    "deploy:hosting": "firebase deploy --only apphosting",
+    "import:pecas": "node scripts/importar-pecas.mjs",
+    "import:pecas:dry": "node scripts/importar-pecas.mjs --dry-run"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

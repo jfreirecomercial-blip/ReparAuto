@@ -238,7 +238,7 @@ export default function Admin() {
     }
   };
 
-  const handleNavigateStats = (targetTab: 'utilizadores' | 'anuncios', subTab?: 'carros' | 'pecas', filter?: StatusAnuncio) => {
+  const handleNavigateStats = (targetTab: 'utilizadores' | 'anuncios' | 'oficinas' | 'intencoes' | 'avaliacoes', subTab?: 'carros' | 'pecas', filter?: StatusAnuncio) => {
     setTab(targetTab);
     if (subTab) setSubTabAnuncios(subTab);
     setStatusFilter(filter ?? null);
@@ -247,7 +247,11 @@ export default function Admin() {
   const handleUpdateIntencaoStatus = async (id: string, status: string) => {
     try {
       await updateIntencaoStatus(id, status);
-      setIntencoesAdmin((prev) => prev.map((i) => (i.id === id ? { ...i, status: status as any } : i)));
+      if (status === 'deletada') {
+        setIntencoesAdmin((prev) => prev.filter((i) => i.id !== id));
+      } else {
+        setIntencoesAdmin((prev) => prev.map((i) => (i.id === id ? { ...i, status: status as any } : i)));
+      }
       toast?.sucesso(`Intenção ${status}.`);
     } catch { toast?.erro('Erro ao atualizar intenção.'); }
   };
@@ -442,16 +446,16 @@ export default function Admin() {
         </Button>
       </div>
 
-      <div className="flex gap-1 mb-6 bg-slate-100 rounded-xl p-1">
+      <div className="flex gap-1 mb-6 bg-slate-100 rounded-xl p-1 overflow-x-auto scrollbar-hide [-webkit-overflow-scrolling:touch] snap-x snap-mandatory">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold rounded-lg transition ${
+            className={`snap-start shrink-0 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-bold rounded-lg whitespace-nowrap transition ${
               tab === t.key ? 'bg-white text-accent shadow-sm' : 'text-fg-subtle hover:text-fg-heading'
             }`}
           >
-            <t.Icon /> {t.label}
+            <t.Icon className="shrink-0" /> {t.label}
           </button>
         ))}
       </div>
@@ -463,6 +467,12 @@ export default function Admin() {
           totalPecas={pecas.length}
           carrosPendentes={carros.filter((c) => c.status === 'pendente').length}
           pecasPendentes={pecas.filter((p) => p.status === 'pendente').length}
+          totalOficinas={oficinasAdmin.length}
+          oficinasPendentes={oficinasAdmin.filter((o) => o.status === 'pendente').length}
+          totalIntencoes={intencoesAdmin.length}
+          intencoesPendentes={intencoesAdmin.filter((i) => i.status === 'pendente').length}
+          totalReviews={adminReviews.length}
+          reviewsPendentes={reviewsPendentes}
           onNavigate={handleNavigateStats}
         />
       )}
@@ -520,7 +530,7 @@ export default function Admin() {
               <p className="text-sm text-fg-subtle">Nenhuma intenção encontrada.</p>
             ) : (
               <div className="space-y-2">
-                {intencoesOrdenadas.map((intencao) => (
+                {intencoesOrdenadas.filter((i) => i.status !== 'deletada').map((intencao) => (
                   <div key={intencao.id} className="flex items-center justify-between bg-slate-50 rounded-xl p-3 border border-slate-200">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-fg-heading truncate">{intencao.titulo}</p>
@@ -566,7 +576,7 @@ export default function Admin() {
                       <p className="text-xs text-fg-subtle">{denuncia.descricao} • Status: {denuncia.status}</p>
                     </div>
                     <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                      <Button tipo="perigo" tamanho="sm" onClick={() => updateDenunciaIntencaoStatus(denuncia.id, 'resolvida', auth.user?.email || 'admin', 'remocao')}>Remover Intenção</Button>
+                      <Button tipo="perigo" tamanho="sm" onClick={async () => { await updateIntencaoStatus(denuncia.intencaoId, 'deletada'); await updateDenunciaIntencaoStatus(denuncia.id, 'resolvida', auth.user?.email || 'admin', 'remocao'); setIntencoesAdmin((prev) => prev.filter((i) => i.id !== denuncia.intencaoId)); }}>Remover Intenção</Button>
                       <Button tipo="aviso" tamanho="sm" onClick={() => updateDenunciaIntencaoStatus(denuncia.id, 'resolvida', auth.user?.email || 'admin', 'aviso')}>Avisar</Button>
                     </div>
                   </div>

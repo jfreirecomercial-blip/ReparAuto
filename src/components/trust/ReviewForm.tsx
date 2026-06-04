@@ -4,6 +4,7 @@ import { Clock, PaperPlaneTilt, Star, StarHalf, WarningCircle } from '@phosphor-
 import Button from '@/components/ui/Button';
 import { useState } from 'react';
 import Alert from '@/components/ui/Alert';
+import { contemProfanity } from '@/lib/profanity';
 import type { ReviewInput } from '@/types/review';
 
 interface ReviewFormProps {
@@ -36,6 +37,11 @@ export default function ReviewForm({
 
   const handleSubmit = async () => {
     if (nota === 0) return;
+    const comentarioTrim = comentario.trim();
+    if (comentarioTrim && contemProfanity(comentarioTrim)) {
+      setErro('O comentário contém linguagem inapropriada. Por favor, remova esses termos.');
+      return;
+    }
     setEnviando(true);
     setErro('');
     try {
@@ -48,13 +54,17 @@ export default function ReviewForm({
         anuncioId,
         anuncioTipo,
         nota,
-        comentario: comentario.trim(),
+        comentario: comentarioTrim,
       });
       setEnviado(true);
       setNota(0);
       setComentario('');
-    } catch {
-      setErro('Erro ao enviar avaliação. Tente novamente.');
+    } catch (err) {
+      if (err instanceof Error) {
+        setErro(err.message);
+      } else {
+        setErro('Erro ao enviar avaliação. Tente novamente.');
+      }
     } finally {
       setEnviando(false);
     }

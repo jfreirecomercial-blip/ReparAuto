@@ -230,7 +230,7 @@ export default function DetalhesCarro() {
 
         <div className="mb-6">
           {carro.estadoVeiculo === 'manutencao' && (
-            <Alert tipo="aviso" icone={<Wrench />} className="!p-3 !rounded-lg !items-center font-semibold">
+            <Alert tipo="aviso" icone={<Wrench size={18} />} className="!p-3 !rounded-lg !items-center font-semibold">
               Este veículo precisa de manutenção/reparações
             </Alert>
           )}
