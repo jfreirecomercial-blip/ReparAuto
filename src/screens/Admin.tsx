@@ -26,6 +26,7 @@ import {
   getAllOficinasAdmin,
   updateOficinaStatus,
   deleteOficina,
+  updateUserProfile,
 } from '@/lib/db';
 import Button from '@/components/ui/Button';
 import AdminStats from '@/components/admin/AdminStats';
@@ -136,6 +137,16 @@ export default function Admin() {
       toast?.sucesso('Role alterado com sucesso.');
     } catch {
       toast?.erro('Erro ao alterar role.');
+    }
+  };
+
+  const handleUpdateUserProfile = async (uid: string, updates: Partial<Usuario>) => {
+    try {
+      await updateUserProfile(uid, updates);
+      setUsers((prev) => prev.map((u) => (u.uid === uid ? { ...u, ...updates } : u)));
+      toast?.sucesso('Utilizador atualizado com sucesso.');
+    } catch {
+      toast?.erro('Erro ao atualizar utilizador.');
     }
   };
 
@@ -491,7 +502,11 @@ export default function Admin() {
           <h2 className="text-lg font-extrabold text-fg-heading mb-4">
             <Users className="mr-2 text-accent" /> Gestão de Utilizadores
           </h2>
-          <UserTable users={users} onRoleChange={handleRoleChange} />
+          <UserTable
+            users={users}
+            onRoleChange={handleRoleChange}
+            onUpdateUserProfile={handleUpdateUserProfile}
+          />
         </div>
       )}
 
