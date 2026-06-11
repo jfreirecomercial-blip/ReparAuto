@@ -95,7 +95,8 @@ export default function usePecas() {
     [pecas]
   );
 
-  return {
+  // Stable object so context consumers only re-render when data changes.
+  return useMemo(() => ({
     pecas,
     pecasFiltradas,
     loading,
@@ -118,6 +119,20 @@ export default function usePecas() {
     publicarPeca,
     eliminarPeca,
     getPecaPorId,
-    recarregar: async () => {},
-  };
+  }), [
+    pecas,
+    pecasFiltradas,
+    loading,
+    filtroTipo,
+    searchTerm,
+    filtroCategoria,
+    filtroEstado,
+    advDistrito,
+    advConcelho,
+    advRaioCentro,
+    advRaioKm,
+    publicarPeca,
+    eliminarPeca,
+    getPecaPorId,
+  ]);
 }

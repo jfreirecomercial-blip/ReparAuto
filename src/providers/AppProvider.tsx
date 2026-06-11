@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import useAuth from '@/hooks/useAuth';
 import useCarros from '@/hooks/useCarros';
@@ -62,7 +62,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [loginRedirectTo, router]);
 
-  const value: AppContextValue = {
+  const value: AppContextValue = useMemo(() => ({
     auth,
     carros,
     pecas,
@@ -74,7 +74,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
       openLoginModal,
       closeLoginModal,
     },
-  };
+  }), [auth, carros, pecas, favoritos, chat, intencoes, loginModalOpen, openLoginModal, closeLoginModal]);
 
   return (
     <AppContext.Provider value={value}>

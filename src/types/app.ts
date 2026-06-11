@@ -31,7 +31,6 @@ export interface CarrosContextValue {
   publicarCarro: (dados: any) => Promise<any>;
   eliminarCarro: (id: string) => Promise<void>;
   getCarroPorId: (id: string) => Carro | null;
-  recarregar: () => Promise<void>;
 }
 
 export interface PecasContextValue {
@@ -57,7 +56,6 @@ export interface PecasContextValue {
   publicarPeca: (dados: any) => Promise<any>;
   eliminarPeca: (id: string) => Promise<void>;
   getPecaPorId: (id: string) => Peca | null;
-  recarregar: () => Promise<void>;
 }
 
 export interface LoginModalContextValue {

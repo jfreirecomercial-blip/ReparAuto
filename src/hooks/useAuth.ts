@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { User } from 'firebase/auth';
 import {
   loginComEmail,
@@ -139,7 +139,7 @@ export default function useAuth() {
     setUser((prev) => prev ? { ...prev, ...data } : null);
   }, [user?.uid]);
 
-  return {
+  return useMemo(() => ({
     user,
     loading,
     login,
@@ -151,5 +151,5 @@ export default function useAuth() {
     profileCompleted: user?.profileCompleted ?? false,
     updateProfile,
     refreshProfile,
-  };
+  }), [user, loading, login, registar, loginGoogle, logout, updateProfile, refreshProfile]);
 }

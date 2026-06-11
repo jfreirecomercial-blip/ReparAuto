@@ -106,7 +106,8 @@ export default function useCarros() {
     [carros]
   );
 
-  return {
+  // Stable object so context consumers only re-render when data changes.
+  return useMemo(() => ({
     carros,
     carrosFiltrados,
     loading,
@@ -131,6 +132,21 @@ export default function useCarros() {
     publicarCarro,
     eliminarCarro,
     getCarroPorId,
-    recarregar: async () => {},
-  };
+  }), [
+    carros,
+    carrosFiltrados,
+    loading,
+    filtroAtivo,
+    searchQuery,
+    advPriceMin,
+    advPriceMax,
+    advDistrito,
+    advConcelho,
+    advRaioCentro,
+    advRaioKm,
+    sortOrdem,
+    publicarCarro,
+    eliminarCarro,
+    getCarroPorId,
+  ]);
 }

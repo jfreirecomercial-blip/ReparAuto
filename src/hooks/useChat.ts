@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   collection,
   addDoc,
@@ -197,7 +197,7 @@ export function useChat(uid: string | null, nome: string = '') {
     [uid, nome, chatListingId, chatListingType, chatListingTitle, chatVendedorUid, chatVendedorNome],
   );
 
-  return {
+  return useMemo(() => ({
     mensagensNaoLidas,
     abrirChat,
     chatAberto,
@@ -210,5 +210,18 @@ export function useChat(uid: string | null, nome: string = '') {
     enviarMensagem,
     conversa,
     carregandoConversa,
-  };
+  }), [
+    mensagensNaoLidas,
+    abrirChat,
+    chatAberto,
+    fecharChat,
+    chatListingId,
+    chatListingType,
+    chatListingTitle,
+    chatVendedorUid,
+    chatVendedorNome,
+    enviarMensagem,
+    conversa,
+    carregandoConversa,
+  ]);
 }
