@@ -44,7 +44,7 @@ export default function Pecas() {
       <div className="lg:grid lg:grid-cols-[280px_1fr] lg:gap-6 lg:items-start">
         <PecasFilter total={filtered.length} />
         <section className="min-w-0">
-          <PecasGrid onDetalhes={(peca: Peca) => setDetalhesPeca(peca)} />
+          <PecasGrid onDetalhes={setDetalhesPeca} />
         </section>
       </div>
 
