@@ -354,7 +354,7 @@ export default function CarGrid() {
                       <div className="flex items-start gap-3 mb-3">
                         <div className="w-10 h-10 bg-brand-50 dark:bg-brand-950/30 text-brand-600 dark:text-brand-400 rounded-lg flex items-center justify-center font-bold text-sm shrink-0 border border-brand-100 dark:border-brand-900">
                           {oficina.logoUrl ? (
-                            <img src={oficina.logoUrl} alt={oficina.nome || ''} className="w-full h-full object-cover rounded-lg" />
+                            <img src={oficina.logoUrl} alt={oficina.nome || ''} loading="lazy" decoding="async" className="w-full h-full object-cover rounded-lg" />
                           ) : (
                             oficina.nome ? oficina.nome.substring(0, 2).toUpperCase() : 'OF'
                           )}
