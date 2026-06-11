@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { subscribePecas, addPeca, deletePeca } from '@/lib/db';
 import { getDistritoForConcelho, getCoordenadas, haversineKm } from '@/lib/geo';
 import type { Peca, FiltroTipoPeca } from '@/types/peca';
@@ -28,7 +28,7 @@ export default function usePecas() {
     return unsub;
   }, []);
 
-  const pecasFiltradas = useCallback(() => {
+  const pecasFiltradas = useMemo(() => {
     let lista = [...pecas];
 
     if (filtroTipo !== 'todos') {
@@ -97,7 +97,7 @@ export default function usePecas() {
 
   return {
     pecas,
-    pecasFiltradas: pecasFiltradas(),
+    pecasFiltradas,
     loading,
     filtroTipo,
     setFiltroTipo,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { subscribeCarros, addCarro, deleteCarro } from '@/lib/db';
 import { getDistritoForConcelho, getCoordenadas, haversineKm } from '@/lib/geo';
 import type { Carro } from '@/types/carro';
@@ -30,7 +30,7 @@ export default function useCarros() {
     return unsub;
   }, []);
 
-  const carrosFiltrados = useCallback(() => {
+  const carrosFiltrados = useMemo(() => {
     let cs = [...carros];
 
     if (filtroAtivo === 'lowcost') {
@@ -108,7 +108,7 @@ export default function useCarros() {
 
   return {
     carros,
-    carrosFiltrados: carrosFiltrados(),
+    carrosFiltrados,
     loading,
     filtroAtivo,
     setFiltroAtivo,
