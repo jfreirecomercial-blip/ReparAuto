@@ -1363,10 +1363,13 @@ export async function iniciarContatoIntencao(
       });
     }
 
+    // Counter bump must not fail the contact that was already created.
     await updateDoc(doc(db, INTENCOES_COLLECTION, intencaoId) as any, {
       'stats.contatos': increment(1),
       'stats.contatos7Dias': increment(1),
-    } as any);
+    } as any).catch((err) => {
+      console.warn('[DB] Falha ao incrementar stats da intenção:', err);
+    });
 
     return contatoId;
   } catch (err) {

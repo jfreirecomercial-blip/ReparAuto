@@ -110,7 +110,11 @@ service cloud.firestore {
       allow read: if true;
       allow create: if request.auth != null
         && request.resource.data.userId == request.auth.uid;
-      allow update: if request.auth.uid == resource.data.userId || isAdmin();
+      // Any signed-in user may bump view/contact counters (stats map only),
+      // mirroring the counter exception on /cars and /parts.
+      allow update: if request.auth.uid == resource.data.userId || isAdmin()
+        || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['stats']));
       allow delete: if request.auth.uid == resource.data.userId || isAdmin();
     }
 
