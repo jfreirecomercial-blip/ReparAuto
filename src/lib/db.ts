@@ -10,6 +10,7 @@ import {
   orderBy,
   where,
   setDoc,
+  writeBatch,
   Timestamp,
   onSnapshot,
   increment,
@@ -382,16 +383,33 @@ export async function getNotificacoes(uid: string): Promise<Notificacao[]> {
     );
     const snap = await getDocs(q);
     const notificacoes = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Notificacao));
-    notificacoes.sort((a, b) => {
-      const aTime = a.dataCriacao?.toDate?.()?.getTime() || 0;
-      const bTime = b.dataCriacao?.toDate?.()?.getTime() || 0;
-      return bTime - aTime;
-    });
-    return notificacoes;
+    return sortByDataCriacaoDesc(notificacoes);
   } catch (err) {
     console.error('[DB] Erro ao buscar notificações:', err);
     return [];
   }
+}
+
+export function subscribeNotificacoes(
+  uid: string,
+  onData: (notificacoes: Notificacao[]) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  const q = query(
+    collection(db, NOTIFICACOES_COLLECTION),
+    where('uid', '==', uid),
+  );
+  return onSnapshot(
+    q,
+    (snap) => {
+      const notificacoes = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Notificacao));
+      onData(sortByDataCriacaoDesc(notificacoes));
+    },
+    (err) => {
+      console.error('[DB] Erro no snapshot de notificações:', err);
+      onError?.(err);
+    },
+  );
 }
 
 export async function marcarNotificacaoLida(id: string): Promise<void> {
@@ -410,8 +428,10 @@ export async function marcarTodasNotificacoesLidas(uid: string): Promise<void> {
       where('lida', '==', false),
     );
     const snap = await getDocs(q);
-    const batch = snap.docs.map((d) => updateDoc(doc(db, NOTIFICACOES_COLLECTION, d.id), { lida: true }));
-    await Promise.all(batch);
+    if (snap.empty) return;
+    const batch = writeBatch(db);
+    snap.docs.forEach((d) => batch.update(d.ref, { lida: true }));
+    await batch.commit();
   } catch (err) {
     console.error('[DB] Erro ao marcar notificações como lidas:', err);
   }
