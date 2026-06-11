@@ -81,11 +81,12 @@ async function restGet(collection: string, id: string): Promise<FirestoreDoc | n
   return (await res.json()) as FirestoreDoc;
 }
 
-async function adminList<T>(collection: string): Promise<T[] | null> {
+async function adminList<T>(collection: string, status?: string): Promise<T[] | null> {
   const db = getAdminDb();
   if (!db) return null;
   try {
-    const snap = await db.collection(collection).get();
+    const ref = db.collection(collection);
+    const snap = await (status ? ref.where('status', '==', status) : ref).get();
     return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
   } catch {
     return null;
@@ -105,7 +106,7 @@ async function adminGet<T>(collection: string, id: string): Promise<T | null> {
 }
 
 export async function getCarrosServer(): Promise<Carro[]> {
-  const adminResult = await adminList<Carro>('cars');
+  const adminResult = await adminList<Carro>('cars', 'aprovado');
   const all = adminResult ?? (await restList('cars')).map((d) => decodeDoc<Carro>(d));
   return all.filter((c) => c.status === 'aprovado');
 }
@@ -118,7 +119,7 @@ export async function getCarroPorIdServer(id: string): Promise<Carro | null> {
 }
 
 export async function getPecasServer(): Promise<Peca[]> {
-  const adminResult = await adminList<Peca>('parts');
+  const adminResult = await adminList<Peca>('parts', 'aprovado');
   const all = adminResult ?? (await restList('parts')).map((d) => decodeDoc<Peca>(d));
   return all.filter((p) => p.status === 'aprovado');
 }

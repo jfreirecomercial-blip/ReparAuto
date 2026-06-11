@@ -31,12 +31,19 @@ const CARROS_COLLECTION = 'cars';
 const PECAS_COLLECTION = 'parts';
 const OFICINAS_COLLECTION = 'services';
 
+// Public listings filter on status server-side so clients never download
+// pending/rejected documents. Sorting stays client-side to avoid requiring
+// a composite (status, dataCriacao) index.
+function sortByDataCriacaoDesc<T extends { dataCriacao?: { toMillis?: () => number } }>(items: T[]): T[] {
+  return items.sort((a, b) => (b.dataCriacao?.toMillis?.() || 0) - (a.dataCriacao?.toMillis?.() || 0));
+}
+
 export async function getCarros(): Promise<Carro[]> {
   try {
-    const q = query(collection(db, CARROS_COLLECTION), orderBy('dataCriacao', 'desc'));
+    const q = query(collection(db, CARROS_COLLECTION), where('status', '==', 'aprovado'));
     const snap = await getDocs(q);
     const todos = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Carro));
-    return todos.filter((c) => c.status === 'aprovado');
+    return sortByDataCriacaoDesc(todos);
   } catch (err) {
     console.error('[DB] Erro ao buscar carros:', err);
     return [];
@@ -47,12 +54,12 @@ export function subscribeCarros(
   onData: (carros: Carro[]) => void,
   onError?: (err: Error) => void,
 ): () => void {
-  const q = query(collection(db, CARROS_COLLECTION), orderBy('dataCriacao', 'desc'));
+  const q = query(collection(db, CARROS_COLLECTION), where('status', '==', 'aprovado'));
   return onSnapshot(
     q,
     (snap) => {
       const todos = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Carro);
-      onData(todos.filter((c) => c.status === 'aprovado'));
+      onData(sortByDataCriacaoDesc(todos));
     },
     (err) => {
       console.error('[DB] Erro no snapshot de carros:', err);
@@ -111,10 +118,10 @@ export async function deleteCarro(id: string): Promise<void> {
 
 export async function getPecas(): Promise<Peca[]> {
   try {
-    const q = query(collection(db, PECAS_COLLECTION), orderBy('dataCriacao', 'desc'));
+    const q = query(collection(db, PECAS_COLLECTION), where('status', '==', 'aprovado'));
     const snap = await getDocs(q);
     const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Peca));
-    return todas.filter((p) => p.status === 'aprovado');
+    return sortByDataCriacaoDesc(todas);
   } catch (err) {
     console.error('[DB] Erro ao buscar peças:', err);
     return [];
@@ -125,12 +132,12 @@ export function subscribePecas(
   onData: (pecas: Peca[]) => void,
   onError?: (err: Error) => void,
 ): () => void {
-  const q = query(collection(db, PECAS_COLLECTION), orderBy('dataCriacao', 'desc'));
+  const q = query(collection(db, PECAS_COLLECTION), where('status', '==', 'aprovado'));
   return onSnapshot(
     q,
     (snap) => {
       const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Peca);
-      onData(todas.filter((p) => p.status === 'aprovado'));
+      onData(sortByDataCriacaoDesc(todas));
     },
     (err) => {
       console.error('[DB] Erro no snapshot de peças:', err);
@@ -1094,10 +1101,10 @@ import type { OficinaMecanico } from '@/types/oficina';
 
 export async function getOficinas(): Promise<OficinaMecanico[]> {
   try {
-    const q = query(collection(db, OFICINAS_COLLECTION), orderBy('dataCriacao', 'desc'));
+    const q = query(collection(db, OFICINAS_COLLECTION), where('status', '==', 'aprovado'));
     const snap = await getDocs(q);
     const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() } as OficinaMecanico));
-    return todas.filter((c) => c.status === 'aprovado');
+    return sortByDataCriacaoDesc(todas);
   } catch (err) {
     console.error('[DB] Erro ao buscar oficinas:', err);
     return [];
@@ -1108,12 +1115,12 @@ export function subscribeOficinas(
   onData: (oficinas: OficinaMecanico[]) => void,
   onError?: (err: Error) => void,
 ): () => void {
-  const q = query(collection(db, OFICINAS_COLLECTION), orderBy('dataCriacao', 'desc'));
+  const q = query(collection(db, OFICINAS_COLLECTION), where('status', '==', 'aprovado'));
   return onSnapshot(
     q,
     (snap) => {
       const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as OficinaMecanico);
-      onData(todas.filter((c) => c.status === 'aprovado'));
+      onData(sortByDataCriacaoDesc(todas));
     },
     (err) => {
       console.error('[DB] Erro no snapshot de oficinas:', err);
