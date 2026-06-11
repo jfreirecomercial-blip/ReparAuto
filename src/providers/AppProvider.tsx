@@ -29,8 +29,13 @@ export default function AppProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   const auth = useAuth();
-  const carros = useCarros();
-  const pecas = usePecas();
+  // Only stream the heavy public collections on routes that render them.
+  // Other routes still get the action methods (publicarCarro/publicarPeca);
+  // add the route here if a new screen starts reading carros/pecas data.
+  const needsCarros = pathname === '/' || pathname.startsWith('/favoritos');
+  const needsPecas = pathname.startsWith('/pecas');
+  const carros = useCarros(needsCarros);
+  const pecas = usePecas(needsPecas);
   const favoritos = useFavoritos(auth.user);
   const chat = useChat(auth.user?.uid || null, auth.user?.nome || '');
   const intencoes = useIntencoes(auth.user?.uid || null);

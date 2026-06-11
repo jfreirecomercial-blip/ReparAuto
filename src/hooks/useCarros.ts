@@ -6,7 +6,10 @@ import { getDistritoForConcelho, getCoordenadas, haversineKm } from '@/lib/geo';
 import type { Carro } from '@/types/carro';
 import type { FiltroAtivo, SortOrdem } from '@/types/carro';
 
-export default function useCarros() {
+// `active` controls the realtime subscription: routes that never render the
+// public car list skip streaming the whole collection. Data from a previous
+// route is kept in state so navigating back doesn't flash empty.
+export default function useCarros(active: boolean = true) {
   const [carros, setCarrosState] = useState<Carro[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroAtivo, setFiltroAtivo] = useState<FiltroAtivo>('qualquer');
@@ -20,6 +23,7 @@ export default function useCarros() {
   const [sortOrdem, setSortOrdem] = useState<SortOrdem>(null);
 
   useEffect(() => {
+    if (!active) return;
     const unsub = subscribeCarros(
       (data) => {
         setCarrosState(data);
@@ -28,7 +32,7 @@ export default function useCarros() {
       () => setLoading(false),
     );
     return unsub;
-  }, []);
+  }, [active]);
 
   const carrosFiltrados = useMemo(() => {
     let cs = [...carros];

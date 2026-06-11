@@ -5,7 +5,10 @@ import { subscribePecas, addPeca, deletePeca } from '@/lib/db';
 import { getDistritoForConcelho, getCoordenadas, haversineKm } from '@/lib/geo';
 import type { Peca, FiltroTipoPeca } from '@/types/peca';
 
-export default function usePecas() {
+// `active` controls the realtime subscription: routes that never render the
+// public parts list skip streaming the whole collection. Data from a previous
+// route is kept in state so navigating back doesn't flash empty.
+export default function usePecas(active: boolean = true) {
   const [pecas, setPecasState] = useState<Peca[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroTipo, setFiltroTipo] = useState<FiltroTipoPeca>('todos');
@@ -18,6 +21,7 @@ export default function usePecas() {
   const [advRaioKm, setAdvRaioKm] = useState<number | null>(null);
 
   useEffect(() => {
+    if (!active) return;
     const unsub = subscribePecas(
       (data) => {
         setPecasState(data);
@@ -26,7 +30,7 @@ export default function usePecas() {
       () => setLoading(false),
     );
     return unsub;
-  }, []);
+  }, [active]);
 
   const pecasFiltradas = useMemo(() => {
     let lista = [...pecas];
