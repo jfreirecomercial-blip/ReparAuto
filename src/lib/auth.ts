@@ -6,6 +6,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   updateProfile,
+  sendPasswordResetEmail,
   type User,
 } from 'firebase/auth';
 import { auth } from './firebase';
@@ -35,4 +36,8 @@ export async function logoutFirebase(): Promise<void> {
 
 export function onAuthChange(callback: (user: User | null) => void): () => void {
   return onAuthStateChanged(auth, callback);
+}
+
+export async function enviarEmailReset(email: string): Promise<void> {
+  await sendPasswordResetEmail(auth, email);
 }

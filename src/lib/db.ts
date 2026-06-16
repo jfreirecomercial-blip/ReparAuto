@@ -19,6 +19,7 @@ import {
 import { ref, deleteObject } from 'firebase/storage';
 import { db, storage } from './firebase';
 import { DB_VERSION, DB_VERSION_KEY } from './constants';
+import { contemProfanity } from './profanity';
 import type { Carro, CarroInput, StatusAnuncio } from '@/types/carro';
 import type { Peca, PecaInput } from '@/types/peca';
 import type { Usuario, Role } from '@/types/usuario';
@@ -33,6 +34,7 @@ type PecaSeed = Omit<PecaInput, 'dataCriacao'> & { dataCriacao: ReturnType<typeo
 
 const CARROS_COLLECTION = 'cars';
 const PECAS_COLLECTION = 'parts';
+const OFICINAS_COLLECTION = 'services';
 
 const defaultCarros: CarroSeed[] = [
   {
@@ -339,19 +341,91 @@ const defaultPecas: PecaSeed[] = [
   },
 ];
 
+const defaultOficinas = [
+  {
+    criador: 'admin@reparauto.pt',
+    nome: 'Recar Garage & Prep',
+    descricao: 'Especialistas em eletrónica, reprogramação e preparação de motores para competição e estrada. Realizamos também serviços de estética automóvel e detalhe completo.',
+    responsavel: 'Filipe Antunes',
+    telefone: '912345678',
+    whatsapp: '351912345678',
+    email: 'contacto@recargarage.pt',
+    website: 'https://recargarage.pt',
+    distrito: 'Lisboa',
+    localidade: 'Lisboa',
+    morada: 'Avenida da República, 1420',
+    coordenadas: { latitude: 38.7436, longitude: -9.1443 },
+    especialidades: ['preparacao', 'eletronica', 'estetica_automotiva'],
+    logoUrl: '',
+    status: 'aprovado',
+    mediaAvaliacoes: 4.8,
+    totalAvaliacoes: 5,
+    dataCriacao: Timestamp.now(),
+  },
+  {
+    criador: 'admin@reparauto.pt',
+    nome: 'Oficina Mecânica Central Braga',
+    descricao: 'Oficina multimarcas com foco em mecânica convencional, diagnóstico computorizado, carregamento de ar condicionado e substituição de pneus.',
+    responsavel: 'João Silva',
+    telefone: '923456789',
+    whatsapp: '351923456789',
+    email: 'braga@mecanicacentral.pt',
+    website: 'https://mecanicacentralbraga.pt',
+    distrito: 'Braga',
+    localidade: 'Braga',
+    morada: 'Rua do Caires, 54',
+    coordenadas: { latitude: 41.5432, longitude: -8.4285 },
+    especialidades: ['mecanica_convencional', 'ar_condicionado', 'pneus'],
+    logoUrl: '',
+    status: 'aprovado',
+    mediaAvaliacoes: 4.5,
+    totalAvaliacoes: 3,
+    dataCriacao: Timestamp.now(),
+  },
+  {
+    criador: 'admin@reparauto.pt',
+    nome: 'Auto Pintura e Restauro Clássicos',
+    descricao: 'Oficina premium especializada em pintura automóvel de estufa, reparação de chapa e restauro completo de veículos clássicos.',
+    responsavel: 'Manuel Neves',
+    telefone: '934567890',
+    whatsapp: '351934567890',
+    email: 'manuel@autopinturaclassicos.pt',
+    distrito: 'Porto',
+    localidade: 'Vila Nova de Gaia',
+    morada: 'Zona Industrial de Grijó, Lote 12',
+    coordenadas: { latitude: 41.0254, longitude: -8.5786 },
+    especialidades: ['pintura', 'classicos_restauro'],
+    logoUrl: '',
+    status: 'aprovado',
+    mediaAvaliacoes: 5.0,
+    totalAvaliacoes: 8,
+    dataCriacao: Timestamp.now(),
+  }
+];
+
 export async function initDatabase(): Promise<void> {
   try {
     const carrosSnap = await getDocs(collection(db, CARROS_COLLECTION));
     const pecasSnap = await getDocs(collection(db, PECAS_COLLECTION));
+    const oficinasSnap = await getDocs(collection(db, OFICINAS_COLLECTION));
 
-    const precisaSeed = carrosSnap.empty || pecasSnap.empty;
+    const precisaSeed = carrosSnap.empty || pecasSnap.empty || oficinasSnap.empty;
 
     if (precisaSeed) {
-      for (const carro of defaultCarros) {
-        await addDoc(collection(db, CARROS_COLLECTION), carro as DocumentData);
+      if (carrosSnap.empty) {
+        for (const carro of defaultCarros) {
+          await addDoc(collection(db, CARROS_COLLECTION), carro as DocumentData);
+        }
       }
-      for (const peca of defaultPecas) {
-        await addDoc(collection(db, PECAS_COLLECTION), peca as DocumentData);
+      if (pecasSnap.empty) {
+        for (const peca of defaultPecas) {
+          await addDoc(collection(db, PECAS_COLLECTION), peca as DocumentData);
+        }
+      }
+      if (oficinasSnap.empty) {
+        for (const oficina of defaultOficinas) {
+          await addDoc(collection(db, OFICINAS_COLLECTION), oficina as DocumentData);
+        }
       }
       localStorage.setItem(DB_VERSION_KEY, DB_VERSION);
       console.log('[DB] Seed data imported to Firestore');
@@ -445,12 +519,12 @@ export async function getCarroPorId(id: string): Promise<Carro | null> {
 
 export async function addCarro(dados: Record<string, unknown>): Promise<Carro> {
   try {
-    const docRef = await addDoc(collection(db, CARROS_COLLECTION), {
+    const docRef = await addDoc(collection(db, CARROS_COLLECTION), cleanUndefined({
       ...dados,
       status: 'pendente',
       dataCriacao: Timestamp.now(),
-    });
-    return { id: docRef.id, ...dados, status: 'pendente' } as Carro;
+    }));
+    return { id: docRef.id, ...cleanUndefined(dados), status: 'pendente' } as Carro;
   } catch (err) {
     console.error('[DB] Erro ao adicionar carro:', err);
     throw err;
@@ -523,12 +597,12 @@ export async function getPecaPorId(id: string): Promise<Peca | null> {
 
 export async function addPeca(dados: Record<string, unknown>): Promise<Peca> {
   try {
-    const docRef = await addDoc(collection(db, PECAS_COLLECTION), {
+    const docRef = await addDoc(collection(db, PECAS_COLLECTION), cleanUndefined({
       ...dados,
       status: 'pendente',
       dataCriacao: Timestamp.now(),
-    });
-    return { id: docRef.id, ...dados, status: 'pendente' } as Peca;
+    }));
+    return { id: docRef.id, ...cleanUndefined(dados), status: 'pendente' } as Peca;
   } catch (err) {
     console.error('[DB] Erro ao adicionar peça:', err);
     throw err;
@@ -789,6 +863,9 @@ const REVIEWS_COLLECTION = 'reviews';
 
 export async function addReview(data: ReviewInput): Promise<Review> {
   try {
+    if (data.comentario && contemProfanity(data.comentario)) {
+      throw new Error('Comentário contém linguagem inapropriada.');
+    }
     const docRef = await addDoc(collection(db, REVIEWS_COLLECTION), {
       ...data,
       status: 'pendente',
@@ -823,6 +900,31 @@ export function subscribeReviews(
     },
   );
 }
+
+export function subscribeReviewsOficina(
+  oficinaId: string,
+  onData: (reviews: Review[]) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  const q = query(
+    collection(db, REVIEWS_COLLECTION),
+    where('anuncioId', '==', oficinaId),
+    where('anuncioTipo', '==', 'oficina'),
+    orderBy('dataCriacao', 'desc'),
+  );
+  return onSnapshot(
+    q,
+    (snap) => {
+      const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Review);
+      onData(all.filter((r) => r.status === 'aprovado'));
+    },
+    (err) => {
+      console.error('[DB] Erro no snapshot de avaliações de oficina:', err);
+      onError?.(err);
+    },
+  );
+}
+
 
 export async function getReviewsByVendedor(vendedorEmail: string): Promise<Review[]> {
   try {
@@ -1031,11 +1133,13 @@ function cleanUndefined(obj: Record<string, any>): Record<string, any> {
     if (value === undefined) continue;
     if (value !== null && typeof value === 'object' && !(value instanceof Timestamp)) {
       result[key] = Array.isArray(value)
-        ? value.map((item: any) =>
-            item !== null && typeof item === 'object' && !(item instanceof Timestamp)
-              ? cleanUndefined(item)
-              : item,
-          )
+        ? value
+            .filter((item: any) => item !== undefined)
+            .map((item: any) =>
+                item !== null && typeof item === 'object' && !(item instanceof Timestamp)
+                  ? cleanUndefined(item)
+                  : item,
+              )
         : cleanUndefined(value);
     } else {
       result[key] = value;
@@ -1375,7 +1479,9 @@ export async function updateDenunciaIntencaoStatus(
 export async function getAllIntencoesAdmin(): Promise<IntencaoCompra[]> {
   try {
     const snap = await getDocs(collection(db, INTENCOES_COLLECTION));
-    const results = snap.docs.map((d) => ({ id: d.id, ...d.data() } as IntencaoCompra));
+    const results = snap.docs
+      .map((d) => ({ id: d.id, ...d.data() } as IntencaoCompra))
+      .filter((i) => i.status !== 'deletada');
     results.sort((a, b) => {
       const aTime = a.atualizadaEm?.toDate?.()?.getTime() || 0;
       const bTime = b.atualizadaEm?.toDate?.()?.getTime() || 0;
@@ -1410,3 +1516,114 @@ export async function updateIntencaoStatus(id: string, status: string): Promise<
     throw err;
   }
 }
+
+// ============ OFICINAS E MECÂNICOS ============
+import type { OficinaMecanico } from '@/types/oficina';
+
+export async function getOficinas(): Promise<OficinaMecanico[]> {
+  try {
+    const q = query(collection(db, OFICINAS_COLLECTION), orderBy('dataCriacao', 'desc'));
+    const snap = await getDocs(q);
+    const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() } as OficinaMecanico));
+    return todas.filter((c) => c.status === 'aprovado');
+  } catch (err) {
+    console.error('[DB] Erro ao buscar oficinas:', err);
+    return [];
+  }
+}
+
+export function subscribeOficinas(
+  onData: (oficinas: OficinaMecanico[]) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  const q = query(collection(db, OFICINAS_COLLECTION), orderBy('dataCriacao', 'desc'));
+  return onSnapshot(
+    q,
+    (snap) => {
+      const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as OficinaMecanico);
+      onData(todas.filter((c) => c.status === 'aprovado'));
+    },
+    (err) => {
+      console.error('[DB] Erro no snapshot de oficinas:', err);
+      onError?.(err);
+    },
+  );
+}
+
+export async function getOficinaPorId(id: string): Promise<OficinaMecanico | null> {
+  try {
+    const docRef = doc(db, OFICINAS_COLLECTION, id);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return { id: snap.id, ...snap.data() } as OficinaMecanico;
+    }
+    return null;
+  } catch (err) {
+    console.error('[DB] Erro ao buscar oficina:', err);
+    return null;
+  }
+}
+
+export async function addOficina(dados: Record<string, unknown>): Promise<OficinaMecanico> {
+  try {
+    const docRef = await addDoc(collection(db, OFICINAS_COLLECTION), {
+      ...dados,
+      status: 'pendente',
+      dataCriacao: Timestamp.now(),
+    });
+    return { id: docRef.id, ...dados, status: 'pendente' } as OficinaMecanico;
+  } catch (err) {
+    console.error('[DB] Erro ao adicionar oficina:', err);
+    throw err;
+  }
+}
+
+export async function updateOficina(id: string, dados: Record<string, unknown>): Promise<void> {
+  try {
+    await updateDoc(doc(db, OFICINAS_COLLECTION, id) as any, dados as any);
+  } catch (err) {
+    console.error('[DB] Erro ao atualizar oficina:', err);
+    throw err;
+  }
+}
+
+export async function updateOficinaStatus(id: string, status: 'pendente' | 'aprovado' | 'rejeitado'): Promise<void> {
+  try {
+    await updateDoc(doc(db, OFICINAS_COLLECTION, id) as any, { status } as any);
+  } catch (err) {
+    console.error('[DB] Erro ao atualizar status da oficina:', err);
+    throw err;
+  }
+}
+
+export async function getOficinasByCreator(email: string): Promise<OficinaMecanico[]> {
+  try {
+    const q = query(collection(db, OFICINAS_COLLECTION), where('criador', '==', email));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as OficinaMecanico));
+  } catch (err) {
+    console.error('[DB] Erro ao buscar oficinas do criador:', err);
+    return [];
+  }
+}
+
+export async function deleteOficina(id: string): Promise<void> {
+  try {
+    await deleteDoc(doc(db, OFICINAS_COLLECTION, id));
+  } catch (err) {
+    console.error('[DB] Erro ao eliminar oficina:', err);
+    throw err;
+  }
+}
+
+export async function getAllOficinasAdmin(): Promise<OficinaMecanico[]> {
+  try {
+    const q = query(collection(db, OFICINAS_COLLECTION), orderBy('dataCriacao', 'desc'));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as OficinaMecanico));
+  } catch (err) {
+    console.error('[DB] Erro ao buscar oficinas (admin):', err);
+    return [];
+  }
+}
+

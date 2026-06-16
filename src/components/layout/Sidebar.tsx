@@ -15,6 +15,8 @@ import {
   SignOut,
   User,
   X,
+  Wrench,
+  ListChecks,
   type Icon,
 } from '@phosphor-icons/react';
 import { useApp } from '@/providers/AppProvider';
@@ -48,6 +50,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     { href: '/anunciar', Icon: PlusCircle, label: 'Vender' },
     { href: '/comprar', Icon: MagnifyingGlass, label: 'Comprar' },
     { href: '/pecas', Icon: GearSix, label: 'Peças & Desmonte' },
+    { href: '/oficinas', Icon: Wrench, label: 'Oficinas & Mecânicos' },
     ...(isAdmin ? [{ href: '/admin', Icon: ShieldCheck, label: 'Admin' }] : []),
   ];
 
@@ -128,6 +131,10 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <SectionLabel>A minha conta</SectionLabel>
             <div className="space-y-1">
               <NavLink href="/favoritos" Icon={Heart} label="Favoritos" />
+
+              {isLoggedIn && (
+                <NavLink href="/perfil" Icon={ListChecks} label="Meus Anúncios" />
+              )}
 
               {isLoggedIn && (
                 <NavLink href="/minhas-intencoes" Icon={Target} label="Minhas Intenções" />

@@ -6,7 +6,7 @@ import type { CategoriaIntencao } from '@/types/intencao';
 
 // Limites
 export const MAX_FOTOS_CARRO = 6;
-export const MAX_FOTO_SIZE_MB = 3;
+export const MAX_FOTO_SIZE_MB = 10;
 export const MAX_FOTO_SIZE_BYTES = MAX_FOTO_SIZE_MB * 1024 * 1024;
 export const DB_VERSION = '2.2';
 export const DB_VERSION_KEY = 'reparauto_db_version';
@@ -93,7 +93,7 @@ export const TEXTOS_POLITICAS = {
     titulo: 'Termos de Utilização - ReparAuto',
     corpo: `
       <p class='font-bold text-slate-800 mb-2'>1. Identificação do Responsável</p>
-      <p class='mb-4'>A ReparAuto é uma plataforma online de marketplace para anúncios de veículos e peças automóveis, operada a título individual. Para qualquer comunicação relacionada com os presentes Termos, incluindo questões ao abrigo do Regulamento (UE) 2022/2065 (Digital Services Act), o ponto de contacto é o email: <strong>reparauto.contacto@gmail.com</strong>.</p>
+      <p class='mb-4'>A ReparAuto é uma plataforma online de marketplace para anúncios de veículos e peças automóveis, operada a título individual. Para qualquer comunicação relacionada com os presentes Termos, incluindo questões ao abrigo do Regulamento (UE) 2022/2065 (Digital Services Act), o ponto de contacto é o email: <strong>garagerecar@gmail.com</strong>.</p>
 
       <p class='font-bold text-slate-800 mb-2'>2. Objeto e Natureza do Serviço</p>
       <p class='mb-4'>A ReparAuto é um marketplace que atua exclusivamente como intermediário tecnológico. Disponibilizamos uma plataforma online para que Vendedores e Compradores possam interagir com vista à compra e venda de veículos e peças automóveis em território português. A ReparAuto não é proprietária dos itens anunciados, não intervém nas negociações nem nas transações celebradas entre as partes, e não assume qualquer responsabilidade pela qualidade, segurança ou legalidade dos itens anunciados ou das transações deles decorrentes.</p>
@@ -149,7 +149,7 @@ export const TEXTOS_POLITICAS = {
       <p class='font-bold text-slate-800 mb-2'>10. Moderação de Conteúdo e DSA</p>
       <p class='mb-4'>Nos termos do Regulamento (UE) 2022/2065 (Digital Services Act):</p>
       <ul class='list-disc pl-5 mb-4 space-y-1'>
-        <li>Os utilizadores podem comunicar à ReparAuto a existência de conteúdos ilegais ou que violem estes Termos através do email <strong>reparauto.contacto@gmail.com</strong>.</li>
+        <li>Os utilizadores podem comunicar à ReparAuto a existência de conteúdos ilegais ou que violem estes Termos através do email <strong>garagerecar@gmail.com</strong>.</li>
         <li>Comprometemo-nos a analisar as comunicações num prazo razoável e a remover ou desativar o acesso a conteúdos ilegais ou que violem estes Termos.</li>
         <li>Os utilizadores cujo conteúdo seja removido ou cuja conta seja suspensa têm direito a contestar essa decisão através do mesmo email, sendo a decisão revista por um ser humano.</li>
         <li>A ReparAuto publica anualmente um relatório de transparência com informação sobre as medidas de moderação de conteúdo adotadas.</li>
@@ -165,14 +165,14 @@ export const TEXTOS_POLITICAS = {
       <p class='mb-4'>A ReparAuto reserva-se o direito de alterar estes Termos a qualquer momento. As alterações serão comunicadas aos utilizadores registados com uma antecedência mínima de 30 dias. A utilização continuada da plataforma após a entrada em vigor das alterações implica a aceitação das mesmas.</p>
 
       <p class='font-bold text-slate-800 mb-2'>14. Contactos</p>
-      <p class='mb-4'>Para qualquer questão relacionada com estes Termos, incluindo comunicações ao abrigo do DSA, contacte-nos através do email: <strong>reparauto.contacto@gmail.com</strong>.</p>
+      <p class='mb-4'>Para qualquer questão relacionada com estes Termos, incluindo comunicações ao abrigo do DSA, contacte-nos através do email: <strong>garagerecar@gmail.com</strong>.</p>
     `,
   },
   privacidade: {
     titulo: 'Política de Privacidade (RGPD) - ReparAuto',
     corpo: `
       <p class='font-bold text-slate-800 mb-2'>1. Enquadramento e Responsável pelo Tratamento</p>
-      <p class='mb-4'>No estrito cumprimento do Regulamento (UE) 2016/679 (Regulamento Geral sobre a Proteção de Dados — RGPD) e da Lei n.º 58/2019, de 8 de agosto (Lei de Execução do RGPD em Portugal), a ReparAuto compromete-se a proteger a privacidade dos seus utilizadores. O responsável pelo tratamento é o operador da plataforma. Contacto: <strong>reparauto.contacto@gmail.com</strong>. Não existe obrigação legal de nomear um Encarregado de Proteção de Dados (DPO) nos termos do art. 37.º do RGPD; no entanto, todas as questões relacionadas com dados pessoais podem ser dirigidas ao contacto acima indicado.</p>
+      <p class='mb-4'>No estrito cumprimento do Regulamento (UE) 2016/679 (Regulamento Geral sobre a Proteção de Dados — RGPD) e da Lei n.º 58/2019, de 8 de agosto (Lei de Execução do RGPD em Portugal), a ReparAuto compromete-se a proteger a privacidade dos seus utilizadores. O responsável pelo tratamento é o operador da plataforma. Contacto: <strong>garagerecar@gmail.com</strong>. Não existe obrigação legal de nomear um Encarregado de Proteção de Dados (DPO) nos termos do art. 37.º do RGPD; no entanto, todas as questões relacionadas com dados pessoais podem ser dirigidas ao contacto acima indicado.</p>
 
       <p class='font-bold text-slate-800 mb-2'>2. Categorias de Dados Pessoais Recolhidos</p>
       <ul class='list-disc pl-5 mb-4 space-y-1'>
@@ -232,7 +232,7 @@ export const TEXTOS_POLITICAS = {
         <li><strong>Oposição (art. 21.º):</strong> Opor-se ao tratamento baseado em interesse legítimo, incluindo para fins de marketing direto.</li>
         <li><strong>Decisões Automatizadas (art. 22.º):</strong> Não ser sujeito a decisões baseadas exclusivamente em tratamento automatizado que produzam efeitos jurídicos ou significativos. A ReparAuto <strong>não realiza qualquer tipo de decisão automatizada ou profiling</strong>.</li>
       </ul>
-      <p class='mb-4'>Para exercer qualquer um destes direitos, contacte-nos através do email: <strong>reparauto.contacto@gmail.com</strong>. As solicitações serão respondidas no prazo máximo de 30 dias, sem custos, exceto nos casos de pedidos manifestamente infundados ou excessivos (art. 12.º, n.º 5 do RGPD). Poderá ser solicitada prova de identidade antes de processar o pedido.</p>
+      <p class='mb-4'>Para exercer qualquer um destes direitos, contacte-nos através do email: <strong>garagerecar@gmail.com</strong>. As solicitações serão respondidas no prazo máximo de 30 dias, sem custos, exceto nos casos de pedidos manifestamente infundados ou excessivos (art. 12.º, n.º 5 do RGPD). Poderá ser solicitada prova de identidade antes de processar o pedido.</p>
 
       <p class='font-bold text-slate-800 mb-2'>8. Direito de Reclamação à Autoridade de Controlo</p>
       <p class='mb-4'>Sem prejuízo de qualquer outra via de recurso administrativo ou judicial, o titular dos dados tem o direito de apresentar uma reclamação à autoridade de controlo portuguesa, a <strong>Comissão Nacional de Proteção de Dados (CNPD)</strong>, se considerar que o tratamento dos seus dados viola o RGPD ou a Lei n.º 58/2019:</p>
@@ -296,7 +296,7 @@ export const TEXTOS_POLITICAS = {
       <p class='mb-4'>A desativação dos cookies de autenticação impedirá o acesso a funcionalidades que requerem sessão iniciada (publicar anúncios, gerir favoritos na cloud). As funcionalidades básicas de navegação e visualização de anúncios não serão afetadas.</p>
 
       <p class='font-bold text-slate-800 mb-2'>7. Contacto e Alterações</p>
-      <p class='mb-4'>Para questões relacionadas com esta Política de Cookies, contacte-nos através do email: <strong>reparauto.contacto@gmail.com</strong>. Reservamo-nos o direito de atualizar esta Política; as alterações serão comunicadas com antecedência mínima de 15 dias e estarão sempre disponíveis na plataforma.</p>
+      <p class='mb-4'>Para questões relacionadas com esta Política de Cookies, contacte-nos através do email: <strong>garagerecar@gmail.com</strong>. Reservamo-nos o direito de atualizar esta Política; as alterações serão comunicadas com antecedência mínima de 15 dias e estarão sempre disponíveis na plataforma.</p>
     `,
   },
   seguranca: {
@@ -329,7 +329,7 @@ export const TEXTOS_POLITICAS = {
       <p class='font-bold text-slate-800 mb-2'>5. Segurança no Armazenamento de Ficheiros (Storage)</p>
       <ul class='list-disc pl-5 mb-4 space-y-1'>
         <li><strong>Firebase Security Rules:</strong> O acesso ao Firebase Storage é protegido por regras que restringem a leitura a utilizadores autenticados e a escrita apenas ao proprietário do ficheiro.</li>
-        <li><strong>Validação de Upload:</strong> As regras do Storage verificam o tipo MIME e o tamanho máximo dos ficheiros (2 MB por imagem), impedindo o upload de ficheiros executáveis ou maliciosos.</li>
+        <li><strong>Validação de Upload:</strong> As regras do Storage verificam o tipo MIME e o tamanho máximo dos ficheiros (10 MB por imagem), impedindo o upload de ficheiros executáveis ou maliciosos.</li>
         <li><strong>Encriptação:</strong> Todos os ficheiros armazenados no Firebase Storage são encriptados em repouso com AES-256, gerido pela Google Cloud.</li>
       </ul>
 
@@ -349,7 +349,7 @@ export const TEXTOS_POLITICAS = {
       <ul class='list-disc pl-5 mb-4 space-y-1'>
         <li><strong>Deteção e Notificação:</strong> Na eventualidade de uma violação de dados pessoais, a ReparAuto notificará a CNPD no prazo máximo de 72 horas (art. 33.º do RGPD) e os titulares dos dados afetados sempre que a violação represente um risco elevado para os seus direitos e liberdades (art. 34.º do RGPD).</li>
         <li><strong>Correção:</strong> As equipas da Google Cloud / Firebase são responsáveis pela segurança da infraestrutura subjacente. Em caso de vulnerabilidade ao nível da aplicação, a ReparAuto compromete-se a corrigi-la num prazo razoável.</li>
-        <li><strong>Contacto de Segurança:</strong> Para reportar vulnerabilidades ou incidentes de segurança, contacte: <strong>reparauto.contacto@gmail.com</strong>.</li>
+        <li><strong>Contacto de Segurança:</strong> Para reportar vulnerabilidades ou incidentes de segurança, contacte: <strong>garagerecar@gmail.com</strong>.</li>
       </ul>
 
       <p class='font-bold text-slate-800 mb-2'>9. Boas Práticas para o Utilizador</p>
@@ -365,7 +365,7 @@ export const TEXTOS_POLITICAS = {
       <p class='mb-4'>A infraestrutura Google Cloud / Firebase, que suporta a ReparAuto, dispõe das seguintes certificações e conformidades: <strong>ISO 27001</strong>, <strong>ISO 27017</strong>, <strong>ISO 27018</strong>, <strong>SOC 1/2/3</strong>, <strong>PCI DSS</strong>, <strong>FedRAMP</strong>, e está em conformidade com o <strong>RGPD</strong> (incluindo Certified SCCs para transferências internacionais de dados). A ReparAuto compromete-se a manter a plataforma em conformidade com a legislação aplicável, incluindo o RGPD, o DSA e a legislação nacional portuguesa.</p>
 
       <p class='font-bold text-slate-800 mb-2'>11. Contacto</p>
-      <p class='mb-4'>Para reportar vulnerabilidades de segurança, solicitar informações sobre as medidas implementadas ou qualquer outra questão de segurança, contacte: <strong>reparauto.contacto@gmail.com</strong>.</p>
+      <p class='mb-4'>Para reportar vulnerabilidades de segurança, solicitar informações sobre as medidas implementadas ou qualquer outra questão de segurança, contacte: <strong>garagerecar@gmail.com</strong>.</p>
     `,
   },
 };
