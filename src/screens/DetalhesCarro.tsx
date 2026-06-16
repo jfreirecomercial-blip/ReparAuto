@@ -10,6 +10,7 @@ import TechnicalSheet from '@/components/detalhes/TechnicalSheet';
 import ContactSection from '@/components/detalhes/ContactSection';
 import GalleryModal from '@/components/detalhes/GalleryModal';
 import VinCheckPanel from '@/components/trust/VinCheckPanel';
+import FinanciamentoSeguroWidget from '@/components/detalhes/FinanciamentoSeguroWidget';
 import Badge from '@/components/ui/Badge';
 import Alert from '@/components/ui/Alert';
 import Button from '@/components/ui/Button';
