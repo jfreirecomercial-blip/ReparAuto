@@ -180,7 +180,7 @@ export default function MonetizationCarousel() {
 
             <div className="relative z-10 flex items-center gap-4 mt-3 sm:mt-0">
               <Button
-                tipo="ghost"
+                tipo="premium"
                 tamanho="sm"
                 onClick={() => handleCta(slide.link)}
               >
