@@ -10,6 +10,7 @@ import {
 import { Link, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import * as WebBrowser from 'expo-web-browser';
 import { Screen } from '@/components/ui/Screen';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -147,6 +148,24 @@ export default function LoginScreen() {
               </Pressable>
             </Link>
           </View>
+
+          <Text className="mt-6 px-4 text-center text-xs text-fg-subtle">
+            Ao continuar, aceita os{' '}
+            <Text
+              className="font-semibold text-primary-700"
+              onPress={() => WebBrowser.openBrowserAsync('https://reparauto.pt/termos')}
+            >
+              Termos
+            </Text>{' '}
+            e a{' '}
+            <Text
+              className="font-semibold text-primary-700"
+              onPress={() => WebBrowser.openBrowserAsync('https://reparauto.pt/privacidade')}
+            >
+              Política de Privacidade
+            </Text>
+            .
+          </Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>

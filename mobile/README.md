@@ -76,7 +76,10 @@ assets/                   # ícones e splash gerados a partir do logo da marca
 - [x] **Fase 5 — Procuras, Confiança & Mapa**: intenções de compra (procuras),
       **mapa de oficinas** (react-native-maps + localização), **avaliações** e
       **denúncias** de anúncios.
-- [ ] **Fase 6**: polimento, offline e submissão às lojas.
+- [x] **Fase 6 — Polimento & Submissão**: banner offline (expo-network),
+      ecrã **Definições** (versão + Termos/Privacidade/Cookies/Segurança/FAQ via
+      browser), rodapé legal no login, feedback háptico nos favoritos. Pronta
+      para submissão via EAS (ver `PUBLICACAO.md`).
 
 ## Conformidade com as lojas (já tratado)
 

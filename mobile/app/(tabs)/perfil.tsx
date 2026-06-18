@@ -120,6 +120,11 @@ export default function PerfilScreen() {
             icon="create-outline"
             label="Editar perfil"
             onPress={() => router.push('/perfil/editar')}
+          />
+          <Row
+            icon="settings-outline"
+            label="Definições"
+            onPress={() => router.push('/definicoes')}
             last
           />
         </View>

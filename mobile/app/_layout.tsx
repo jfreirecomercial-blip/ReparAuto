@@ -13,6 +13,7 @@ import { ChatProvider } from '@/context/ChatContext';
 import { NotificacoesProvider } from '@/context/NotificacoesContext';
 import { ToastProvider } from '@/context/ToastContext';
 import { registerForPush, setupPushHandlers, unregisterPush } from '@/lib/push';
+import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import type { Href } from 'expo-router';
 import { colors } from '@/theme/colors';
 
@@ -71,6 +72,7 @@ function RootNavigator() {
       <Stack.Screen name="anunciar" options={{ presentation: 'modal' }} />
       <Stack.Screen name="perfil/editar" options={{ headerShown: true, title: 'Editar perfil' }} />
       <Stack.Screen name="meus-anuncios" options={{ headerShown: true, title: 'Os meus anúncios' }} />
+      <Stack.Screen name="definicoes" options={{ headerShown: true, title: 'Definições' }} />
       <Stack.Screen name="(auth)" options={{ presentation: 'modal' }} />
     </Stack>
   );
@@ -86,6 +88,7 @@ export default function RootLayout() {
               <NotificacoesProvider>
                 <ToastProvider>
                   <StatusBar style="dark" />
+                  <OfflineBanner />
                   <RootNavigator />
                 </ToastProvider>
               </NotificacoesProvider>

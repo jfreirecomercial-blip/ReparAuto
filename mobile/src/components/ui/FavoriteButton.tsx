@@ -1,5 +1,6 @@
 import { Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useFavoritos } from '@/context/FavoritosContext';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { colors } from '@/theme/colors';
@@ -18,7 +19,12 @@ export function FavoriteButton({ id, size = 22, floating = false }: FavoriteButt
 
   return (
     <Pressable
-      onPress={() => requireAuth(() => toggleFavorito(id))}
+      onPress={() =>
+        requireAuth(() => {
+          Haptics.selectionAsync().catch(() => {});
+          toggleFavorito(id);
+        })
+      }
       hitSlop={10}
       accessibilityRole="button"
       accessibilityLabel={ativo ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
