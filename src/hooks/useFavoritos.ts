@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   doc,
   getDoc,
@@ -119,10 +119,10 @@ export default function useFavoritos(user: Usuario | null) {
     [favoritos]
   );
 
-  return {
+  return useMemo(() => ({
     favoritos,
     toggleFavorito,
     isFavorito,
     count: favoritos.length,
-  };
+  }), [favoritos, toggleFavorito, isFavorito]);
 }
