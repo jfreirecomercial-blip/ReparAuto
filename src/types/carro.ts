@@ -45,6 +45,11 @@ export interface Carro {
   status: StatusAnuncio;
   dataCriacao: Timestamp;
   dataAprovacao?: Timestamp;
+  impulso?: {
+    ativo: boolean;
+    dataInicio?: Timestamp;
+    dataFim?: Timestamp;
+  };
   visualizacoes?: number;
   contagemMensagens?: number;
   contagemFavoritos?: number;

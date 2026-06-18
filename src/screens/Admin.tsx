@@ -24,6 +24,9 @@ import {
   getAllOficinasAdmin,
   updateOficinaStatus,
   deleteOficina,
+  setUserPlan,
+  revokeUserPlan,
+  type PlanInfo,
 } from '@/lib/db';
 import Button from '@/components/ui/Button';
 import AdminStats from '@/components/admin/AdminStats';
@@ -134,6 +137,51 @@ export default function Admin() {
       toast?.sucesso('Role alterado com sucesso.');
     } catch {
       toast?.erro('Erro ao alterar role.');
+    }
+  };
+
+  const handleGrantPlan = async (uid: string, planoId: string, nome: string, categoria: 'anuncios' | 'oficinas' | 'leads', dias: number) => {
+    try {
+      await setUserPlan(uid, { planoId, nome, categoria } as PlanInfo, auth.user?.uid || '', auth.user?.nome || '', dias);
+      setUsers((prev) => prev.map((u) => {
+        if (u.uid !== uid) return u;
+        const agora = new Date();
+        const exp = new Date(agora.getTime() + dias * 86400000);
+        return {
+          ...u,
+          planoAtivo: {
+            planoId,
+            nome,
+            categoria,
+            dataAtribuicao: { seconds: Math.floor(agora.getTime() / 1000), nanoseconds: 0 } as any,
+            dataExpiracao: { seconds: Math.floor(exp.getTime() / 1000), nanoseconds: 0 } as any,
+            atribuidoPor: 'admin' as const,
+            adminUid: auth.user?.uid,
+            adminNome: auth.user?.nome,
+          },
+        };
+      }));
+      const target = users.find((u) => u.uid === uid);
+      if (target) {
+        await criarNotificacao(uid, 'info', 'Plano Premium Ativado!',
+          `Recebeu o plano "${nome}" cortesia da equipa ReparAuto. Válido por ${dias} dias.`,
+          '/admin');
+      }
+      toast?.sucesso(`Plano "${nome}" concedido com sucesso!`);
+    } catch {
+      toast?.erro('Erro ao conceder plano.');
+    }
+  };
+
+  const handleRevokePlan = async (uid: string) => {
+    try {
+      await revokeUserPlan(uid);
+      setUsers((prev) => prev.map((u) => (u.uid === uid ? { ...u, planoAtivo: undefined } : u)));
+      await criarNotificacao(uid, 'info', 'Plano Premium Removido',
+        'O seu plano premium foi removido pela administração.');
+      toast?.sucesso('Plano removido com sucesso.');
+    } catch {
+      toast?.erro('Erro ao remover plano.');
     }
   };
 
@@ -482,7 +530,14 @@ export default function Admin() {
           <h2 className="text-lg font-extrabold text-fg-heading mb-4">
             <Users className="mr-2 text-accent" /> Gestão de Utilizadores
           </h2>
-          <UserTable users={users} onRoleChange={handleRoleChange} />
+          <UserTable
+            users={users}
+            onRoleChange={handleRoleChange}
+            adminUid={auth.user?.uid || ''}
+            adminNome={auth.user?.nome || 'Admin'}
+            onGrantPlan={handleGrantPlan}
+            onRevokePlan={handleRevokePlan}
+          />
         </div>
       )}
 

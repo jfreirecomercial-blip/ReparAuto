@@ -4,15 +4,22 @@ import { useState } from 'react';
 import type { Usuario, Role } from '@/types/usuario';
 import { formatarData } from '@/lib/utils';
 import Button from '@/components/ui/Button';
+import Badge from '@/components/ui/Badge';
+import GrantPlanModal from './GrantPlanModal';
 
 interface UserTableProps {
   users: Usuario[];
   onRoleChange: (uid: string, role: Role) => Promise<void>;
+  adminUid: string;
+  adminNome: string;
+  onGrantPlan: (uid: string, planoId: string, nome: string, categoria: 'anuncios' | 'oficinas' | 'leads', dias: number) => Promise<void>;
+  onRevokePlan: (uid: string) => Promise<void>;
 }
 
-export default function UserTable({ users, onRoleChange }: UserTableProps) {
+export default function UserTable({ users, onRoleChange, adminUid, adminNome, onGrantPlan, onRevokePlan }: UserTableProps) {
   const [confirm, setConfirm] = useState<{ uid: string; nome: string; role: Role } | null>(null);
   const [loadingUid, setLoadingUid] = useState<string | null>(null);
+  const [planUser, setPlanUser] = useState<Usuario | null>(null);
 
   const handleRoleChange = async (uid: string, role: Role) => {
     setLoadingUid(uid);
@@ -22,6 +29,12 @@ export default function UserTable({ users, onRoleChange }: UserTableProps) {
       setLoadingUid(null);
       setConfirm(null);
     }
+  };
+
+  const planAtivoValido = (u: Usuario) => {
+    if (!u.planoAtivo) return false;
+    const exp = u.planoAtivo.dataExpiracao?.toMillis?.();
+    return exp && exp > Date.now();
   };
 
   return (
@@ -34,6 +47,7 @@ export default function UserTable({ users, onRoleChange }: UserTableProps) {
               <th className="pb-3 pr-4">Nome</th>
               <th className="pb-3 pr-4">Email</th>
               <th className="pb-3 pr-4">Role</th>
+              <th className="pb-3 pr-4">Planos</th>
               <th className="pb-3 pr-4">Data de Registo</th>
               <th className="pb-3">Ações</th>
             </tr>
@@ -51,10 +65,17 @@ export default function UserTable({ users, onRoleChange }: UserTableProps) {
                     {u.role}
                   </span>
                 </td>
+                <td className="py-3 pr-4">
+                  {planAtivoValido(u) ? (
+                    <Badge cor="green" tamanho="sm">{u.planoAtivo!.nome}</Badge>
+                  ) : (
+                    <span className="text-xs text-fg-subtle">—</span>
+                  )}
+                </td>
                 <td className="py-3 pr-4 text-fg-subtle text-xs">
                   {u.dataCriacao ? formatarData(u.dataCriacao) : '—'}
                 </td>
-                <td className="py-3">
+                <td className="py-3 flex items-center gap-2">
                   <select
                     value={u.role}
                     disabled={loadingUid === u.uid}
@@ -69,12 +90,19 @@ export default function UserTable({ users, onRoleChange }: UserTableProps) {
                     <option value="user">user</option>
                     <option value="admin">admin</option>
                   </select>
+                  <Button
+                    tipo="secundario"
+                    tamanho="sm"
+                    onClick={() => setPlanUser(u)}
+                  >
+                    Planos
+                  </Button>
                 </td>
               </tr>
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-fg-subtle text-sm">
+                <td colSpan={7} className="py-8 text-center text-fg-subtle text-sm">
                   Nenhum utilizador encontrado.
                 </td>
               </tr>
@@ -109,6 +137,16 @@ export default function UserTable({ users, onRoleChange }: UserTableProps) {
           </div>
         </div>
       )}
+
+      <GrantPlanModal
+        show={planUser !== null}
+        user={planUser}
+        adminUid={adminUid}
+        adminNome={adminNome}
+        onClose={() => setPlanUser(null)}
+        onGrant={onGrantPlan}
+        onRevoke={onRevokePlan}
+      />
     </>
   );
 }

@@ -3,6 +3,18 @@ import type { Timestamp } from 'firebase/firestore';
 
 export type Role = 'user' | 'admin';
 export type TipoConta = 'particular' | 'profissional';
+export type CategoriaPlano = 'anuncios' | 'oficinas' | 'leads';
+
+export interface PlanoAtivo {
+  planoId: string;
+  nome: string;
+  categoria: CategoriaPlano;
+  dataAtribuicao: Timestamp;
+  dataExpiracao: Timestamp;
+  atribuidoPor: 'admin' | 'stripe';
+  adminUid?: string;
+  adminNome?: string;
+}
 
 export interface Usuario {
   uid: string;
@@ -24,6 +36,8 @@ export interface Usuario {
   mediaAvaliacoes?: number;
   totalAvaliacoes?: number;
   badges?: string[];
+  planoAtivo?: PlanoAtivo;
+  impulsosDisponiveis?: number;
   dataCriacao?: Timestamp;
   dataAtualizacao?: Timestamp;
 }

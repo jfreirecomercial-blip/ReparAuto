@@ -37,8 +37,14 @@ const OFICINAS_COLLECTION = 'services';
 // Public listings filter on status server-side so clients never download
 // pending/rejected documents. Sorting stays client-side to avoid requiring
 // a composite (status, dataCriacao) index.
-function sortByDataCriacaoDesc<T extends { dataCriacao?: { toMillis?: () => number } }>(items: T[]): T[] {
-  return items.sort((a, b) => (b.dataCriacao?.toMillis?.() || 0) - (a.dataCriacao?.toMillis?.() || 0));
+// Items with active boost/impulso appear first, then by dataCriacao desc.
+function sortPrioritized<T extends { dataCriacao?: { toMillis?: () => number }; impulso?: { ativo?: boolean }; destaque?: { ativo?: boolean } }>(items: T[]): T[] {
+  return items.sort((a, b) => {
+    const aBoost = (a.impulso?.ativo || a.destaque?.ativo) ? 1 : 0;
+    const bBoost = (b.impulso?.ativo || b.destaque?.ativo) ? 1 : 0;
+    if (aBoost !== bBoost) return bBoost - aBoost;
+    return (b.dataCriacao?.toMillis?.() || 0) - (a.dataCriacao?.toMillis?.() || 0);
+  });
 }
 
 export async function getCarros(): Promise<Carro[]> {
@@ -46,7 +52,7 @@ export async function getCarros(): Promise<Carro[]> {
     const q = query(collection(db, CARROS_COLLECTION), where('status', '==', 'aprovado'));
     const snap = await getDocs(q);
     const todos = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Carro));
-    return sortByDataCriacaoDesc(todos);
+    return sortPrioritized(todos);
   } catch (err) {
     console.error('[DB] Erro ao buscar carros:', err);
     return [];
@@ -62,7 +68,7 @@ export function subscribeCarros(
     q,
     (snap) => {
       const todos = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Carro);
-      onData(sortByDataCriacaoDesc(todos));
+      onData(sortPrioritized(todos));
     },
     (err) => {
       console.error('[DB] Erro no snapshot de carros:', err);
@@ -124,7 +130,7 @@ export async function getPecas(): Promise<Peca[]> {
     const q = query(collection(db, PECAS_COLLECTION), where('status', '==', 'aprovado'));
     const snap = await getDocs(q);
     const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Peca));
-    return sortByDataCriacaoDesc(todas);
+    return sortPrioritized(todas);
   } catch (err) {
     console.error('[DB] Erro ao buscar peças:', err);
     return [];
@@ -140,7 +146,7 @@ export function subscribePecas(
     q,
     (snap) => {
       const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Peca);
-      onData(sortByDataCriacaoDesc(todas));
+      onData(sortPrioritized(todas));
     },
     (err) => {
       console.error('[DB] Erro no snapshot de peças:', err);
@@ -285,6 +291,93 @@ export async function getAdminUsers(): Promise<Usuario[]> {
   }
 }
 
+// ============ ADMIN: PLANOS & IMPULSOS ============
+
+export type PlanInfo = {
+  planoId: string;
+  nome: string;
+  categoria: 'anuncios' | 'oficinas' | 'leads';
+};
+
+export async function setUserPlan(
+  uid: string,
+  plano: PlanInfo,
+  adminUid: string,
+  adminNome: string,
+  dias: number = 30,
+): Promise<void> {
+  try {
+    const userRef = doc(db, USERS_COLLECTION, uid);
+    const agora = Timestamp.now();
+    const dataExpiracao = new Timestamp(agora.seconds + dias * 86400, agora.nanoseconds);
+    await setDoc(userRef, {
+      planoAtivo: {
+        planoId: plano.planoId,
+        nome: plano.nome,
+        categoria: plano.categoria,
+        dataAtribuicao: agora,
+        dataExpiracao,
+        atribuidoPor: 'admin',
+        adminUid,
+        adminNome,
+      },
+      dataAtualizacao: agora,
+    }, { merge: true });
+  } catch (err) {
+    console.error('[DB] Erro ao definir plano do utilizador:', err);
+    throw err;
+  }
+}
+
+export async function revokeUserPlan(uid: string): Promise<void> {
+  try {
+    const userRef = doc(db, USERS_COLLECTION, uid);
+    await setDoc(userRef, {
+      planoAtivo: null,
+      dataAtualizacao: Timestamp.now(),
+    }, { merge: true });
+  } catch (err) {
+    console.error('[DB] Erro ao remover plano do utilizador:', err);
+    throw err;
+  }
+}
+
+export async function grantImpulsoAnuncio(
+  colecao: string,
+  docId: string,
+  dias: number,
+): Promise<void> {
+  try {
+    const docRef = doc(db, colecao, docId);
+    const agora = Timestamp.now();
+    const dataFim = new Timestamp(agora.seconds + dias * 86400, agora.nanoseconds);
+    await updateDoc(docRef, {
+      impulso: {
+        ativo: true,
+        dataInicio: agora,
+        dataFim,
+      },
+    });
+  } catch (err) {
+    console.error('[DB] Erro ao conceder impulso:', err);
+    throw err;
+  }
+}
+
+export async function getUsersWithPlans(): Promise<Usuario[]> {
+  try {
+    const q = query(
+      collection(db, USERS_COLLECTION),
+      where('planoAtivo', '!=', null),
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ uid: d.id, ...d.data() } as Usuario));
+  } catch (err) {
+    console.error('[DB] Erro ao buscar utilizadores com planos:', err);
+    return [];
+  }
+}
+
 export async function updateCarro(id: string, dados: Record<string, unknown>): Promise<void> {
   try {
     await updateDoc(doc(db, CARROS_COLLECTION, id), dados);
@@ -385,7 +478,7 @@ export async function getNotificacoes(uid: string): Promise<Notificacao[]> {
     );
     const snap = await getDocs(q);
     const notificacoes = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Notificacao));
-    return sortByDataCriacaoDesc(notificacoes);
+    return sortPrioritized(notificacoes);
   } catch (err) {
     console.error('[DB] Erro ao buscar notificações:', err);
     return [];
@@ -405,7 +498,7 @@ export function subscribeNotificacoes(
     q,
     (snap) => {
       const notificacoes = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Notificacao));
-      onData(sortByDataCriacaoDesc(notificacoes));
+      onData(sortPrioritized(notificacoes));
     },
     (err) => {
       console.error('[DB] Erro no snapshot de notificações:', err);
@@ -1126,7 +1219,7 @@ export async function getOficinas(): Promise<OficinaMecanico[]> {
     const q = query(collection(db, OFICINAS_COLLECTION), where('status', '==', 'aprovado'));
     const snap = await getDocs(q);
     const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() } as OficinaMecanico));
-    return sortByDataCriacaoDesc(todas);
+    return sortPrioritized(todas);
   } catch (err) {
     console.error('[DB] Erro ao buscar oficinas:', err);
     return [];
@@ -1142,7 +1235,7 @@ export function subscribeOficinas(
     q,
     (snap) => {
       const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as OficinaMecanico);
-      onData(sortByDataCriacaoDesc(todas));
+      onData(sortPrioritized(todas));
     },
     (err) => {
       console.error('[DB] Erro no snapshot de oficinas:', err);
