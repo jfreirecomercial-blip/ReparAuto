@@ -100,10 +100,17 @@ export default function PerfilScreen() {
         </View>
 
         <View className="mt-2 overflow-hidden rounded-2xl bg-white">
-          <Row icon="car-sport-outline" label="Os meus anúncios" />
-          <Row icon="document-text-outline" label="As minhas intenções" />
-          <Row icon="chatbubble-ellipses-outline" label="Mensagens" />
-          <Row icon="settings-outline" label="Definições" last />
+          <Row
+            icon="car-sport-outline"
+            label="Os meus anúncios"
+            onPress={() => router.push('/meus-anuncios')}
+          />
+          <Row
+            icon="create-outline"
+            label="Editar perfil"
+            onPress={() => router.push('/perfil/editar')}
+            last
+          />
         </View>
 
         <View className="mt-6 gap-3">
@@ -126,13 +133,17 @@ function Row({
   icon,
   label,
   last,
+  onPress,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   last?: boolean;
+  onPress?: () => void;
 }) {
   return (
     <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
       className={`flex-row items-center px-4 py-4 active:bg-neutral-50 ${
         last ? '' : 'border-b border-neutral-100'
       }`}

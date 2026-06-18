@@ -54,10 +54,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#ffffff',
     },
-    // Only declare permissions for features that ship. Location arrives with
-    // the workshops map (Fase 5); notifications with push (Fase 4). Declaring
-    // them earlier risks store rejection for unused permissions.
-    permissions: ['CAMERA', 'READ_MEDIA_IMAGES'],
+    // No app-level permissions are declared. The gallery uses the system Photo
+    // Picker (no permission on Android 13+/iOS PHPicker). The CAMERA permission
+    // is contributed by expo-image-picker's own manifest and requested at
+    // runtime only when the user taps "Tirar foto". Location (Fase 5) and
+    // notifications (Fase 4) arrive with their features.
+    permissions: [],
   },
   web: {
     bundler: 'metro',
@@ -85,10 +87,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-image-picker',
       {
-        photosPermission:
-          'A ReparAuto precisa de acesso às suas fotos para publicar anúncios.',
+        // Gallery uses the system Photo Picker → no photo-library permission
+        // (avoids the Google Play "Photo & Video Permissions" declaration).
+        // We never record audio, so block the microphone permission too.
+        photosPermission: false,
+        microphonePermission: false,
         cameraPermission:
-          'A ReparAuto precisa da câmara para tirar fotos dos seus anúncios.',
+          'A ReparAuto usa a câmara apenas quando tira uma foto para o seu anúncio.',
       },
     ],
     // NOTE: expo-location (Fase 5) and expo-notifications (Fase 4) plugins are

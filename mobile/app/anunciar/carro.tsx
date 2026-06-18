@@ -104,7 +104,7 @@ export default function AnunciarScreen() {
         [
           {
             text: 'OK',
-            onPress: () => (router.canDismiss() ? router.dismiss() : router.back()),
+            onPress: () => router.dismissAll(),
           },
         ],
       );

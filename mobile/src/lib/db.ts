@@ -139,6 +139,58 @@ export async function getOficinaById(id: string): Promise<Oficina | null> {
   return doc.exists() ? ({ id: doc.id, ...doc.data() } as Oficina) : null;
 }
 
+/** Creates a part listing as `pendente`. */
+export async function addPeca(dados: Record<string, unknown>): Promise<string> {
+  const docRef = await db.collection(PECAS).add(
+    cleanUndefined({
+      ...dados,
+      status: 'pendente',
+      dataCriacao: firestore.FieldValue.serverTimestamp(),
+    }),
+  );
+  return docRef.id;
+}
+
+/** Creates a workshop (service) as `pendente`. */
+export async function addOficina(dados: Record<string, unknown>): Promise<string> {
+  const docRef = await db.collection(OFICINAS).add(
+    cleanUndefined({
+      ...dados,
+      status: 'pendente',
+      dataCriacao: firestore.FieldValue.serverTimestamp(),
+    }),
+  );
+  return docRef.id;
+}
+
+// ---------- User's own listings ----------
+export async function getCarrosByCreator(email: string): Promise<Carro[]> {
+  const snap = await db.collection(CARROS).where('criador', '==', email).get();
+  return mapDocs<Carro>(snap).sort(byDataCriacaoDesc);
+}
+
+export async function getPecasByCreator(email: string): Promise<Peca[]> {
+  const snap = await db.collection(PECAS).where('criador', '==', email).get();
+  return mapDocs<Peca>(snap).sort(byDataCriacaoDesc);
+}
+
+export async function getOficinasByCreator(email: string): Promise<Oficina[]> {
+  const snap = await db.collection(OFICINAS).where('criador', '==', email).get();
+  return mapDocs<Oficina>(snap).sort(byDataCriacaoDesc);
+}
+
+export async function deleteCarro(id: string): Promise<void> {
+  await db.collection(CARROS).doc(id).delete();
+}
+
+export async function deletePeca(id: string): Promise<void> {
+  await db.collection(PECAS).doc(id).delete();
+}
+
+export async function deleteOficina(id: string): Promise<void> {
+  await db.collection(OFICINAS).doc(id).delete();
+}
+
 // ---------- Users ----------
 export async function getUserProfile(uid: string): Promise<Usuario | null> {
   const doc = await db.collection(USERS).doc(uid).get();

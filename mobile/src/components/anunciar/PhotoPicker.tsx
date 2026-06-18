@@ -14,14 +14,10 @@ export function PhotoPicker({ fotos, onChange, max }: PhotoPickerProps) {
   const restantes = max - fotos.length;
 
   async function escolherDaGaleria() {
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) {
-      Alert.alert('Permissão necessária', 'Autorize o acesso às fotos nas Definições.');
-      return;
-    }
+    // The system Photo Picker (Android 13+ / iOS PHPicker) needs no permission.
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
-      allowsMultipleSelection: true,
+      allowsMultipleSelection: max > 1,
       selectionLimit: restantes,
       quality: 0.7,
     });

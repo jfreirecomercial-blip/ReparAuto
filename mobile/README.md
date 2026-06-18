@@ -65,11 +65,14 @@ assets/                   # ícones e splash gerados a partir do logo da marca
       peças e oficinas, com pesquisa e filtros; ecrãs de detalhe; favoritos
       (conta + anónimo via AsyncStorage). Navegação aberta a convidados —
       login só é exigido para ações (favoritar, anunciar).
-- [x] **Fase 3 (parcial)**: **Anunciar carro** — formulário com câmara/galeria,
-      upload para o Storage (`ads/{uid}`) e criação no Firestore como `pendente`.
-- [ ] **Fase 3 (resto)**: anunciar peças/oficinas + edição de perfil.
-- [ ] **Fase 4**: chat em tempo real + notificações push.
-- [ ] **Fase 5**: intenções, confiança, mapa de oficinas.
+- [x] **Fase 3 — Anunciar & Perfil**: assistente para anunciar **carro**,
+      **peça** e **oficina** (fotos via câmara/galeria, upload para
+      `ads/{uid}`, criação como `pendente`); **editar perfil** e **os meus
+      anúncios** (listar por estado + eliminar).
+- [ ] **Fase 4**: chat em tempo real + notificações push (re-adiciona
+      `@react-native-firebase/messaging` + `expo-notifications`).
+- [ ] **Fase 5**: intenções, confiança, mapa de oficinas (re-adiciona
+      `react-native-maps` + `expo-location`).
 - [ ] **Fase 6**: polimento, offline e submissão às lojas.
 
 ## Conformidade com as lojas (já tratado)
@@ -77,5 +80,15 @@ assets/                   # ícones e splash gerados a partir do logo da marca
 - **Eliminação de conta in-app** (App Store 5.1.1(v)) — em Perfil → "Eliminar conta".
 - **Sign in with Apple** (App Store 4.8) — apresentado no iOS quando há login Google.
 - **Navegação sem registo** (App Store 5.1.1(i)) — convidados navegam livremente.
-- **Permissões só quando usadas** — câmara/fotos são declaradas agora (usadas
-  no Anunciar); localização/notificações entram nas fases 4/5.
+- **Permissões mínimas e não forçadas** — a galeria usa o **Photo Picker** do
+  sistema (sem permissão no Android 13+/iOS PHPicker); a **câmara** é pedida em
+  runtime só ao tocar em "Tirar foto". Nenhuma permissão de localização,
+  notificações ou media é declarada nesta versão (entram nas fases 4/5 com as
+  respetivas funcionalidades). Evita o formulário de "Photo & Video Permissions"
+  do Google Play.
+
+## Publicação nas lojas
+
+O passo a passo completo (Apple App Store + Google Play, via EAS) está em
+[`PUBLICACAO.md`](./PUBLICACAO.md). Os textos das fichas das lojas (pt-PT) estão
+em [`store/textos-lojas-pt-PT.md`](./store/textos-lojas-pt-PT.md).

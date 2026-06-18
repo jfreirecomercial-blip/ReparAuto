@@ -38,10 +38,9 @@ function RootNavigator() {
       <Stack.Screen name="detalhes/[id]" options={{ headerShown: true, title: '' }} />
       <Stack.Screen name="pecas/[id]" options={{ headerShown: true, title: '' }} />
       <Stack.Screen name="oficinas/[id]" options={{ headerShown: true, title: '' }} />
-      <Stack.Screen
-        name="anunciar"
-        options={{ headerShown: true, title: 'Anunciar', presentation: 'modal' }}
-      />
+      <Stack.Screen name="anunciar" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="perfil/editar" options={{ headerShown: true, title: 'Editar perfil' }} />
+      <Stack.Screen name="meus-anuncios" options={{ headerShown: true, title: 'Os meus anúncios' }} />
       <Stack.Screen name="(auth)" options={{ presentation: 'modal' }} />
     </Stack>
   );
