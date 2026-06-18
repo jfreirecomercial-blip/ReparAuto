@@ -1,8 +1,7 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { initDatabase } from '@/lib/db';
 import useAuth from '@/hooks/useAuth';
 import useCarros from '@/hooks/useCarros';
 import usePecas from '@/hooks/usePecas';
@@ -23,22 +22,20 @@ export function useApp(): AppContextValue {
 }
 
 export default function AppProvider({ children }: { children: ReactNode }) {
-  const [dbReady, setDbReady] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [loginRedirectTo, setLoginRedirectTo] = useState<string | undefined>();
 
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    initDatabase().then(() => {
-      setDbReady(true);
-    });
-  }, []);
-
   const auth = useAuth();
-  const carros = useCarros();
-  const pecas = usePecas();
+  // Only stream the heavy public collections on routes that render them.
+  // Other routes still get the action methods (publicarCarro/publicarPeca);
+  // add the route here if a new screen starts reading carros/pecas data.
+  const needsCarros = pathname === '/' || pathname.startsWith('/favoritos');
+  const needsPecas = pathname.startsWith('/pecas');
+  const carros = useCarros(needsCarros);
+  const pecas = usePecas(needsPecas);
   const favoritos = useFavoritos(auth.user);
   const chat = useChat(auth.user?.uid || null, auth.user?.nome || '');
   const intencoes = useIntencoes(auth.user?.uid || null);
@@ -70,8 +67,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [loginRedirectTo, router]);
 
-  const value: AppContextValue = {
-    dbReady,
+  const value: AppContextValue = useMemo(() => ({
     auth,
     carros,
     pecas,
@@ -83,7 +79,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
       openLoginModal,
       closeLoginModal,
     },
-  };
+  }), [auth, carros, pecas, favoritos, chat, intencoes, loginModalOpen, openLoginModal, closeLoginModal]);
 
   return (
     <AppContext.Provider value={value}>

@@ -18,7 +18,6 @@ import {
 } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
 import { db, storage } from './firebase';
-import { DB_VERSION, DB_VERSION_KEY } from './constants';
 import { contemProfanity } from './profanity';
 import type { Carro, CarroInput, StatusAnuncio } from '@/types/carro';
 import type { Peca, PecaInput } from '@/types/peca';
@@ -31,445 +30,23 @@ import type { IntencaoCompra, IntencaoCompraInput, ContatoIntencao, ContatoInten
 import type { Proposta, PropostaInput, StatusProposta } from '@/types/proposal';
 import type { LeadParceriaInput } from '@/types/lead';
 
-type CarroSeed = Omit<CarroInput, 'dataCriacao'> & { dataCriacao: ReturnType<typeof Timestamp.now> };
-type PecaSeed = Omit<PecaInput, 'dataCriacao'> & { dataCriacao: ReturnType<typeof Timestamp.now> };
-
 const CARROS_COLLECTION = 'cars';
 const PECAS_COLLECTION = 'parts';
 const OFICINAS_COLLECTION = 'services';
 
-const defaultCarros: CarroSeed[] = [
-  {
-    marca: 'Renault',
-    modelo: 'Clio 1.5 dCi',
-    anoFabricacao: 2007,
-    anoModelo: 2008,
-    preco: 600,
-    km: 210000,
-    combustivel: 'Diesel',
-    cambio: 'Manual',
-    cor: 'Cinzento',
-    portas: 5,
-    local: 'Braga',
-    descricao:
-      'Viatura comercial com alguns problemas de motor. **Motor de arranque avariado.**\nIdeal para quem quer reparar.\n\n* Direção assistida\n* Fecho centralizado\n* Vidros elétricos',
-    estadoVeiculo: 'manutencao',
-    tiposManutencao: ['Mecânica', 'Elétrica'],
-    manutencaoOutro: '',
-    temOrcamento: true,
-    orcamentoTexto:
-      'Diagnóstico elétrico e motor de arranque novo: 250€ com mão de obra incluída.',
-    incluirMecanicoNome: true,
-    mecanicoNome: 'Auto Oficina Rapidez',
-    incluirMecanicoTelefone: true,
-    mecanicoTelefone: '912345678',
-    fotos: ['images/clio.png', '🔧', '⚠️'],
-    criador: 'admin@reparauto.pt',
-    vendedorNome: 'Admin ReparAuto',
-    vendedorTelefone: '912345678',
-    vendedorWhatsApp: '351912345678',
-    vendedorEmail: 'admin@reparauto.pt',
-    rodando: false,
-    inspecao: false,
-    status: 'aprovado',
-    dataCriacao: Timestamp.now(),
-  },
-  {
-    marca: 'Peugeot',
-    modelo: '206 1.1',
-    anoFabricacao: 2004,
-    anoModelo: 2004,
-    preco: 450,
-    km: 195000,
-    combustivel: 'Gasolina',
-    cambio: 'Manual',
-    cor: 'Azul',
-    portas: 3,
-    local: 'Porto',
-    descricao:
-      'Peugeot 206 sinistrado na parte frontal. Ideal para peças ou reparação profunda.\n\n* Motor arranca mas radiador está partido\n* Interiores em bom estado\n* Farol esquerdo partido',
-    estadoVeiculo: 'manutencao',
-    tiposManutencao: ['Mecânica', 'Pintura e funilaria', 'Lataria / amassados'],
-    manutencaoOutro: 'Radiador partido',
-    temOrcamento: false,
-    orcamentoTexto: '',
-    incluirMecanicoNome: false,
-    mecanicoNome: '',
-    incluirMecanicoTelefone: false,
-    mecanicoTelefone: '',
-    fotos: ['images/peugeot206.png', '🛠️', '📦'],
-    criador: 'admin@reparauto.pt',
-    vendedorNome: 'Admin ReparAuto',
-    vendedorTelefone: '912345678',
-    vendedorWhatsApp: '351912345678',
-    vendedorEmail: 'admin@reparauto.pt',
-    rodando: false,
-    inspecao: false,
-    status: 'aprovado',
-    dataCriacao: Timestamp.now(),
-  },
-  {
-    marca: 'Volkswagen',
-    modelo: 'Golf IV 1.9 TDI',
-    anoFabricacao: 2003,
-    anoModelo: 2003,
-    preco: 900,
-    km: 280000,
-    combustivel: 'Diesel',
-    cambio: 'Manual',
-    cor: 'Preto',
-    portas: 5,
-    local: 'Coimbra',
-    descricao:
-      'Excelente motor 1.9 TDI de 110cv. Anda diariamente mas precisa de pastilhas e discos novos urgentemente.\n\n* Revisão feita há 5.000 km\n* AC a funcionar\n* Interiores desgastados',
-    estadoVeiculo: 'manutencao',
-    tiposManutencao: ['Mecânica'],
-    manutencaoOutro: '',
-    temOrcamento: true,
-    orcamentoTexto:
-      'Substituição de discos e pastilhas frontais e traseiras: 180€ com mão de obra',
-    incluirMecanicoNome: true,
-    mecanicoNome: 'Mecânica do Zé',
-    incluirMecanicoTelefone: false,
-    mecanicoTelefone: '',
-    fotos: ['images/golf4.png', '✅', '🔩'],
-    criador: 'admin@reparauto.pt',
-    vendedorNome: 'Admin ReparAuto',
-    vendedorTelefone: '912345678',
-    vendedorWhatsApp: '351912345678',
-    vendedorEmail: 'admin@reparauto.pt',
-    rodando: true,
-    inspecao: true,
-    status: 'aprovado',
-    dataCriacao: Timestamp.now(),
-  },
-  {
-    marca: 'BMW',
-    modelo: '320d Coupé (Valor Livre)',
-    anoFabricacao: 2011,
-    anoModelo: 2012,
-    preco: 12400,
-    km: 185000,
-    combustivel: 'Diesel',
-    cambio: 'Manual',
-    cor: 'Branco',
-    portas: 3,
-    local: 'Lisboa',
-    descricao:
-      'BMW 320d Coupé em excelente estado de conservação. Quilómetros reais e comprovados.\n\n* Estofos em pele\n* Faróis Bi-Xénon\n* Sensores de estacionamento\n* Jantes de liga leve',
-    estadoVeiculo: 'pronto',
-    tiposManutencao: [],
-    manutencaoOutro: '',
-    temOrcamento: false,
-    orcamentoTexto: '',
-    incluirMecanicoNome: false,
-    mecanicoNome: '',
-    incluirMecanicoTelefone: false,
-    mecanicoTelefone: '',
-    fotos: ['images/bmw320d.png', '✨', '💎'],
-    criador: 'admin@reparauto.pt',
-    vendedorNome: 'Admin ReparAuto',
-    vendedorTelefone: '912345678',
-    vendedorWhatsApp: '351912345678',
-    vendedorEmail: 'admin@reparauto.pt',
-    status: 'aprovado',
-    dataCriacao: Timestamp.now(),
-  },
-  {
-    marca: 'Opel',
-    modelo: 'Corsa B 1.2',
-    anoFabricacao: 1999,
-    anoModelo: 1999,
-    preco: 350,
-    km: 165000,
-    combustivel: 'Gasolina',
-    cambio: 'Manual',
-    cor: 'Verde',
-    portas: 5,
-    local: 'Lisboa',
-    descricao:
-      'Carro parado há 2 anos numa garagem. Não pega, provavelmente bateria ou bomba de combustível avariada.\nTem alguma ferrugem na porta do condutor.\n\n* Pintura queimada do sol\n* Pneus ressequidos',
-    estadoVeiculo: 'manutencao',
-    tiposManutencao: ['Mecânica', 'Elétrica', 'Pintura e funilaria', 'Lataria / amassados'],
-    manutencaoOutro: 'Parado há muito tempo',
-    temOrcamento: false,
-    orcamentoTexto: '',
-    incluirMecanicoNome: false,
-    mecanicoNome: '',
-    incluirMecanicoTelefone: false,
-    mecanicoTelefone: '',
-    fotos: ['🚐', '⏳', '🕸️'],
-    criador: 'admin@reparauto.pt',
-    vendedorNome: 'Admin ReparAuto',
-    vendedorTelefone: '912345678',
-    vendedorWhatsApp: '351912345678',
-    vendedorEmail: 'admin@reparauto.pt',
-    rodando: false,
-    inspecao: false,
-    status: 'aprovado',
-    dataCriacao: Timestamp.now(),
-  },
-  {
-    marca: 'Mercedes-Benz',
-    modelo: 'C220 CDI (Valor Livre)',
-    anoFabricacao: 2009,
-    anoModelo: 2009,
-    preco: 8900,
-    km: 250000,
-    combustivel: 'Diesel',
-    cambio: 'Automático',
-    cor: 'Preto',
-    portas: 4,
-    local: 'Porto',
-    descricao:
-      'Mercedes C220 CDI nacional, caixa automática. Anda diariamente sem qualquer problema.\n\n* GPS e Bluetooth\n* Tecto de abrir\n* Bancos elétricos com memória',
-    estadoVeiculo: 'pronto',
-    tiposManutencao: [],
-    manutencaoOutro: '',
-    temOrcamento: false,
-    orcamentoTexto: '',
-    incluirMecanicoNome: false,
-    mecanicoNome: '',
-    incluirMecanicoTelefone: false,
-    mecanicoTelefone: '',
-    fotos: ['images/mercedes.png', '🚗', '⚙️'],
-    criador: 'admin@reparauto.pt',
-    vendedorNome: 'Admin ReparAuto',
-    vendedorTelefone: '912345678',
-    vendedorWhatsApp: '351912345678',
-    vendedorEmail: 'admin@reparauto.pt',
-    status: 'aprovado',
-    dataCriacao: Timestamp.now(),
-  },
-  {
-    marca: 'Seat',
-    modelo: 'Ibiza 1.4',
-    anoFabricacao: 2006,
-    anoModelo: 2006,
-    preco: 750,
-    km: 230000,
-    combustivel: 'Gasolina',
-    cambio: 'Manual',
-    cor: 'Vermelho',
-    portas: 5,
-    local: 'Faro',
-    descricao:
-      'Seat Ibiza 1.4 a gasolina. Anda diariamente mas apresenta luz de erro de motor no painel (EGR ou sonda lambda) e o ar condicionado não arrefece.\n\n* Jantes especiais\n* Vidros elétricos à frente\n* Fecho central',
-    estadoVeiculo: 'manutencao',
-    tiposManutencao: ['Eletrônica', 'Ar-condicionado'],
-    manutencaoOutro: '',
-    temOrcamento: true,
-    orcamentoTexto: 'Diagnóstico de erro EGR + carregamento de AC: 120€',
-    incluirMecanicoNome: false,
-    mecanicoNome: '',
-    incluirMecanicoTelefone: true,
-    mecanicoTelefone: '933567890',
-    fotos: ['🚗', '⚡', '🔌'],
-    criador: 'admin@reparauto.pt',
-    vendedorNome: 'Admin ReparAuto',
-    vendedorTelefone: '912345678',
-    vendedorWhatsApp: '351912345678',
-    vendedorEmail: 'admin@reparauto.pt',
-    rodando: true,
-    inspecao: true,
-    status: 'aprovado',
-    dataCriacao: Timestamp.now(),
-  },
-];
-
-const defaultPecas: PecaSeed[] = [
-  {
-    tipo: 'venda',
-    titulo: 'Motor 1.9 TDI ASZ 130cv',
-    categoria: 'Motor e Transmissão',
-    marcaCarro: 'Seat',
-    modeloCarro: 'Ibiza 6L',
-    preco: 450,
-    estado: 'Usado',
-    local: 'Braga',
-    contacto: '912345678',
-    foto: '⚙️',
-    criador: 'admin@reparauto.pt',
-    vendedorNome: 'Admin ReparAuto',
-    vendedorTelefone: '912345678',
-    vendedorWhatsApp: '351912345678',
-    vendedorEmail: 'admin@reparauto.pt',
-    descricao:
-      'Motor em excelente estado de funcionamento. Retirado de veículo acidentado na traseira. Tem cerca de 210.000 km. Vendido completo com turbo original.',
-    status: 'aprovado',
-    dataCriacao: Timestamp.now(),
-  },
-  {
-    tipo: 'desmonte',
-    titulo: 'Peugeot 206 1.1 para desmonte completo',
-    categoria: 'Carro Completo p/ Desmonte',
-    marcaCarro: 'Peugeot',
-    modeloCarro: '206',
-    preco: 300,
-    estado: 'Usado',
-    local: 'Porto',
-    contacto: '933567890',
-    foto: '🚗',
-    criador: 'carlos@email.com',
-    vendedorNome: 'Carlos Silva',
-    vendedorTelefone: '933567890',
-    vendedorWhatsApp: '351933567890',
-    vendedorEmail: 'carlos@email.com',
-    descricao:
-      'Carro completo para peças. Chaparia em bom estado, interiores impecáveis. Motor parado. Vendo peças individuais ou o conjunto.',
-    status: 'aprovado',
-    dataCriacao: Timestamp.now(),
-  },
-  {
-    tipo: 'procura',
-    titulo: 'Procuro Farol Frontal Esquerdo Halogéneo',
-    categoria: 'Iluminação e Óticas',
-    marcaCarro: 'Renault',
-    modeloCarro: 'Clio III',
-    preco: 0,
-    estado: 'Usado',
-    local: 'Lisboa',
-    contacto: '922456789',
-    foto: '🔍',
-    criador: 'admin@reparauto.pt',
-    vendedorNome: 'Admin ReparAuto',
-    vendedorTelefone: '912345678',
-    vendedorWhatsApp: '351912345678',
-    vendedorEmail: 'admin@reparauto.pt',
-    descricao:
-      'Procuro farol esquerdo (lado condutor) original e em bom estado para Renault Clio de 2007 (Fase 1).',
-    status: 'aprovado',
-    dataCriacao: Timestamp.now(),
-  },
-];
-
-const defaultOficinas = [
-  {
-    criador: 'admin@reparauto.pt',
-    nome: 'Recar Garage & Prep',
-    descricao: 'Especialistas em eletrónica, reprogramação e preparação de motores para competição e estrada. Realizamos também serviços de estética automóvel e detalhe completo.',
-    responsavel: 'Filipe Antunes',
-    telefone: '912345678',
-    whatsapp: '351912345678',
-    email: 'contacto@recargarage.pt',
-    website: 'https://recargarage.pt',
-    distrito: 'Lisboa',
-    localidade: 'Lisboa',
-    morada: 'Avenida da República, 1420',
-    coordenadas: { latitude: 38.7436, longitude: -9.1443 },
-    especialidades: ['preparacao', 'eletronica', 'estetica_automotiva'],
-    logoUrl: '',
-    status: 'aprovado',
-    mediaAvaliacoes: 4.8,
-    totalAvaliacoes: 5,
-    dataCriacao: Timestamp.now(),
-  },
-  {
-    criador: 'admin@reparauto.pt',
-    nome: 'Oficina Mecânica Central Braga',
-    descricao: 'Oficina multimarcas com foco em mecânica convencional, diagnóstico computorizado, carregamento de ar condicionado e substituição de pneus.',
-    responsavel: 'João Silva',
-    telefone: '923456789',
-    whatsapp: '351923456789',
-    email: 'braga@mecanicacentral.pt',
-    website: 'https://mecanicacentralbraga.pt',
-    distrito: 'Braga',
-    localidade: 'Braga',
-    morada: 'Rua do Caires, 54',
-    coordenadas: { latitude: 41.5432, longitude: -8.4285 },
-    especialidades: ['mecanica_convencional', 'ar_condicionado', 'pneus'],
-    logoUrl: '',
-    status: 'aprovado',
-    mediaAvaliacoes: 4.5,
-    totalAvaliacoes: 3,
-    dataCriacao: Timestamp.now(),
-  },
-  {
-    criador: 'admin@reparauto.pt',
-    nome: 'Auto Pintura e Restauro Clássicos',
-    descricao: 'Oficina premium especializada em pintura automóvel de estufa, reparação de chapa e restauro completo de veículos clássicos.',
-    responsavel: 'Manuel Neves',
-    telefone: '934567890',
-    whatsapp: '351934567890',
-    email: 'manuel@autopinturaclassicos.pt',
-    distrito: 'Porto',
-    localidade: 'Vila Nova de Gaia',
-    morada: 'Zona Industrial de Grijó, Lote 12',
-    coordenadas: { latitude: 41.0254, longitude: -8.5786 },
-    especialidades: ['pintura', 'classicos_restauro'],
-    logoUrl: '',
-    status: 'aprovado',
-    mediaAvaliacoes: 5.0,
-    totalAvaliacoes: 8,
-    dataCriacao: Timestamp.now(),
-  }
-];
-
-export async function initDatabase(): Promise<void> {
-  try {
-    const carrosSnap = await getDocs(collection(db, CARROS_COLLECTION));
-    const pecasSnap = await getDocs(collection(db, PECAS_COLLECTION));
-    const oficinasSnap = await getDocs(collection(db, OFICINAS_COLLECTION));
-
-    const precisaSeed = carrosSnap.empty || pecasSnap.empty || oficinasSnap.empty;
-
-    if (precisaSeed) {
-      if (carrosSnap.empty) {
-        for (const carro of defaultCarros) {
-          await addDoc(collection(db, CARROS_COLLECTION), carro as DocumentData);
-        }
-      }
-      if (pecasSnap.empty) {
-        for (const peca of defaultPecas) {
-          await addDoc(collection(db, PECAS_COLLECTION), peca as DocumentData);
-        }
-      }
-      if (oficinasSnap.empty) {
-        for (const oficina of defaultOficinas) {
-          await addDoc(collection(db, OFICINAS_COLLECTION), oficina as DocumentData);
-        }
-      }
-      localStorage.setItem(DB_VERSION_KEY, DB_VERSION);
-      console.log('[DB] Seed data imported to Firestore');
-    }
-    await migrarMensagens();
-  } catch (err) {
-    console.error('[DB] Erro ao inicializar:', err);
-  }
-}
-
-const MENSAGENS_COLLECTION = 'messages';
-const MIGRATION_KEY = 'reparauto_migration_participants';
-
-async function migrarMensagens(): Promise<void> {
-  if (localStorage.getItem(MIGRATION_KEY)) return;
-  try {
-    const snap = await getDocs(collection(db, MENSAGENS_COLLECTION));
-    const batch = writeBatch(db);
-    let count = 0;
-    snap.docs.forEach((d) => {
-      const data = d.data();
-      if (!data.participants && data.fromUid && data.toUid) {
-        batch.update(d.ref, { participants: [data.fromUid, data.toUid].sort() });
-        count++;
-      }
-    });
-    if (count > 0) {
-      await batch.commit();
-      console.log(`[DB] Migradas ${count} mensagens com participantes`);
-    }
-    localStorage.setItem(MIGRATION_KEY, 'done');
-  } catch {
-    // migration is best-effort
-  }
+// Public listings filter on status server-side so clients never download
+// pending/rejected documents. Sorting stays client-side to avoid requiring
+// a composite (status, dataCriacao) index.
+function sortByDataCriacaoDesc<T extends { dataCriacao?: { toMillis?: () => number } }>(items: T[]): T[] {
+  return items.sort((a, b) => (b.dataCriacao?.toMillis?.() || 0) - (a.dataCriacao?.toMillis?.() || 0));
 }
 
 export async function getCarros(): Promise<Carro[]> {
   try {
-    const q = query(collection(db, CARROS_COLLECTION), orderBy('dataCriacao', 'desc'));
+    const q = query(collection(db, CARROS_COLLECTION), where('status', '==', 'aprovado'));
     const snap = await getDocs(q);
     const todos = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Carro));
-    return todos.filter((c) => c.status === 'aprovado');
+    return sortByDataCriacaoDesc(todos);
   } catch (err) {
     console.error('[DB] Erro ao buscar carros:', err);
     return [];
@@ -480,12 +57,12 @@ export function subscribeCarros(
   onData: (carros: Carro[]) => void,
   onError?: (err: Error) => void,
 ): () => void {
-  const q = query(collection(db, CARROS_COLLECTION), orderBy('dataCriacao', 'desc'));
+  const q = query(collection(db, CARROS_COLLECTION), where('status', '==', 'aprovado'));
   return onSnapshot(
     q,
     (snap) => {
       const todos = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Carro);
-      onData(todos.filter((c) => c.status === 'aprovado'));
+      onData(sortByDataCriacaoDesc(todos));
     },
     (err) => {
       console.error('[DB] Erro no snapshot de carros:', err);
@@ -544,10 +121,10 @@ export async function deleteCarro(id: string): Promise<void> {
 
 export async function getPecas(): Promise<Peca[]> {
   try {
-    const q = query(collection(db, PECAS_COLLECTION), orderBy('dataCriacao', 'desc'));
+    const q = query(collection(db, PECAS_COLLECTION), where('status', '==', 'aprovado'));
     const snap = await getDocs(q);
     const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Peca));
-    return todas.filter((p) => p.status === 'aprovado');
+    return sortByDataCriacaoDesc(todas);
   } catch (err) {
     console.error('[DB] Erro ao buscar peças:', err);
     return [];
@@ -558,12 +135,12 @@ export function subscribePecas(
   onData: (pecas: Peca[]) => void,
   onError?: (err: Error) => void,
 ): () => void {
-  const q = query(collection(db, PECAS_COLLECTION), orderBy('dataCriacao', 'desc'));
+  const q = query(collection(db, PECAS_COLLECTION), where('status', '==', 'aprovado'));
   return onSnapshot(
     q,
     (snap) => {
       const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Peca);
-      onData(todas.filter((p) => p.status === 'aprovado'));
+      onData(sortByDataCriacaoDesc(todas));
     },
     (err) => {
       console.error('[DB] Erro no snapshot de peças:', err);
@@ -710,7 +287,7 @@ export async function getAdminUsers(): Promise<Usuario[]> {
 
 export async function updateCarro(id: string, dados: Record<string, unknown>): Promise<void> {
   try {
-    await updateDoc(doc(db, CARROS_COLLECTION, id) as any, dados as any);
+    await updateDoc(doc(db, CARROS_COLLECTION, id), dados);
   } catch (err) {
     console.error('[DB] Erro ao atualizar carro:', err);
     throw err;
@@ -719,7 +296,7 @@ export async function updateCarro(id: string, dados: Record<string, unknown>): P
 
 export async function updatePeca(id: string, dados: Record<string, unknown>): Promise<void> {
   try {
-    await updateDoc(doc(db, PECAS_COLLECTION, id) as any, dados as any);
+    await updateDoc(doc(db, PECAS_COLLECTION, id), dados);
   } catch (err) {
     console.error('[DB] Erro ao atualizar peça:', err);
     throw err;
@@ -732,7 +309,7 @@ export async function updateCarroStatus(id: string, status: StatusAnuncio): Prom
     if (status === 'aprovado') {
       updates.dataAprovacao = Timestamp.now();
     }
-    await updateDoc(doc(db, CARROS_COLLECTION, id) as any, updates as any);
+    await updateDoc(doc(db, CARROS_COLLECTION, id), updates);
   } catch (err) {
     console.error('[DB] Erro ao atualizar status do carro:', err);
     throw err;
@@ -745,7 +322,7 @@ export async function updatePecaStatus(id: string, status: StatusAnuncio): Promi
     if (status === 'aprovado') {
       updates.dataAprovacao = Timestamp.now();
     }
-    await updateDoc(doc(db, PECAS_COLLECTION, id) as any, updates as any);
+    await updateDoc(doc(db, PECAS_COLLECTION, id), updates);
   } catch (err) {
     console.error('[DB] Erro ao atualizar status da peça:', err);
     throw err;
@@ -808,16 +385,33 @@ export async function getNotificacoes(uid: string): Promise<Notificacao[]> {
     );
     const snap = await getDocs(q);
     const notificacoes = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Notificacao));
-    notificacoes.sort((a, b) => {
-      const aTime = a.dataCriacao?.toDate?.()?.getTime() || 0;
-      const bTime = b.dataCriacao?.toDate?.()?.getTime() || 0;
-      return bTime - aTime;
-    });
-    return notificacoes;
+    return sortByDataCriacaoDesc(notificacoes);
   } catch (err) {
     console.error('[DB] Erro ao buscar notificações:', err);
     return [];
   }
+}
+
+export function subscribeNotificacoes(
+  uid: string,
+  onData: (notificacoes: Notificacao[]) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  const q = query(
+    collection(db, NOTIFICACOES_COLLECTION),
+    where('uid', '==', uid),
+  );
+  return onSnapshot(
+    q,
+    (snap) => {
+      const notificacoes = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Notificacao));
+      onData(sortByDataCriacaoDesc(notificacoes));
+    },
+    (err) => {
+      console.error('[DB] Erro no snapshot de notificações:', err);
+      onError?.(err);
+    },
+  );
 }
 
 export async function marcarNotificacaoLida(id: string): Promise<void> {
@@ -836,8 +430,10 @@ export async function marcarTodasNotificacoesLidas(uid: string): Promise<void> {
       where('lida', '==', false),
     );
     const snap = await getDocs(q);
-    const batch = snap.docs.map((d) => updateDoc(doc(db, NOTIFICACOES_COLLECTION, d.id), { lida: true }));
-    await Promise.all(batch);
+    if (snap.empty) return;
+    const batch = writeBatch(db);
+    snap.docs.forEach((d) => batch.update(d.ref, { lida: true }));
+    await batch.commit();
   } catch (err) {
     console.error('[DB] Erro ao marcar notificações como lidas:', err);
   }
@@ -957,7 +553,7 @@ export async function getAllReviewsAdmin(): Promise<Review[]> {
 
 export async function updateReviewStatus(id: string, status: StatusReview): Promise<void> {
   try {
-    await updateDoc(doc(db, REVIEWS_COLLECTION, id) as any, { status } as any);
+    await updateDoc(doc(db, REVIEWS_COLLECTION, id), { status });
   } catch (err) {
     console.error('[DB] Erro ao atualizar status da avaliação:', err);
     throw err;
@@ -1033,7 +629,7 @@ export async function updateReportStatus(
       updates.dataResolucao = Timestamp.now();
     }
     if (notasAdmin) updates.notasAdmin = notasAdmin;
-    await updateDoc(doc(db, REPORTS_COLLECTION, id) as any, updates as any);
+    await updateDoc(doc(db, REPORTS_COLLECTION, id), updates);
   } catch (err) {
     console.error('[DB] Erro ao atualizar denúncia:', err);
     throw err;
@@ -1097,7 +693,7 @@ export async function updateVerificationStatus(
       updates.dataResolucao = Timestamp.now();
     }
     if (notasAdmin) updates.notasAdmin = notasAdmin;
-    await updateDoc(doc(db, VERIFICATIONS_COLLECTION, id) as any, updates as any);
+    await updateDoc(doc(db, VERIFICATIONS_COLLECTION, id), updates);
   } catch (err) {
     console.error('[DB] Erro ao atualizar verificação:', err);
     throw err;
@@ -1118,10 +714,10 @@ export async function deleteVerificationFiles(documentoUrl: string, selfieUrl: s
 
 export async function clearVerificationUrls(id: string): Promise<void> {
   try {
-    await updateDoc(doc(db, VERIFICATIONS_COLLECTION, id) as any, {
+    await updateDoc(doc(db, VERIFICATIONS_COLLECTION, id), {
       documentoUrl: '',
       selfieUrl: '',
-    } as any);
+    });
   } catch (err) {
     console.error('[DB] Erro ao limpar URLs de verificação:', err);
   }
@@ -1159,7 +755,7 @@ export async function criarIntencaoCompra(dados: IntencaoCompraInput): Promise<s
     const intencaoId = doc(collection(db, INTENCOES_COLLECTION)).id;
     await setDoc(doc(db, INTENCOES_COLLECTION, intencaoId), cleanUndefined({
       id: intencaoId,
-      ...dados as any,
+      ...dados,
       status: 'pendente',
       prioritaria: false,
       stats: {
@@ -1183,10 +779,10 @@ export async function getIntencaoCompra(id: string): Promise<IntencaoCompra | nu
     const docRef = doc(db, INTENCOES_COLLECTION, id);
     const snap = await getDoc(docRef);
     if (!snap.exists()) return null;
-    updateDoc(docRef as any, {
+    updateDoc(docRef, {
       'stats.visualizacoes': increment(1),
       'stats.visualizacoes7Dias': increment(1),
-    } as any).catch(() => {});
+    }).catch(() => {});
     return { id: snap.id, ...snap.data() } as IntencaoCompra;
   } catch (err) {
     console.error('[DB] Erro ao buscar intenção:', err);
@@ -1221,7 +817,7 @@ export async function atualizarIntencaoCompra(id: string, userId: string, update
     if (!snap.exists()) throw new Error('Intenção não encontrada');
     const data = snap.data() as IntencaoCompra;
     if (data.userId !== userId) throw new Error('Não autorizado');
-    await updateDoc(docRef as any, { ...updates, atualizadaEm: Timestamp.now() } as any);
+    await updateDoc(docRef, { ...updates, atualizadaEm: Timestamp.now() });
   } catch (err) {
     console.error('[DB] Erro ao atualizar intenção:', err);
     throw err;
@@ -1235,11 +831,11 @@ export async function deletarIntencaoCompra(id: string, userId: string): Promise
     if (!snap.exists()) throw new Error('Intenção não encontrada');
     const data = snap.data() as IntencaoCompra;
     if (data.userId !== userId) throw new Error('Não autorizado');
-    await updateDoc(docRef as any, {
+    await updateDoc(docRef, {
       status: 'deletada',
       deletadaEm: Timestamp.now(),
       atualizadaEm: Timestamp.now(),
-    } as any);
+    });
   } catch (err) {
     console.error('[DB] Erro ao deletar intenção:', err);
     throw err;
@@ -1253,11 +849,11 @@ export async function pausarIntencaoCompra(id: string, userId: string): Promise<
     if (!snap.exists()) throw new Error('Intenção não encontrada');
     const data = snap.data() as IntencaoCompra;
     if (data.userId !== userId) throw new Error('Não autorizado');
-    await updateDoc(docRef as any, {
+    await updateDoc(docRef, {
       status: 'pausada',
       expiradoEm: Timestamp.now(),
       atualizadaEm: Timestamp.now(),
-    } as any);
+    });
   } catch (err) {
     console.error('[DB] Erro ao pausar intenção:', err);
     throw err;
@@ -1271,11 +867,11 @@ export async function reativarIntencaoCompra(id: string, userId: string): Promis
     if (!snap.exists()) throw new Error('Intenção não encontrada');
     const data = snap.data() as IntencaoCompra;
     if (data.userId !== userId) throw new Error('Não autorizado');
-    await updateDoc(docRef as any, {
+    await updateDoc(docRef, {
       status: 'ativa',
       expiradoEm: null,
       atualizadaEm: Timestamp.now(),
-    } as any);
+    });
   } catch (err) {
     console.error('[DB] Erro ao reativar intenção:', err);
     throw err;
@@ -1365,10 +961,13 @@ export async function iniciarContatoIntencao(
       });
     }
 
-    await updateDoc(doc(db, INTENCOES_COLLECTION, intencaoId) as any, {
+    // Counter bump must not fail the contact that was already created.
+    await updateDoc(doc(db, INTENCOES_COLLECTION, intencaoId), {
       'stats.contatos': increment(1),
       'stats.contatos7Dias': increment(1),
-    } as any);
+    }).catch((err) => {
+      console.warn('[DB] Falha ao incrementar stats da intenção:', err);
+    });
 
     return contatoId;
   } catch (err) {
@@ -1402,10 +1001,10 @@ export async function marcarContatoRelevante(contatoId: string, userId: string):
     const docRef = doc(db, CONTATOS_INTENCAO_COLLECTION, contatoId);
     const snap = await getDoc(docRef);
     if (!snap.exists()) throw new Error('Contato não encontrado');
-    await updateDoc(docRef as any, {
+    await updateDoc(docRef, {
       marcadoComoRelevante: true,
       atualizadoEm: Timestamp.now(),
-    } as any);
+    });
   } catch (err) {
     console.error('[DB] Erro ao marcar contato relevante:', err);
     throw err;
@@ -1415,10 +1014,10 @@ export async function marcarContatoRelevante(contatoId: string, userId: string):
 export async function rejeitarContato(contatoId: string, userId: string): Promise<void> {
   try {
     const docRef = doc(db, CONTATOS_INTENCAO_COLLECTION, contatoId);
-    await updateDoc(docRef as any, {
+    await updateDoc(docRef, {
       status: 'rejeitado',
       atualizadoEm: Timestamp.now(),
-    } as any);
+    });
   } catch (err) {
     console.error('[DB] Erro ao rejeitar contato:', err);
     throw err;
@@ -1471,7 +1070,7 @@ export async function updateDenunciaIntencaoStatus(
     }
     if (acaoTomada) updates.acaoTomada = acaoTomada;
     if (notas) updates.notas = notas;
-    await updateDoc(doc(db, DENUNCIAS_INTENCAO_COLLECTION, id) as any, updates as any);
+    await updateDoc(doc(db, DENUNCIAS_INTENCAO_COLLECTION, id), updates);
   } catch (err) {
     console.error('[DB] Erro ao atualizar denúncia:', err);
     throw err;
@@ -1512,7 +1111,7 @@ export async function getIntencoesAtivas(): Promise<IntencaoCompra[]> {
 
 export async function updateIntencaoStatus(id: string, status: string): Promise<void> {
   try {
-    await updateDoc(doc(db, INTENCOES_COLLECTION, id) as any, { status, atualizadaEm: Timestamp.now() } as any);
+    await updateDoc(doc(db, INTENCOES_COLLECTION, id), { status, atualizadaEm: Timestamp.now() });
   } catch (err) {
     console.error('[DB] Erro ao atualizar status da intenção:', err);
     throw err;
@@ -1524,10 +1123,10 @@ import type { OficinaMecanico } from '@/types/oficina';
 
 export async function getOficinas(): Promise<OficinaMecanico[]> {
   try {
-    const q = query(collection(db, OFICINAS_COLLECTION), orderBy('dataCriacao', 'desc'));
+    const q = query(collection(db, OFICINAS_COLLECTION), where('status', '==', 'aprovado'));
     const snap = await getDocs(q);
     const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() } as OficinaMecanico));
-    return todas.filter((c) => c.status === 'aprovado');
+    return sortByDataCriacaoDesc(todas);
   } catch (err) {
     console.error('[DB] Erro ao buscar oficinas:', err);
     return [];
@@ -1538,12 +1137,12 @@ export function subscribeOficinas(
   onData: (oficinas: OficinaMecanico[]) => void,
   onError?: (err: Error) => void,
 ): () => void {
-  const q = query(collection(db, OFICINAS_COLLECTION), orderBy('dataCriacao', 'desc'));
+  const q = query(collection(db, OFICINAS_COLLECTION), where('status', '==', 'aprovado'));
   return onSnapshot(
     q,
     (snap) => {
       const todas = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as OficinaMecanico);
-      onData(todas.filter((c) => c.status === 'aprovado'));
+      onData(sortByDataCriacaoDesc(todas));
     },
     (err) => {
       console.error('[DB] Erro no snapshot de oficinas:', err);
@@ -1582,7 +1181,7 @@ export async function addOficina(dados: Record<string, unknown>): Promise<Oficin
 
 export async function updateOficina(id: string, dados: Record<string, unknown>): Promise<void> {
   try {
-    await updateDoc(doc(db, OFICINAS_COLLECTION, id) as any, dados as any);
+    await updateDoc(doc(db, OFICINAS_COLLECTION, id), dados);
   } catch (err) {
     console.error('[DB] Erro ao atualizar oficina:', err);
     throw err;
@@ -1591,7 +1190,7 @@ export async function updateOficina(id: string, dados: Record<string, unknown>):
 
 export async function updateOficinaStatus(id: string, status: 'pendente' | 'aprovado' | 'rejeitado'): Promise<void> {
   try {
-    await updateDoc(doc(db, OFICINAS_COLLECTION, id) as any, { status } as any);
+    await updateDoc(doc(db, OFICINAS_COLLECTION, id), { status });
   } catch (err) {
     console.error('[DB] Erro ao atualizar status da oficina:', err);
     throw err;

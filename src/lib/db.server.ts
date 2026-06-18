@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { getAdminDb, ADMIN_PROJECT_ID } from './firebase.admin';
 import type { Carro } from '@/types/carro';
 import type { Peca } from '@/types/peca';
@@ -81,11 +82,12 @@ async function restGet(collection: string, id: string): Promise<FirestoreDoc | n
   return (await res.json()) as FirestoreDoc;
 }
 
-async function adminList<T>(collection: string): Promise<T[] | null> {
+async function adminList<T>(collection: string, status?: string): Promise<T[] | null> {
   const db = getAdminDb();
   if (!db) return null;
   try {
-    const snap = await db.collection(collection).get();
+    const ref = db.collection(collection);
+    const snap = await (status ? ref.where('status', '==', status) : ref).get();
     return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
   } catch {
     return null;
@@ -105,29 +107,31 @@ async function adminGet<T>(collection: string, id: string): Promise<T | null> {
 }
 
 export async function getCarrosServer(): Promise<Carro[]> {
-  const adminResult = await adminList<Carro>('cars');
+  const adminResult = await adminList<Carro>('cars', 'aprovado');
   const all = adminResult ?? (await restList('cars')).map((d) => decodeDoc<Carro>(d));
   return all.filter((c) => c.status === 'aprovado');
 }
 
-export async function getCarroPorIdServer(id: string): Promise<Carro | null> {
+// React.cache dedupes the generateMetadata + page-component fetch pair
+// within a single render.
+export const getCarroPorIdServer = cache(async (id: string): Promise<Carro | null> => {
   const adminResult = await adminGet<Carro>('cars', id);
   if (adminResult) return adminResult;
   const doc = await restGet('cars', id);
   return doc ? decodeDoc<Carro>(doc) : null;
-}
+});
 
 export async function getPecasServer(): Promise<Peca[]> {
-  const adminResult = await adminList<Peca>('parts');
+  const adminResult = await adminList<Peca>('parts', 'aprovado');
   const all = adminResult ?? (await restList('parts')).map((d) => decodeDoc<Peca>(d));
   return all.filter((p) => p.status === 'aprovado');
 }
 
 const INTENCOES_COLLECTION = 'intencoes_compra';
 
-export async function getIntencaoPorIdServer(id: string): Promise<IntencaoCompra | null> {
+export const getIntencaoPorIdServer = cache(async (id: string): Promise<IntencaoCompra | null> => {
   const adminResult = await adminGet<IntencaoCompra>(INTENCOES_COLLECTION, id);
   if (adminResult) return adminResult;
   const doc = await restGet(INTENCOES_COLLECTION, id);
   return doc ? decodeDoc<IntencaoCompra>(doc) : null;
-}
+});

@@ -1,4 +1,5 @@
 import { GearSix, Car, MagnifyingGlass, MapPin, type Icon } from '@phosphor-icons/react';
+import { memo } from 'react';
 import { formatarPreco, renderFoto } from '@/lib/utils';
 import Badge from '@/components/ui/Badge';
 import LazyImage from '@/components/ui/LazyImage';
@@ -10,7 +11,7 @@ const tipoConfig: Record<TipoPeca, { cor: 'blue' | 'yellow' | 'gray'; Icon: Icon
   procura: { cor: 'gray', Icon: MagnifyingGlass, label: 'Procura-se' },
 };
 
-export default function PecasCard({ peca, onDetalhes }: { peca: Peca; onDetalhes: (peca: Peca) => void }) {
+function PecasCard({ peca, onDetalhes }: { peca: Peca; onDetalhes: (peca: Peca) => void }) {
   const config = tipoConfig[peca.tipo] || tipoConfig.venda;
   const isNovo = peca.dataAprovacao && (Date.now() - peca.dataAprovacao.toMillis()) < 24 * 60 * 60 * 1000;
   const fotoData = peca.foto ? renderFoto(peca.foto) : null;
@@ -75,3 +76,5 @@ export default function PecasCard({ peca, onDetalhes }: { peca: Peca; onDetalhes
     </div>
   );
 }
+
+export default memo(PecasCard);
