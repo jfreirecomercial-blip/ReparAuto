@@ -54,9 +54,14 @@ PEÇAS USADAS
 
 OFICINAS PERTO DE SI
 • Diretório de oficinas com especialidades, contactos e avaliações.
+• Veja as oficinas no mapa e encontre as mais próximas de si.
 • Registe a sua oficina e receba novos clientes.
 
+PROCURA UM CARRO?
+• Publique o que procura e deixe os vendedores virem ter consigo.
+
 FALE DIRETAMENTE
+• Converse por chat dentro da app, com notificações de novas mensagens.
 • Contacte vendedores e oficinas por telefone ou WhatsApp.
 • Guarde os seus anúncios favoritos para ver mais tarde.
 
@@ -78,7 +83,9 @@ carros usados,automóveis,peças,oficinas,stand,viaturas,comprar carro,vender ca
 ### Notas de versão — "Novidades" (máx. 4000 caracteres)
 ```
 • Listagens de carros, peças e oficinas em tempo real, com pesquisa e filtros.
-• Publique anúncios de carros, peças e oficinas com fotos.
+• Publique anúncios de carros, peças, oficinas e procuras, com fotos.
+• Chat em tempo real e notificações de novas mensagens.
+• Mapa de oficinas e avaliações.
 • Favoritos, perfil e gestão dos seus anúncios.
 • Início de sessão com email, Google e Apple.
 ```
@@ -127,9 +134,14 @@ PEÇAS USADAS
 
 OFICINAS PERTO DE SI
 • Diretório de oficinas com especialidades, contactos e avaliações.
+• Veja as oficinas no mapa e encontre as mais próximas de si.
 • Registe a sua oficina e receba novos clientes.
 
+PROCURA UM CARRO?
+• Publique o que procura e deixe os vendedores virem ter consigo.
+
 FALE DIRETAMENTE
+• Converse por chat dentro da app, com notificações de novas mensagens.
 • Contacte vendedores e oficinas por telefone ou WhatsApp.
 • Guarde os seus anúncios favoritos para ver mais tarde.
 
@@ -146,16 +158,18 @@ Descarregue a ReparAuto e junte-se ao maior mercado automóvel português.
 ### Notas da versão (máx. 500 caracteres)
 ```
 Primeira versão: listagens de carros, peças e oficinas com pesquisa e filtros;
-publicação de anúncios com fotos; favoritos; perfil e gestão de anúncios; início
-de sessão com email, Google e Apple.
+publicação de anúncios e procuras com fotos; chat e notificações; mapa de
+oficinas e avaliações; favoritos; perfil e gestão de anúncios; início de sessão
+com email, Google e Apple.
 ```
 
 ### Data safety (resumo a declarar no formulário)
 ```
 Dados recolhidos e associados ao utilizador:
 • Informações de contacto: email, telefone.
-• Conteúdo do utilizador: fotos dos anúncios.
-• Identificadores: ID de utilizador (Firebase).
+• Conteúdo do utilizador: fotos dos anúncios e mensagens de chat.
+• Localização aproximada: apenas em uso, para mostrar oficinas próximas no mapa.
+• Identificadores: ID de utilizador e token de notificações (Firebase).
 
 • Os dados são encriptados em trânsito.
 • O utilizador pode pedir a eliminação da conta e dados na app

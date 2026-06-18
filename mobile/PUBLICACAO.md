@@ -24,7 +24,17 @@ Play**, usando **EAS** (Expo Application Services). Bundle id / package:
 ```
 GOOGLE_IOS_URL_SCHEME=com.googleusercontent.apps.XXXX   # REVERSED_CLIENT_ID do plist
 EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=XXXX.apps.googleusercontent.com  # OAuth client tipo 3
+EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=XXXX   # Maps SDK for Android (mapa de oficinas)
 ```
+
+> **Mapa (Android)**: criar a chave em Google Cloud Console → **Maps SDK for
+> Android**, restringi-la ao package `com.recargarage` + SHA-1. No iOS o mapa
+> usa **Apple Maps** (sem chave).
+>
+> **Push (entrega real)**: a app já regista o token FCM; para entregar push com
+> a app fechada, falta uma Cloud Function — ver
+> [`docs/PUSH-BACKEND.md`](./docs/PUSH-BACKEND.md). No iOS é preciso carregar a
+> **APNs Auth Key** no Firebase Console → Cloud Messaging.
 
 No EAS, garante que estas variáveis e os ficheiros do Firebase existem no build:
 ou commitas num repositório privado, ou usas **EAS secrets / EAS file env**
@@ -97,9 +107,9 @@ Transporter) e o `.aab` na **Play Console**.
 2. **TestFlight**: testar o build interno antes de submeter para revisão.
 3. **App Information / Pricing**: categoria, preço (gratuito).
 4. **App Privacy** (nutrition labels): declarar os dados recolhidos —
-   normalmente *Contact Info* (email, telefone), *User Content* (fotos),
-   *Identifiers* (user id) e *Location* só quando a Fase 5 entrar. Indicar se há
-   tracking (não há).
+   *Contact Info* (email, telefone), *User Content* (fotos, mensagens de chat),
+   *Identifiers* (user id, token de push) e *Location* (aproximada, em uso, para
+   o mapa de oficinas). Indicar que **não** há tracking.
 5. **Preparar para submissão**: preencher os textos (ver
    `store/textos-lojas-pt-PT.md`), screenshots (6.7", 6.5", 5.5" e iPad 12.9"),
    ícone 1024×1024, URL da política de privacidade e de suporte.

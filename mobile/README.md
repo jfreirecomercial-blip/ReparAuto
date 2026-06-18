@@ -69,10 +69,13 @@ assets/                   # ícones e splash gerados a partir do logo da marca
       **peça** e **oficina** (fotos via câmara/galeria, upload para
       `ads/{uid}`, criação como `pendente`); **editar perfil** e **os meus
       anúncios** (listar por estado + eliminar).
-- [ ] **Fase 4**: chat em tempo real + notificações push (re-adiciona
-      `@react-native-firebase/messaging` + `expo-notifications`).
-- [ ] **Fase 5**: intenções, confiança, mapa de oficinas (re-adiciona
-      `react-native-maps` + `expo-location`).
+- [x] **Fase 4 — Chat & Notificações**: chat em tempo real (separador
+      Mensagens, conversas, badge de não lidas), notificações in-app e **push**
+      (FCM; token guardado em `users/{uid}.fcmTokens`, ver
+      [`docs/PUSH-BACKEND.md`](./docs/PUSH-BACKEND.md)).
+- [x] **Fase 5 — Procuras, Confiança & Mapa**: intenções de compra (procuras),
+      **mapa de oficinas** (react-native-maps + localização), **avaliações** e
+      **denúncias** de anúncios.
 - [ ] **Fase 6**: polimento, offline e submissão às lojas.
 
 ## Conformidade com as lojas (já tratado)
@@ -80,12 +83,14 @@ assets/                   # ícones e splash gerados a partir do logo da marca
 - **Eliminação de conta in-app** (App Store 5.1.1(v)) — em Perfil → "Eliminar conta".
 - **Sign in with Apple** (App Store 4.8) — apresentado no iOS quando há login Google.
 - **Navegação sem registo** (App Store 5.1.1(i)) — convidados navegam livremente.
-- **Permissões mínimas e não forçadas** — a galeria usa o **Photo Picker** do
-  sistema (sem permissão no Android 13+/iOS PHPicker); a **câmara** é pedida em
-  runtime só ao tocar em "Tirar foto". Nenhuma permissão de localização,
-  notificações ou media é declarada nesta versão (entram nas fases 4/5 com as
-  respetivas funcionalidades). Evita o formulário de "Photo & Video Permissions"
-  do Google Play.
+- **Permissões mínimas e contextuais** — pedidas em runtime, só quando a
+  funcionalidade as usa:
+  - **Galeria**: usa o **Photo Picker** do sistema → sem permissão (Android
+    13+/iOS PHPicker). Não declaramos `READ_MEDIA_IMAGES` (evita o formulário
+    "Photo & Video Permissions" do Google Play).
+  - **Câmara**: pedida só ao tocar em "Tirar foto" no Anunciar.
+  - **Notificações**: pedidas no registo de push (Fase 4).
+  - **Localização**: pedida só ao usar "perto de mim" no mapa de oficinas (Fase 5).
 
 ## Publicação nas lojas
 
