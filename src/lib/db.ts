@@ -29,7 +29,6 @@ import type { Report, ReportInput, StatusReport } from '@/types/report';
 import type { Verification, VerificationInput, StatusVerificacao } from '@/types/verification';
 import type { IntencaoCompra, IntencaoCompraInput, ContatoIntencao, ContatoIntencaoInput, DenunciaIntencao } from '@/types/intencao';
 import type { Proposta, PropostaInput, StatusProposta } from '@/types/proposal';
-import type { LeadParceriaInput } from '@/types/lead';
 
 type CarroSeed = Omit<CarroInput, 'dataCriacao'> & { dataCriacao: ReturnType<typeof Timestamp.now> };
 type PecaSeed = Omit<PecaInput, 'dataCriacao'> & { dataCriacao: ReturnType<typeof Timestamp.now> };
@@ -1629,25 +1628,25 @@ export async function getAllOficinasAdmin(): Promise<OficinaMecanico[]> {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Propostas / Contra-propostas (seller → interested buyer negotiation)
-// ---------------------------------------------------------------------------
+// ============ PROPOSTAS / NEGOCIAÇÕES ============
 
-const PROPOSTAS_COLLECTION = 'propostas';
-
-function ordenarPorCriacao<T extends { criadaEm?: { toDate?: () => Date } }>(items: T[]): T[] {
-  return items.sort(
-    (a, b) => (b.criadaEm?.toDate?.()?.getTime() || 0) - (a.criadaEm?.toDate?.()?.getTime() || 0),
-  );
-}
+const PROPOSTAS_COLLECTION = 'proposals';
 
 export async function criarProposta(dados: PropostaInput): Promise<Proposta> {
   try {
-    const id = doc(collection(db, PROPOSTAS_COLLECTION)).id;
-    const agora = Timestamp.now();
-    const proposta: Proposta = { id, ...dados, criadaEm: agora, atualizadaEm: agora };
-    await setDoc(doc(db, PROPOSTAS_COLLECTION, id), cleanUndefined({ ...proposta }));
-    return proposta;
+    const docRef = await addDoc(collection(db, PROPOSTAS_COLLECTION), cleanUndefined({
+      ...dados,
+      status: 'pendente',
+      criadaEm: Timestamp.now(),
+      atualizadaEm: Timestamp.now(),
+    }));
+    return {
+      id: docRef.id,
+      ...cleanUndefined(dados),
+      status: 'pendente',
+      criadaEm: Timestamp.now(),
+      atualizadaEm: Timestamp.now(),
+    } as unknown as Proposta;
   } catch (err) {
     console.error('[DB] Erro ao criar proposta:', err);
     throw err;
@@ -1656,29 +1655,40 @@ export async function criarProposta(dados: PropostaInput): Promise<Proposta> {
 
 export async function getPropostasPorVendedor(vendedorUid: string): Promise<Proposta[]> {
   try {
-    const q = query(collection(db, PROPOSTAS_COLLECTION), where('vendedorUid', '==', vendedorUid));
+    const q = query(
+      collection(db, PROPOSTAS_COLLECTION),
+      where('vendedorUid', '==', vendedorUid),
+      orderBy('criadaEm', 'desc')
+    );
     const snap = await getDocs(q);
-    return ordenarPorCriacao(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Proposta)));
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as unknown as Proposta));
   } catch (err) {
-    console.error('[DB] Erro ao buscar propostas (vendedor):', err);
+    console.error('[DB] Erro ao buscar propostas do vendedor:', err);
     return [];
   }
 }
 
 export async function getPropostasPorComprador(compradorUid: string): Promise<Proposta[]> {
   try {
-    const q = query(collection(db, PROPOSTAS_COLLECTION), where('compradorUid', '==', compradorUid));
+    const q = query(
+      collection(db, PROPOSTAS_COLLECTION),
+      where('compradorUid', '==', compradorUid),
+      orderBy('criadaEm', 'desc')
+    );
     const snap = await getDocs(q);
-    return ordenarPorCriacao(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Proposta)));
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as unknown as Proposta));
   } catch (err) {
-    console.error('[DB] Erro ao buscar propostas (comprador):', err);
+    console.error('[DB] Erro ao buscar propostas do comprador:', err);
     return [];
   }
 }
 
 export async function atualizarProposta(id: string, status: StatusProposta): Promise<void> {
   try {
-    const updates: Record<string, unknown> = { status, atualizadaEm: Timestamp.now() };
+    const updates: Record<string, unknown> = {
+      status,
+      atualizadaEm: Timestamp.now(),
+    };
     if (status === 'aceita' || status === 'rejeitada') {
       updates.respostaCompradorEm = Timestamp.now();
     }
@@ -1689,23 +1699,4 @@ export async function atualizarProposta(id: string, status: StatusProposta): Pro
   }
 }
 
-// ---------------------------------------------------------------------------
-// Leads de parceria (financing / insurance simulators) — consent-gated (RGPD)
-// ---------------------------------------------------------------------------
-
-const LEADS_PARCERIA_COLLECTION = 'leads_parceria';
-
-export async function criarLeadParceria(dados: LeadParceriaInput): Promise<string> {
-  try {
-    const id = doc(collection(db, LEADS_PARCERIA_COLLECTION)).id;
-    await setDoc(
-      doc(db, LEADS_PARCERIA_COLLECTION, id),
-      cleanUndefined({ id, ...dados, criadaEm: Timestamp.now() }),
-    );
-    return id;
-  } catch (err) {
-    console.error('[DB] Erro ao criar lead de parceria:', err);
-    throw err;
-  }
-}
 

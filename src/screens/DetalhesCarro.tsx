@@ -259,6 +259,10 @@ export default function DetalhesCarro() {
         />
 
         <div className="mt-6">
+          <FinanciamentoSeguroWidget carroPreco={carro.preco} />
+        </div>
+
+        <div className="mt-6">
           <VinCheckPanel />
         </div>
       </div>
