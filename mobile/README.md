@@ -65,7 +65,9 @@ assets/                   # ícones e splash gerados a partir do logo da marca
       peças e oficinas, com pesquisa e filtros; ecrãs de detalhe; favoritos
       (conta + anónimo via AsyncStorage). Navegação aberta a convidados —
       login só é exigido para ações (favoritar, anunciar).
-- [ ] **Fase 3**: anunciar (câmara/upload) + perfil completo.
+- [x] **Fase 3 (parcial)**: **Anunciar carro** — formulário com câmara/galeria,
+      upload para o Storage (`ads/{uid}`) e criação no Firestore como `pendente`.
+- [ ] **Fase 3 (resto)**: anunciar peças/oficinas + edição de perfil.
 - [ ] **Fase 4**: chat em tempo real + notificações push.
 - [ ] **Fase 5**: intenções, confiança, mapa de oficinas.
 - [ ] **Fase 6**: polimento, offline e submissão às lojas.
@@ -75,5 +77,5 @@ assets/                   # ícones e splash gerados a partir do logo da marca
 - **Eliminação de conta in-app** (App Store 5.1.1(v)) — em Perfil → "Eliminar conta".
 - **Sign in with Apple** (App Store 4.8) — apresentado no iOS quando há login Google.
 - **Navegação sem registo** (App Store 5.1.1(i)) — convidados navegam livremente.
-- **Permissões só quando usadas** — câmara/localização/notificações são
-  declaradas apenas nas fases que as utilizam (3/4/5).
+- **Permissões só quando usadas** — câmara/fotos são declaradas agora (usadas
+  no Anunciar); localização/notificações entram nas fases 4/5.

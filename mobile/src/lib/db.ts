@@ -8,8 +8,15 @@
 import firestore, {
   FirebaseFirestoreTypes,
 } from '@react-native-firebase/firestore';
-import { db } from './firebase';
+import { db, storage } from './firebase';
 import type { Carro, Peca, Oficina, Usuario } from '@/types';
+
+/** Firestore rejects `undefined`; drop those keys before writing. */
+function cleanUndefined<T extends Record<string, unknown>>(obj: T): T {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined),
+  ) as T;
+}
 
 const CARROS = 'cars';
 const PECAS = 'parts';
@@ -54,6 +61,34 @@ export function subscribeCarros(
 export async function getCarroById(id: string): Promise<Carro | null> {
   const doc = await db.collection(CARROS).doc(id).get();
   return doc.exists() ? ({ id: doc.id, ...doc.data() } as Carro) : null;
+}
+
+/**
+ * Uploads a local image (file:// URI from the picker/camera) to
+ * `ads/{uid}/...` and returns its download URL — same Storage layout the web
+ * app uses, allowed by `storage.rules`.
+ */
+export async function uploadAnuncioFoto(
+  uid: string,
+  localUri: string,
+  index: number,
+): Promise<string> {
+  const ext = (localUri.split('.').pop() || 'jpg').split('?')[0].toLowerCase();
+  const ref = storage.ref(`ads/${uid}/${Date.now()}_${index}.${ext}`);
+  await ref.putFile(localUri);
+  return ref.getDownloadURL();
+}
+
+/** Creates a car listing as `pendente` (admin approves before it goes public). */
+export async function addCarro(dados: Record<string, unknown>): Promise<string> {
+  const docRef = await db.collection(CARROS).add(
+    cleanUndefined({
+      ...dados,
+      status: 'pendente',
+      dataCriacao: firestore.FieldValue.serverTimestamp(),
+    }),
+  );
+  return docRef.id;
 }
 
 // ---------- Peças ----------

@@ -54,11 +54,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#ffffff',
     },
-    // Only declare permissions for features that ship. Camera/photos arrive
-    // with "Anunciar" (Fase 3); location with the workshops map (Fase 5);
-    // notifications with push (Fase 4). Declaring them earlier risks store
-    // rejection for requesting permissions with no in-app use.
-    permissions: [],
+    // Only declare permissions for features that ship. Location arrives with
+    // the workshops map (Fase 5); notifications with push (Fase 4). Declaring
+    // them earlier risks store rejection for unused permissions.
+    permissions: ['CAMERA', 'READ_MEDIA_IMAGES'],
   },
   web: {
     bundler: 'metro',
@@ -83,9 +82,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       '@react-native-google-signin/google-signin',
       { iosUrlScheme: GOOGLE_IOS_URL_SCHEME },
     ],
-    // NOTE: expo-image-picker (Fase 3), expo-location (Fase 5) and
-    // expo-notifications (Fase 4) plugins are added when those features ship,
-    // so the build only declares permissions it actually uses.
+    [
+      'expo-image-picker',
+      {
+        photosPermission:
+          'A ReparAuto precisa de acesso às suas fotos para publicar anúncios.',
+        cameraPermission:
+          'A ReparAuto precisa da câmara para tirar fotos dos seus anúncios.',
+      },
+    ],
+    // NOTE: expo-location (Fase 5) and expo-notifications (Fase 4) plugins are
+    // added when those features ship, so the build only declares permissions
+    // it actually uses.
     [
       'expo-splash-screen',
       {
