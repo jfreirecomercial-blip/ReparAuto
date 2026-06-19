@@ -80,6 +80,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: './assets/favicon.png',
   },
   plugins: [
+    // Installs the shared debug keystore so every machine/CI signs with the
+    // same SHA-1 (stable Google Sign-In). See plugins/withDebugKeystore.js.
+    './plugins/withDebugKeystore',
     // Listed first so its withAndroidManifest mod runs LAST (manifest mods
     // execute in reverse plugin order) — by then expo-notifications has added
     // the default_notification_color meta-data we need to mark tools:replace.

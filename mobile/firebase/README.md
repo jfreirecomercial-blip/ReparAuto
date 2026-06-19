@@ -45,3 +45,24 @@ or commit them to a private channel — never to a public repo.
 
 > The same Firebase project (`reparauto-site`) powers the web app, so the app
 > shares the same Firestore data, Auth users, Storage bucket and security rules.
+
+## Google Sign-In on Android — SHA-1 (important)
+
+Google Sign-In on Android validates the app's signing certificate. If the SHA-1
+of the running build isn't registered in Firebase you get `DEVELOPER_ERROR`.
+
+To keep this stable across machines and CI, this repo ships a **shared debug
+keystore** at `mobile/credentials/debug.keystore`, installed into the native
+project on every prebuild by `plugins/withDebugKeystore.js`. So **all debug
+builds sign with the same key** — only one SHA-1 to register:
+
+```
+Debug SHA-1:  BB:AF:89:38:31:00:27:96:37:CB:1A:D2:A9:65:2D:BD:8D:06:24:6B
+```
+
+This fingerprint is already registered for `com.recargarage`. A new dev just
+needs to `npm install` + `npx expo prebuild` — no per-machine SHA-1 setup.
+
+> The debug keystore is **not** a secret (standard `androiddebugkey` / `android`),
+> so committing it is fine. For **release / EAS** builds the keystore is
+> different — register that SHA-1 too (get it from `eas credentials`).
