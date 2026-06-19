@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/Button';
 import { LogoMark } from '@/components/ui/Logo';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { statusCodes } from '@/lib/auth';
 import { colors } from '@/theme/colors';
 
 export default function LoginScreen() {
@@ -57,8 +58,16 @@ export default function LoginScreen() {
     try {
       const u = await loginGoogle();
       aposLogin(u.profileCompleted);
-    } catch {
-      showToast('Não foi possível entrar com o Google.', 'error');
+    } catch (e) {
+      const err = e as { code?: string; message?: string };
+      const isDevError = String(err.code) === '10' || /DEVELOPER_ERROR/i.test(err.message ?? '');
+      if (err.code === statusCodes.SIGN_IN_CANCELLED) {
+        // user dismissed the chooser — no error
+      } else if (isDevError) {
+        showToast('Login Google não configurado: falta registar o SHA-1 no Firebase.', 'error');
+      } else {
+        showToast('Não foi possível entrar com o Google.', 'error');
+      }
     } finally {
       setGoogleLoading(false);
     }
