@@ -1,4 +1,14 @@
 import type { ExpoConfig, ConfigContext } from 'expo/config';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+
+// Reference a native Firebase file only when it exists, so building for a single
+// platform (e.g. Android only) doesn't warn about the other platform's missing
+// credentials file.
+const firebaseFile = (name: string): string | undefined => {
+  const p = join(__dirname, 'firebase', name);
+  return existsSync(p) ? `./firebase/${name}` : undefined;
+};
 
 /**
  * ReparAuto mobile app config.
@@ -40,7 +50,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     bundleIdentifier: BUNDLE_ID,
     supportsTablet: true,
-    googleServicesFile: './firebase/GoogleService-Info.plist',
+    googleServicesFile: firebaseFile('GoogleService-Info.plist'),
     // Required for Sign in with Apple (App Store Guideline 4.8).
     usesAppleSignIn: true,
     infoPlist: {
@@ -49,7 +59,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     package: BUNDLE_ID,
-    googleServicesFile: './firebase/google-services.json',
+    googleServicesFile: firebaseFile('google-services.json'),
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#ffffff',
@@ -70,6 +80,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: './assets/favicon.png',
   },
   plugins: [
+    // Listed first so its withAndroidManifest mod runs LAST (manifest mods
+    // execute in reverse plugin order) — by then expo-notifications has added
+    // the default_notification_color meta-data we need to mark tools:replace.
+    './plugins/withFirebaseNotificationFix',
     'expo-router',
     'expo-secure-store',
     'expo-apple-authentication',
