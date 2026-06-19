@@ -274,6 +274,64 @@ export async function setUserRole(uid: string, role: Role): Promise<void> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Planos Premium (admin-managed)
+// ---------------------------------------------------------------------------
+
+export type PlanInfo = {
+  planoId: string;
+  nome: string;
+  categoria: 'anuncios' | 'oficinas' | 'leads';
+};
+
+export async function setUserPlan(
+  uid: string,
+  plan: PlanInfo,
+  adminUid: string,
+  adminNome: string,
+  dias: number,
+): Promise<void> {
+  try {
+    const agora = Timestamp.now();
+    const expMs = agora.toMillis() + dias * 86400000;
+    const dataExpiracao = Timestamp.fromMillis(expMs);
+    const userRef = doc(db, USERS_COLLECTION, uid);
+    await setDoc(
+      userRef,
+      {
+        planoAtivo: {
+          planoId: plan.planoId,
+          nome: plan.nome,
+          categoria: plan.categoria,
+          dataAtribuicao: agora,
+          dataExpiracao,
+          atribuidoPor: 'admin' as const,
+          adminUid,
+          adminNome,
+        },
+        dataAtualizacao: Timestamp.now(),
+      },
+      { merge: true },
+    );
+  } catch (err) {
+    console.error('[DB] Erro ao atribuir plano:', err);
+    throw err;
+  }
+}
+
+export async function revokeUserPlan(uid: string): Promise<void> {
+  try {
+    const userRef = doc(db, USERS_COLLECTION, uid);
+    await updateDoc(userRef, {
+      planoAtivo: null,
+      dataAtualizacao: Timestamp.now(),
+    });
+  } catch (err) {
+    console.error('[DB] Erro ao revogar plano:', err);
+    throw err;
+  }
+}
+
 export async function getAdminUsers(): Promise<Usuario[]> {
   try {
     const q = query(collection(db, USERS_COLLECTION), where('role', '==', 'admin'));
