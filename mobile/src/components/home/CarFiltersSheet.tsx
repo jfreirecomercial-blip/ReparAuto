@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { SheetSection } from '@/components/ui/SheetSection';
@@ -119,52 +120,64 @@ export function CarFiltersSheet({
 
         {!f.raioMode ? (
           <View className="gap-3">
-            <ChipSelect
-              options={DISTRITO_OPTS}
-              value={f.distrito}
-              onChange={(v) => update({ distrito: v, concelho: '' })}
-            />
+            <Sub label="Distrito">
+              <ChipSelect
+                options={DISTRITO_OPTS}
+                value={f.distrito}
+                onChange={(v) => update({ distrito: v, concelho: '' })}
+              />
+            </Sub>
             {!!f.distrito && (
-              <ChipSelect options={concelhoOpts} value={f.concelho} onChange={(v) => update({ concelho: v })} />
+              <Sub label="Concelho">
+                <ChipSelect options={concelhoOpts} value={f.concelho} onChange={(v) => update({ concelho: v })} />
+              </Sub>
             )}
           </View>
         ) : (
           <View className="gap-3">
-            <ChipSelect
-              options={DISTRITO_OPTS}
-              value={f.raioDist}
-              onChange={(v) => update({ raioDist: v, raioCentro: '' })}
-            />
-            {!!f.raioDist && (
+            <Sub label="1. Distrito do centro">
               <ChipSelect
-                options={centroOpts}
-                value={f.raioCentro}
-                onChange={(v) => update({ raioCentro: v })}
+                options={DISTRITO_OPTS}
+                value={f.raioDist}
+                onChange={(v) => update({ raioDist: v, raioCentro: '' })}
               />
+            </Sub>
+            {!!f.raioDist && (
+              <Sub label="2. Centro">
+                <ChipSelect
+                  options={centroOpts}
+                  value={f.raioCentro}
+                  onChange={(v) => update({ raioCentro: v })}
+                />
+              </Sub>
             )}
             {!!f.raioCentro && (
-              <View className="gap-2">
+              <Sub label={`3. Raio à volta de ${f.raioCentro}`}>
                 <ChipSelect options={RAIO_OPTS} value={f.raioKm} onChange={(v) => update({ raioKm: v })} />
-                <View className="flex-row items-center gap-2">
-                  <View className="w-32">
-                    <Input
-                      value={f.raioKm}
-                      onChangeText={(v) => update({ raioKm: v })}
-                      placeholder="Outro (km)"
-                      keyboardType="number-pad"
-                      maxLength={3}
-                    />
-                  </View>
-                  <Text className="flex-1 text-sm text-fg-subtle" numberOfLines={1}>
-                    à volta de {f.raioCentro}
-                  </Text>
+                <View className="mt-2 w-32">
+                  <Input
+                    value={f.raioKm}
+                    onChangeText={(v) => update({ raioKm: v })}
+                    placeholder="Outro (km)"
+                    keyboardType="number-pad"
+                    maxLength={3}
+                  />
                 </View>
-              </View>
+              </Sub>
             )}
           </View>
         )}
       </SheetSection>
     </BottomSheet>
+  );
+}
+
+function Sub({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <View>
+      <Text className="mb-1.5 text-sm font-semibold text-fg-muted">{label}</Text>
+      {children}
+    </View>
   );
 }
 

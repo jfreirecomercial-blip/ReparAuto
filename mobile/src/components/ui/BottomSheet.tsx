@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/theme/colors';
@@ -16,6 +16,7 @@ interface BottomSheetProps {
 /** Slide-up modal sheet with a dimmed backdrop and a scrollable body. */
 export function BottomSheet({ visible, onClose, title, children, footer }: BottomSheetProps) {
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -23,7 +24,9 @@ export function BottomSheet({ visible, onClose, title, children, footer }: Botto
         {/* Backdrop */}
         <Pressable className="flex-1" onPress={onClose} accessibilityLabel="Fechar" />
 
-        <View className="max-h-[85%] rounded-t-3xl bg-neutral-50">
+        {/* Numeric maxHeight (not a %) so the column is reliably bounded and the
+            ScrollView can shrink + scroll on every device. */}
+        <View style={{ maxHeight: height * 0.85 }} className="rounded-t-3xl bg-neutral-50">
           {/* Handle + header */}
           <View className="items-center pt-2.5">
             <View className="h-1 w-10 rounded-full bg-neutral-300" />
