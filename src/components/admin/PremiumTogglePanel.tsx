@@ -1,0 +1,215 @@
+'use client';
+
+import { useState } from 'react';
+import { useApp } from '@/providers/AppProvider';
+import { updatePremiumConfig } from '@/lib/db';
+import { useToast } from '@/components/ui/Toast';
+import { Lightning, Wrench, Target, CircleNotch, Power } from '@phosphor-icons/react';
+import { formatarDataHora } from '@/lib/utils';
+
+export default function PremiumTogglePanel() {
+  const { premiumConfig, auth } = useApp();
+  const toast = useToast();
+  const [loadingFeature, setLoadingFeature] = useState<string | null>(null);
+
+  const isMasterActive = premiumConfig.masterActive !== false;
+
+  const handleToggle = async (
+    feature: 'masterActive' | 'impulsionamento' | 'oficinas' | 'leads',
+    currentValue: boolean
+  ) => {
+    if (!auth.user) return;
+    setLoadingFeature(feature);
+    try {
+      await updatePremiumConfig({ [feature]: !currentValue }, auth.user.uid);
+      const featureLabel =
+        feature === 'masterActive'
+          ? 'Chave Geral'
+          : feature === 'impulsionamento'
+          ? 'Impulsionamento'
+          : feature === 'oficinas'
+          ? 'Oficinas'
+          : 'Leads';
+      toast?.sucesso(`Módulo "${featureLabel}" atualizado com sucesso!`);
+    } catch (err) {
+      console.error(err);
+      toast?.erro(`Erro ao atualizar o módulo "${feature}".`);
+    } finally {
+      setLoadingFeature(null);
+    }
+  };
+
+  const modules = [
+    {
+      key: 'impulsionamento' as const,
+      title: 'Impulsionamento de Anúncios',
+      description: 'Permite aos utilizadores adquirir planos de destaque para os seus anúncios de carros ou peças no topo dos resultados.',
+      icon: Lightning,
+      color: 'text-amber-500 bg-amber-50',
+      activeColor: 'bg-amber-500',
+    },
+    {
+      key: 'oficinas' as const,
+      title: 'Diretório de Oficinas',
+      description: 'Permite aos profissionais registar oficinas, e aos clientes visualizar e pesquisar oficinas no mapa.',
+      icon: Wrench,
+      color: 'text-blue-500 bg-blue-50',
+      activeColor: 'bg-blue-500',
+    },
+    {
+      key: 'leads' as const,
+      title: 'Gestão de Leads',
+      description: 'Permite que oficinas recebam leads de clientes e respondam a pedidos de orçamento e serviços.',
+      icon: Target,
+      color: 'text-emerald-500 bg-emerald-50',
+      activeColor: 'bg-emerald-500',
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Information Header */}
+      <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-fg-subtle">
+        <p className="font-semibold text-fg-heading mb-1">ℹ️ Nota de Administração</p>
+        Ao desativar um módulo premium ou a Chave Geral, os planos já atribuídos aos utilizadores continuarão ativos, mas as respetivas funcionalidades serão ocultadas ou desativadas globalmente para todos os utilizadores da plataforma em tempo real.
+        {premiumConfig.atualizadoEm && (
+          <p className="mt-2 text-[11px] text-fg-muted">
+            Última alteração: <span className="font-bold text-fg-heading">{formatarDataHora(premiumConfig.atualizadoEm)}</span> por admin (ID: <span className="font-mono text-fg-heading">{premiumConfig.atualizadoPor || 'sistema'}</span>)
+          </p>
+        )}
+      </div>
+
+      {/* Master Toggle Card */}
+      <div className={`p-6 rounded-2xl border transition-all duration-300 ${
+        isMasterActive
+          ? 'border-amber-200 bg-gradient-to-r from-amber-50/60 via-orange-50/20 to-white shadow-sm'
+          : 'border-slate-200 bg-slate-100 opacity-90'
+      }`}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className={`p-4 rounded-xl shrink-0 transition-all duration-300 ${
+              isMasterActive ? 'bg-amber-500 text-white shadow-md' : 'bg-slate-300 text-slate-500'
+            }`}>
+              <Power className="text-2xl shrink-0" weight="bold" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-base text-fg-heading">Chave Geral de Serviços Premium</h3>
+              <p className="text-xs text-fg-subtle mt-1 leading-relaxed max-w-xl">
+                Ativa ou desativa completamente todos os serviços premium da plataforma ReparAuto. 
+                Quando desligado, todas as funcionalidades premium e tabelas de planos serão totalmente ocultadas para os utilizadores.
+              </p>
+              <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-2 ${
+                isMasterActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+              }`}>
+                {isMasterActive ? 'Todos os Serviços Premium Disponíveis' : 'Todos os Serviços Premium Suspensos'}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-center">
+            <span className="text-xs font-bold text-fg-muted">
+              {isMasterActive ? 'Ativo' : 'Inativo'}
+            </span>
+            <button
+              disabled={loadingFeature === 'masterActive'}
+              onClick={() => handleToggle('masterActive', isMasterActive)}
+              className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:opacity-50 ${
+                isMasterActive ? 'bg-amber-500' : 'bg-slate-400'
+              }`}
+            >
+              <span className="sr-only">Chave Geral</span>
+              {loadingFeature === 'masterActive' ? (
+                <span className={`pointer-events-none flex items-center justify-center h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  isMasterActive ? 'translate-x-5' : 'translate-x-0'
+                }`}>
+                  <CircleNotch className="animate-spin text-[10px] text-slate-500" />
+                </span>
+              ) : (
+                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  isMasterActive ? 'translate-x-5' : 'translate-x-0'
+                }`} />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Individual Modules */}
+      <div>
+        <h4 className="text-xs font-bold text-fg-heading uppercase tracking-wider mb-4">Módulos Premium Individuais</h4>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {modules.map((mod) => {
+            const isActive = premiumConfig[mod.key];
+            const IconComponent = mod.icon;
+            const isLoading = loadingFeature === mod.key;
+            const isModuleDisabled = !isMasterActive || isLoading;
+
+            return (
+              <div
+                key={mod.key}
+                className={`flex flex-col justify-between p-5 bg-white border rounded-2xl shadow-sm transition-all duration-300 hover:shadow-md ${
+                  isActive && isMasterActive ? 'border-slate-200' : 'border-slate-100 opacity-60'
+                }`}
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-3 rounded-xl ${
+                      isMasterActive ? mod.color : 'text-slate-400 bg-slate-100'
+                    } transition-all duration-300`}>
+                      <IconComponent className="text-xl shrink-0" weight={isActive ? 'fill' : 'regular'} />
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-sm text-fg-heading">{mod.title}</h3>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        isActive 
+                          ? (isMasterActive ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700')
+                          : 'bg-red-100 text-red-700'
+                      }`}>
+                        {isActive ? (isMasterActive ? 'Ativo' : 'Ativo (Suspenso)') : 'Inativo'}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-fg-subtle leading-relaxed min-h-[48px]">
+                    {mod.description}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100">
+                  <span className="text-xs font-semibold text-fg-muted">
+                    {isActive ? (isMasterActive ? 'Ativado' : 'Suspenso') : 'Desativado'}
+                  </span>
+                  
+                  <button
+                    disabled={isModuleDisabled}
+                    onClick={() => handleToggle(mod.key, isActive)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:opacity-50 ${
+                      isActive && isMasterActive ? mod.activeColor : 'bg-slate-200'
+                    }`}
+                  >
+                    <span className="sr-only">Ativar módulo</span>
+                    {isLoading ? (
+                      <span
+                        className={`pointer-events-none flex items-center justify-center h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          isActive ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      >
+                        <CircleNotch className="animate-spin text-[10px] text-slate-500" />
+                      </span>
+                    ) : (
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          isActive ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    )}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}

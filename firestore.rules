@@ -158,5 +158,11 @@ service cloud.firestore {
       allow create: if request.resource.data.consentimento == true;
       allow update, delete: if isAdmin();
     }
+
+    match /config/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
   }
 }
+

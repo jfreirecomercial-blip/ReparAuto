@@ -16,6 +16,7 @@ import {
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
+import usePremiumConfig from '@/hooks/usePremiumConfig';
 
 interface PlanosPremiumModalProps {
   show: boolean;
@@ -181,26 +182,47 @@ function calcDesconto(precoMensal: number, precoAnual: number): number {
 }
 
 export default function PlanosPremiumModal({ show, onClose }: PlanosPremiumModalProps) {
+  const premiumConfig = usePremiumConfig();
   const [tab, setTab] = useState<Tab>('anuncios');
   const [billing, setBilling] = useState<BillingCycle>('anual');
   const [loading, setLoading] = useState<string | null>(null);
 
-  const tabs: { key: Tab; label: string }[] = [
-    { key: 'anuncios', label: '🚗 Anúncios' },
-    { key: 'oficinas', label: '🔧 Oficinas' },
-    { key: 'leads', label: '📊 Leads' },
-  ];
+  const tabs = [
+    { key: 'anuncios' as const, label: '🚗 Anúncios', active: premiumConfig.impulsionamento },
+    { key: 'oficinas' as const, label: '🔧 Oficinas', active: premiumConfig.oficinas },
+    { key: 'leads' as const, label: '📊 Leads', active: premiumConfig.leads },
+  ].filter(t => t.active);
+
+  // Fallback to first active tab if current tab is not active
+  const activeTab = tabs.find(t => t.key === tab) ? tab : (tabs[0]?.key || 'anuncios');
 
   const planosAtivos =
-    tab === 'anuncios'
+    activeTab === 'anuncios'
       ? PLANOS_ANUNCIOS
-      : tab === 'oficinas'
+      : activeTab === 'oficinas'
         ? PLANOS_OFICINAS
         : PLANOS_LEADS;
 
   /** Anúncios não têm opção anual */
-  const showBillingToggle = tab !== 'anuncios';
+  const showBillingToggle = activeTab !== 'anuncios';
   const isAnual = billing === 'anual';
+
+  if (tabs.length === 0) {
+    return (
+      <Modal show={show} onClose={onClose} titulo="Planos & Impulsionamentos" tamanho="md">
+        <div className="text-center py-8 px-4 space-y-3">
+          <p className="text-4xl">💎</p>
+          <h3 className="text-lg font-bold text-fg-heading">Planos Premium Indisponíveis</h3>
+          <p className="text-sm text-fg-subtle leading-relaxed">
+            De momento, todos os planos e serviços premium encontram-se temporariamente desativados pela administração.
+          </p>
+          <Button tipo="secundario" tamanho="md" onClick={onClose} blocoCompleto>
+            Fechar
+          </Button>
+        </div>
+      </Modal>
+    );
+  }
 
   const handleEscolherPlano = async (plano: Plano) => {
     setLoading(plano.id);
@@ -246,7 +268,7 @@ export default function PlanosPremiumModal({ show, onClose }: PlanosPremiumModal
             key={t.key}
             onClick={() => { setTab(t.key); setBilling(t.key === 'anuncios' ? 'mensal' : 'anual'); }}
             className={`flex-1 py-2.5 px-3 text-sm font-bold rounded-lg transition-all duration-200 ${
-              tab === t.key
+              activeTab === t.key
                 ? 'bg-white text-fg-heading shadow-sm'
                 : 'text-fg-muted hover:text-fg-strong hover:bg-white/50'
             }`}

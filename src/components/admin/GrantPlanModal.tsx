@@ -13,6 +13,7 @@ import {
 } from '@phosphor-icons/react';
 import type { Usuario, CategoriaPlano } from '@/types/usuario';
 import Modal from '@/components/ui/Modal';
+import usePremiumConfig from '@/hooks/usePremiumConfig';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 
@@ -107,12 +108,20 @@ export default function GrantPlanModal({
   onGrant,
   onRevoke,
 }: GrantPlanModalProps) {
+  const premiumConfig = usePremiumConfig();
   const [selectedPlano, setSelectedPlano] = useState<string | null>(null);
   const [dias, setDias] = useState(30);
   const [loading, setLoading] = useState(false);
   const [revoking, setRevoking] = useState(false);
 
   if (!user) return null;
+
+  const planosFiltrados = PLANOS.filter((plano) => {
+    if (plano.categoria === 'anuncios') return premiumConfig.impulsionamento;
+    if (plano.categoria === 'oficinas') return premiumConfig.oficinas;
+    if (plano.categoria === 'leads') return premiumConfig.leads;
+    return true;
+  });
 
   const planoAtivo = user.planoAtivo;
   const hasActivePlan = planoAtivo && planoAtivo.dataExpiracao?.toMillis?.() > Date.now();
@@ -164,7 +173,7 @@ export default function GrantPlanModal({
         <div>
           <p className="text-xs font-bold text-fg-heading uppercase tracking-wider mb-2">Escolher Plano</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {PLANOS.map((plano) => (
+            {planosFiltrados.map((plano) => (
               <button
                 key={plano.id}
                 type="button"

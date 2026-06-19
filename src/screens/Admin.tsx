@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { ChartBar, Users, List, StarHalf, MagnifyingGlass, Flag, ShieldCheck, CircleNotch, ArrowsClockwise, Wrench, type Icon } from '@phosphor-icons/react';
+import { ChartBar, Users, List, StarHalf, MagnifyingGlass, Flag, ShieldCheck, CircleNotch, ArrowsClockwise, Wrench, Crown, type Icon } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/providers/AppProvider';
 import { useToast } from '@/components/ui/Toast';
@@ -35,6 +35,7 @@ import ListingsTable from '@/components/admin/ListingsTable';
 import ReportsQueue from '@/components/admin/ReportsQueue';
 import VerificationsQueue from '@/components/admin/VerificationsQueue';
 import ReviewsQueue from '@/components/admin/ReviewsQueue';
+import PremiumTogglePanel from '@/components/admin/PremiumTogglePanel';
 import useReports from '@/hooks/useReports';
 import { useReviewsAdmin } from '@/hooks/useReviews';
 import { useVerificationsAdmin } from '@/hooks/useVerification';
@@ -47,7 +48,7 @@ import type { OficinaMecanico } from '@/types/oficina';
 import { ESPECIALIDADES_LABELS } from '@/types/oficina';
 
 
-type TabAdmin = 'visao-geral' | 'utilizadores' | 'anuncios' | 'denuncias' | 'verificacoes' | 'avaliacoes' | 'intencoes' | 'oficinas';
+type TabAdmin = 'visao-geral' | 'utilizadores' | 'anuncios' | 'denuncias' | 'verificacoes' | 'avaliacoes' | 'intencoes' | 'oficinas' | 'premium';
 
 export default function Admin() {
   const { auth } = useApp();
@@ -468,6 +469,7 @@ export default function Admin() {
     { key: 'intencoes', label: `Intenções${intencoesDenunciasPendentes > 0 ? ` (${intencoesDenunciasPendentes})` : ''}`, Icon: MagnifyingGlass },
     { key: 'denuncias', label: `Denúncias${reportsPendentes > 0 ? ` (${reportsPendentes})` : ''}`, Icon: Flag },
     { key: 'verificacoes', label: `Verificações${verificationsPendentes > 0 ? ` (${verificationsPendentes})` : ''}`, Icon: ShieldCheck },
+    { key: 'premium', label: 'Premium', Icon: Crown },
   ];
 
   if (authLoading || loading) {
@@ -709,6 +711,15 @@ export default function Admin() {
             loading={verificationsLoading}
             onUpdateStatus={handleVerificationStatusUpdate}
           />
+        </div>
+      )}
+
+      {tab === 'premium' && (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <h2 className="text-lg font-extrabold text-fg-heading mb-4 flex items-center gap-2">
+            <Crown className="text-amber-500 shrink-0" weight="fill" /> Controlo de Módulos Premium
+          </h2>
+          <PremiumTogglePanel />
         </div>
       )}
     </div>

@@ -26,6 +26,7 @@ import ChatInbox from '@/components/chat/ChatInbox';
 import PlanosPremiumModal from '@/components/premium/PlanosPremiumModal';
 import UserAvatar from '@/components/ui/UserAvatar';
 import Badge from '@/components/ui/Badge';
+import usePremiumConfig from '@/hooks/usePremiumConfig';
 
 interface SidebarProps {
   /** Mobile drawer open state (ignored on desktop, where the rail is always visible). */
@@ -35,6 +36,8 @@ interface SidebarProps {
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const { auth, chat } = useApp();
+  const premiumConfig = usePremiumConfig();
+  const isPremiumActive = premiumConfig.impulsionamento || premiumConfig.oficinas || premiumConfig.leads;
   const pathname = usePathname();
   const { user, isLoggedIn, isAdmin, logout } = auth;
   const { mensagensNaoLidas } = chat;
@@ -171,23 +174,25 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </nav>
 
         {/* Premium CTA */}
-        <div className="px-3 pb-3">
-          <button
-            onClick={() => { setShowPlanos(true); onClose(); }}
-            className="group w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-extrabold no-underline transition-all duration-300
-              bg-gradient-to-r from-warning-400/20 via-warning-300/15 to-secondary-500/20
-              border border-warning-400/30 hover:border-warning-400/60
-              text-warning-300 hover:text-warning-200
-              hover:from-warning-400/30 hover:via-warning-300/25 hover:to-secondary-500/30
-              hover:shadow-lg hover:shadow-warning-500/10"
-          >
-            <Crown size={22} weight="fill" className="shrink-0 text-warning-400 group-hover:text-warning-300 transition-colors" />
-            <span>Planos Premium</span>
-            <Badge cor="yellow" variante="solid" className="ml-auto !text-[9px] !px-1.5 !py-0">
-              PRO
-            </Badge>
-          </button>
-        </div>
+        {isPremiumActive && (
+          <div className="px-3 pb-3">
+            <button
+              onClick={() => { setShowPlanos(true); onClose(); }}
+              className="group w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-extrabold no-underline transition-all duration-300
+                bg-gradient-to-r from-warning-400/20 via-warning-300/15 to-secondary-500/20
+                border border-warning-400/30 hover:border-warning-400/60
+                text-warning-300 hover:text-warning-200
+                hover:from-warning-400/30 hover:via-warning-300/25 hover:to-secondary-500/30
+                hover:shadow-lg hover:shadow-warning-500/10"
+            >
+              <Crown size={22} weight="fill" className="shrink-0 text-warning-400 group-hover:text-warning-300 transition-colors" />
+              <span>Planos Premium</span>
+              <Badge cor="yellow" variante="solid" className="ml-auto !text-[9px] !px-1.5 !py-0">
+                PRO
+              </Badge>
+            </button>
+          </div>
+        )}
 
         {/* Account */}
         <div className="border-t border-white/5 p-3">

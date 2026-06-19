@@ -59,3 +59,12 @@ export interface AuthContextValue {
 }
 
 export type UsuarioInput = Omit<Usuario, 'uid' | 'dataCriacao' | 'dataAtualizacao'>;
+
+export interface PremiumConfig {
+  masterActive: boolean;
+  impulsionamento: boolean;
+  oficinas: boolean;
+  leads: boolean;
+  atualizadoEm?: Timestamp;
+  atualizadoPor?: string;
+}

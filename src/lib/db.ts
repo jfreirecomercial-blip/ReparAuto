@@ -21,7 +21,7 @@ import { db, storage } from './firebase';
 import { contemProfanity } from './profanity';
 import type { Carro, CarroInput, StatusAnuncio } from '@/types/carro';
 import type { Peca, PecaInput } from '@/types/peca';
-import type { Usuario, Role } from '@/types/usuario';
+import type { Usuario, Role, PremiumConfig } from '@/types/usuario';
 import type { Notificacao, TipoNotificacao } from '@/types/notificacao';
 import type { Review, ReviewInput, StatusReview } from '@/types/review';
 import type { Report, ReportInput, StatusReport } from '@/types/report';
@@ -1365,4 +1365,97 @@ export async function criarLeadParceria(dados: LeadParceriaInput): Promise<strin
     throw err;
   }
 }
+
+// ============ CONFIG (PREMIUM CONTROLS) ============
+
+const CONFIG_COLLECTION = 'config';
+const PREMIUM_DOC = 'premium';
+
+export async function getPremiumConfig(): Promise<PremiumConfig> {
+  try {
+    const docRef = doc(db, CONFIG_COLLECTION, PREMIUM_DOC);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      const data = snap.data();
+      return {
+        masterActive: data.masterActive !== false,
+        impulsionamento: data.impulsionamento !== false,
+        oficinas: data.oficinas !== false,
+        leads: data.leads !== false,
+        atualizadoEm: data.atualizadoEm,
+        atualizadoPor: data.atualizadoPor,
+      } as PremiumConfig;
+    }
+    return {
+      masterActive: true,
+      impulsionamento: true,
+      oficinas: true,
+      leads: true,
+    };
+  } catch (err) {
+    console.error('[DB] Erro ao buscar premium config:', err);
+    return {
+      masterActive: true,
+      impulsionamento: true,
+      oficinas: true,
+      leads: true,
+    };
+  }
+}
+
+export async function updatePremiumConfig(
+  features: Partial<PremiumConfig>,
+  adminUid: string,
+): Promise<void> {
+  try {
+    const docRef = doc(db, CONFIG_COLLECTION, PREMIUM_DOC);
+    await setDoc(
+      docRef,
+      {
+        ...features,
+        atualizadoEm: Timestamp.now(),
+        atualizadoPor: adminUid,
+      },
+      { merge: true },
+    );
+  } catch (err) {
+    console.error('[DB] Erro ao atualizar premium config:', err);
+    throw err;
+  }
+}
+
+export function subscribePremiumConfig(
+  onData: (config: PremiumConfig) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  const docRef = doc(db, CONFIG_COLLECTION, PREMIUM_DOC);
+  return onSnapshot(
+    docRef,
+    (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        onData({
+          masterActive: data.masterActive !== false,
+          impulsionamento: data.impulsionamento !== false,
+          oficinas: data.oficinas !== false,
+          leads: data.leads !== false,
+          atualizadoEm: data.atualizadoEm,
+          atualizadoPor: data.atualizadoPor,
+        });
+      } else {
+        onData({
+          masterActive: true,
+          impulsionamento: true,
+          oficinas: true,
+          leads: true,
+        });
+      }
+    },
+    (err) => {
+      console.error('[DB] Erro no snapshot de premium config:', err);
+      onError?.(err);
+    },
+  );
+}
+
 

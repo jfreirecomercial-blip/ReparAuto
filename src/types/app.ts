@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { AuthContextValue } from './usuario';
+import type { AuthContextValue, PremiumConfig } from './usuario';
 import type { FavoritosContextValue } from './favoritos';
 import type { Carro, FiltroAtivo, SortOrdem } from './carro';
 import type { Peca, FiltroTipoPeca } from './peca';
@@ -72,6 +72,7 @@ export interface AppContextValue {
   chat: ChatContextValue;
   intencoes: IntencaoContextValue;
   loginModal: LoginModalContextValue;
+  premiumConfig: PremiumConfig;
 }
 
 export interface AppProviderProps {

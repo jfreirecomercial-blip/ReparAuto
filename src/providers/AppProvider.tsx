@@ -10,6 +10,8 @@ import { useChat } from '@/hooks/useChat';
 import { useIntencoes } from '@/hooks/useIntencoes';
 import LoginModal from '@/components/auth/LoginModal';
 import type { AppContextValue } from '@/types/app';
+import { subscribePremiumConfig } from '@/lib/db';
+import type { PremiumConfig } from '@/types/usuario';
 
 const AppContext = createContext<AppContextValue | null>(null);
 
@@ -27,6 +29,20 @@ export default function AppProvider({ children }: { children: ReactNode }) {
 
   const router = useRouter();
   const pathname = usePathname();
+
+  const [premiumConfig, setPremiumConfig] = useState<PremiumConfig>({
+    masterActive: true,
+    impulsionamento: true,
+    oficinas: true,
+    leads: true,
+  });
+
+  useEffect(() => {
+    const unsub = subscribePremiumConfig((config) => {
+      setPremiumConfig(config);
+    });
+    return unsub;
+  }, []);
 
   const auth = useAuth();
   // Only stream the heavy public collections on routes that render them.
@@ -79,7 +95,8 @@ export default function AppProvider({ children }: { children: ReactNode }) {
       openLoginModal,
       closeLoginModal,
     },
-  }), [auth, carros, pecas, favoritos, chat, intencoes, loginModalOpen, openLoginModal, closeLoginModal]);
+    premiumConfig,
+  }), [auth, carros, pecas, favoritos, chat, intencoes, loginModalOpen, openLoginModal, closeLoginModal, premiumConfig]);
 
   return (
     <AppContext.Provider value={value}>
