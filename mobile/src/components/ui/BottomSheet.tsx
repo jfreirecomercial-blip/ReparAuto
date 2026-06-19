@@ -36,7 +36,7 @@ export function BottomSheet({ visible, onClose, title, children, footer }: Botto
           </View>
 
           <ScrollView
-            contentContainerClassName="px-5 pb-4 gap-5"
+            contentContainerClassName="px-5 pb-5"
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >

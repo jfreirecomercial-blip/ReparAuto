@@ -1,4 +1,5 @@
 import { BottomSheet } from '@/components/ui/BottomSheet';
+import { SheetSection } from '@/components/ui/SheetSection';
 import { Button } from '@/components/ui/Button';
 import { ChipSelect } from '@/components/ui/ChipSelect';
 import { DISTRITOS } from '@/lib/constants';
@@ -46,8 +47,12 @@ export function OficinaFiltersSheet({
         </>
       }
     >
-      <ChipSelect label="Especialidade" options={ESPECIALIDADE_OPTS} value={especialidade} onChange={setEspecialidade} />
-      <ChipSelect label="Distrito" options={DISTRITO_OPTS} value={distrito} onChange={setDistrito} />
+      <SheetSection title="Especialidade" first>
+        <ChipSelect options={ESPECIALIDADE_OPTS} value={especialidade} onChange={setEspecialidade} />
+      </SheetSection>
+      <SheetSection title="Distrito">
+        <ChipSelect options={DISTRITO_OPTS} value={distrito} onChange={setDistrito} />
+      </SheetSection>
     </BottomSheet>
   );
 }

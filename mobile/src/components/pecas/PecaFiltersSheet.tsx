@@ -1,4 +1,5 @@
 import { BottomSheet } from '@/components/ui/BottomSheet';
+import { SheetSection } from '@/components/ui/SheetSection';
 import { Button } from '@/components/ui/Button';
 import { ChipSelect } from '@/components/ui/ChipSelect';
 import { CATEGORIAS_PECAS, DISTRITOS, ESTADOS_PECA } from '@/lib/constants';
@@ -44,9 +45,15 @@ export function PecaFiltersSheet({
         </>
       }
     >
-      <ChipSelect label="Categoria" options={CATEGORIA_OPTS} value={categoria} onChange={setCategoria} />
-      <ChipSelect label="Estado" options={ESTADO_OPTS} value={estado} onChange={setEstado} />
-      <ChipSelect label="Distrito" options={DISTRITO_OPTS} value={distrito} onChange={setDistrito} />
+      <SheetSection title="Categoria" first>
+        <ChipSelect options={CATEGORIA_OPTS} value={categoria} onChange={setCategoria} />
+      </SheetSection>
+      <SheetSection title="Estado">
+        <ChipSelect options={ESTADO_OPTS} value={estado} onChange={setEstado} />
+      </SheetSection>
+      <SheetSection title="Distrito">
+        <ChipSelect options={DISTRITO_OPTS} value={distrito} onChange={setDistrito} />
+      </SheetSection>
     </BottomSheet>
   );
 }

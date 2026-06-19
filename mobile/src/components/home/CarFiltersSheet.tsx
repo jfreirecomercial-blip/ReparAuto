@@ -1,5 +1,6 @@
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { BottomSheet } from '@/components/ui/BottomSheet';
+import { SheetSection } from '@/components/ui/SheetSection';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { ChipSelect } from '@/components/ui/ChipSelect';
@@ -53,8 +54,7 @@ export function CarFiltersSheet({
         </>
       }
     >
-      <View>
-        <Text className="mb-1.5 text-sm font-semibold text-fg-muted">Preço (€)</Text>
+      <SheetSection title="Preço (€)" first>
         <View className="flex-row gap-3">
           <View className="flex-1">
             <Input value={precoMin} onChangeText={setPrecoMin} placeholder="Mínimo" keyboardType="number-pad" />
@@ -63,10 +63,15 @@ export function CarFiltersSheet({
             <Input value={precoMax} onChangeText={setPrecoMax} placeholder="Máximo" keyboardType="number-pad" />
           </View>
         </View>
-      </View>
+      </SheetSection>
 
-      <ChipSelect label="Estado" options={ESTADO_OPTS} value={estado} onChange={setEstado} />
-      <ChipSelect label="Distrito" options={DISTRITO_OPTS} value={distrito} onChange={setDistrito} />
+      <SheetSection title="Estado">
+        <ChipSelect options={ESTADO_OPTS} value={estado} onChange={setEstado} />
+      </SheetSection>
+
+      <SheetSection title="Distrito">
+        <ChipSelect options={DISTRITO_OPTS} value={distrito} onChange={setDistrito} />
+      </SheetSection>
     </BottomSheet>
   );
 }
