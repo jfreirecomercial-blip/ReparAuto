@@ -148,6 +148,15 @@ export default function LoginModal({ show, onClose, onSuccess }: LoginModalProps
           placeholder="Ex: carlos@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              if (modo === 'reset') {
+                handleReset();
+              } else {
+                handleSubmit();
+              }
+            }
+          }}
         />
 
         {modo !== 'reset' && (
@@ -173,9 +182,10 @@ export default function LoginModal({ show, onClose, onSuccess }: LoginModalProps
               }
             />
 
-            {modo === 'login' && !erro && (
+            {modo === 'login' && (
               <p className="text-xs -mt-2">
                 <button
+                  type="button"
                   onClick={() => { setModo('reset'); setErro(''); setEmailSent(false); }}
                   className="text-accent hover:underline font-medium"
                 >
@@ -224,7 +234,11 @@ export default function LoginModal({ show, onClose, onSuccess }: LoginModalProps
 
         <p className="text-sm text-fg-subtle text-center">
           {modo === 'reset' ? (
-            <button onClick={() => { setModo('login'); setErro(''); setEmailSent(false); }} className="text-accent font-bold hover:underline">
+            <button
+              type="button"
+              onClick={() => { setModo('login'); setErro(''); setEmailSent(false); }}
+              className="text-accent font-bold hover:underline"
+            >
               <ArrowLeft size={14} className="inline align-middle mr-1" />
               Voltar ao login
             </button>
