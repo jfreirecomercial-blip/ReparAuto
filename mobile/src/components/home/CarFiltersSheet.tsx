@@ -19,6 +19,12 @@ const ESTADO_OPTS = [
   { value: 'manutencao', label: 'Para reparar' },
 ];
 const COMBUSTIVEL_OPTS = COMBUSTIVEIS.map((c) => ({ value: c, label: c }));
+const RAIO_OPTS = [
+  { value: '25', label: '25 km' },
+  { value: '50', label: '50 km' },
+  { value: '100', label: '100 km' },
+  { value: '200', label: '200 km' },
+];
 
 interface CarFiltersSheetProps {
   visible: boolean;
@@ -137,18 +143,22 @@ export function CarFiltersSheet({
               />
             )}
             {!!f.raioCentro && (
-              <View className="flex-row items-center gap-2">
-                <View className="w-28">
-                  <Input
-                    value={f.raioKm}
-                    onChangeText={(v) => update({ raioKm: v })}
-                    placeholder="Raio km"
-                    keyboardType="number-pad"
-                  />
+              <View className="gap-2">
+                <ChipSelect options={RAIO_OPTS} value={f.raioKm} onChange={(v) => update({ raioKm: v })} />
+                <View className="flex-row items-center gap-2">
+                  <View className="w-32">
+                    <Input
+                      value={f.raioKm}
+                      onChangeText={(v) => update({ raioKm: v })}
+                      placeholder="Outro (km)"
+                      keyboardType="number-pad"
+                      maxLength={3}
+                    />
+                  </View>
+                  <Text className="flex-1 text-sm text-fg-subtle" numberOfLines={1}>
+                    à volta de {f.raioCentro}
+                  </Text>
                 </View>
-                <Text className="flex-1 text-sm text-fg-subtle" numberOfLines={1}>
-                  de {f.raioCentro}
-                </Text>
               </View>
             )}
           </View>

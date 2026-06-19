@@ -36,9 +36,13 @@ export function BottomSheet({ visible, onClose, title, children, footer }: Botto
           </View>
 
           <ScrollView
+            // flexShrink:1 lets the scroll area yield space to the sticky footer
+            // (RN defaults flexShrink to 0), so long content scrolls instead of
+            // pushing the footer over it.
+            style={{ flexShrink: 1 }}
             contentContainerClassName="px-5 pb-5"
             keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator
           >
             {children}
           </ScrollView>
