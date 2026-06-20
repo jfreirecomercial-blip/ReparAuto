@@ -26,6 +26,8 @@ yarn-error.*
 # local env
 .env
 .env.local
+# Keep the committed template (the root .gitignore ignores .env*)
+!.env.example
 
 # Firebase native credentials — NEVER commit real keys.
 # Keep the *.example templates; ignore the real files.
