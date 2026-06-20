@@ -34,3 +34,6 @@ firebase/GoogleService-Info.plist
 
 # EAS
 .easignore
+
+# Release keystores live outside the repo (~/keystores). Never commit real upload keys.
+*.jks

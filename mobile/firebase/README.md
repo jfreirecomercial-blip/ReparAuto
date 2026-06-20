@@ -66,3 +66,18 @@ needs to `npm install` + `npx expo prebuild` — no per-machine SHA-1 setup.
 > The debug keystore is **not** a secret (standard `androiddebugkey` / `android`),
 > so committing it is fine. For **release / EAS** builds the keystore is
 > different — register that SHA-1 too (get it from `eas credentials`).
+
+### Release (Play) signing SHA-1
+
+Release builds are signed with the upload keystore in `~/keystores/recargarage-upload.jks`
+(creds in `.env` as `RG_UPLOAD_*`; see `npm run android:bundle`). Register its SHA-1
+for Google Sign-In on release builds:
+
+```
+Upload SHA-1:  EC:E8:28:5F:AE:93:22:6F:8F:69:8B:C8:A3:B3:10:DE:FE:34:9C:5D
+```
+
+> With **Play App Signing**, Google re-signs the app, so installs from the Play
+> Store use a *different* signing certificate. After the first upload, also add
+> the **App signing key SHA-1** from Play Console → *App integrity* to Firebase,
+> or Google Sign-In will fail for Play-installed builds.

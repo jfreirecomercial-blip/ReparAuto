@@ -48,6 +48,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   assetBundlePatterns: ['**/*'],
   ios: {
+    buildNumber: '1',
     bundleIdentifier: BUNDLE_ID,
     supportsTablet: true,
     googleServicesFile: firebaseFile('GoogleService-Info.plist'),
@@ -59,6 +60,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     package: BUNDLE_ID,
+    versionCode: 1,
     googleServicesFile: firebaseFile('google-services.json'),
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
@@ -83,6 +85,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Installs the shared debug keystore so every machine/CI signs with the
     // same SHA-1 (stable Google Sign-In). See plugins/withDebugKeystore.js.
     './plugins/withDebugKeystore',
+    // Release signing from .env creds (RG_UPLOAD_*) — see android:bundle script.
+    './plugins/withAndroidReleaseSigning',
     // Listed first so its withAndroidManifest mod runs LAST (manifest mods
     // execute in reverse plugin order) — by then expo-notifications has added
     // the default_notification_color meta-data we need to mark tools:replace.
