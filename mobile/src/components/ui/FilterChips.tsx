@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, Text } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 export interface ChipOption<T extends string> {
   value: T;
@@ -16,33 +16,40 @@ export function FilterChips<T extends string>({
   selected,
   onSelect,
 }: FilterChipsProps<T>) {
+  // The ScrollView is wrapped in a plain View so it is sized by its content
+  // instead of by the parent flex column — which otherwise stretched the chips
+  // to full height on some devices and clipped them on others.
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      // flexGrow:0 stops the row from absorbing vertical space; items-center
-      // keeps each chip at its natural height instead of stretching to fill.
-      style={{ flexGrow: 0 }}
-      contentContainerClassName="items-center gap-2 px-4 py-2"
-    >
-      {options.map((opt) => {
-        const ativo = opt.value === selected;
-        return (
-          <Pressable
-            key={opt.value}
-            onPress={() => onSelect(opt.value)}
-            accessibilityRole="button"
-            accessibilityState={{ selected: ativo }}
-            className={`rounded-full border px-4 py-2 ${
-              ativo ? 'border-primary-600 bg-primary-600' : 'border-neutral-300 bg-white'
-            }`}
-          >
-            <Text className={`text-sm font-semibold ${ativo ? 'text-white' : 'text-fg-muted'}`}>
-              {opt.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
+    <View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          alignItems: 'center',
+          gap: 8,
+          paddingHorizontal: 16,
+          paddingVertical: 8,
+        }}
+      >
+        {options.map((opt) => {
+          const ativo = opt.value === selected;
+          return (
+            <Pressable
+              key={opt.value}
+              onPress={() => onSelect(opt.value)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: ativo }}
+              className={`rounded-full border px-4 py-2 ${
+                ativo ? 'border-primary-600 bg-primary-600' : 'border-neutral-300 bg-white'
+              }`}
+            >
+              <Text className={`text-sm font-semibold ${ativo ? 'text-white' : 'text-fg-muted'}`}>
+                {opt.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+    </View>
   );
 }
