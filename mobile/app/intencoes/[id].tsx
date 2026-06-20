@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Linking, ScrollView, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/ui/Button';
@@ -12,6 +13,7 @@ import { colors } from '@/theme/colors';
 
 export default function IntencaoDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const requireAuth = useRequireAuth();
   const [intencao, setIntencao] = useState<IntencaoCompra | null>(null);
@@ -96,7 +98,10 @@ export default function IntencaoDetailScreen() {
       </ScrollView>
 
       {podeContactar && (
-        <View className="absolute bottom-0 left-0 right-0 flex-row gap-3 border-t border-neutral-200 bg-white px-4 pb-7 pt-3">
+        <View
+          className="absolute bottom-0 left-0 right-0 flex-row gap-3 border-t border-neutral-200 bg-white px-4 pt-3"
+          style={{ paddingBottom: Math.max(insets.bottom, 12) }}
+        >
           <Button
             label="Tenho este carro"
             className="flex-1"

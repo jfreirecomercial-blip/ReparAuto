@@ -1,13 +1,9 @@
 import { useState } from 'react';
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { Alert, ScrollView, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { router } from 'expo-router';
+import { KeyboardAvoider } from '@/components/ui/KeyboardAvoider';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { ChipSelect } from '@/components/ui/ChipSelect';
@@ -37,6 +33,8 @@ const CONTACTO: { value: ContatoPreferido; label: string }[] = [
 export default function CriarIntencaoScreen() {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const headerHeight = useHeaderHeight();
+  const insets = useSafeAreaInsets();
 
   const [categoria, setCategoria] = useState<CategoriaIntencao>('carro');
   const [titulo, setTitulo] = useState('');
@@ -106,11 +104,12 @@ export default function CriarIntencaoScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      className="flex-1 bg-neutral-50"
-    >
-      <ScrollView contentContainerClassName="p-4 pb-10 gap-4" keyboardShouldPersistTaps="handled">
+    <KeyboardAvoider offset={headerHeight} className="flex-1 bg-neutral-50">
+      <ScrollView
+        contentContainerClassName="p-4 gap-4"
+        contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <ChipSelect label="Categoria" options={CATEGORIAS} value={categoria} onChange={setCategoria} />
         <Input label="Título *" value={titulo} onChangeText={setTitulo} placeholder="Procuro Golf diesel até 2018" />
         <Input
@@ -177,6 +176,6 @@ export default function CriarIntencaoScreen() {
           A procura fica visível após aprovação da equipa.
         </Text>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAvoider>
   );
 }

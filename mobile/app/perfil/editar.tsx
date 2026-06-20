@@ -1,6 +1,9 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { router } from 'expo-router';
+import { KeyboardAvoider } from '@/components/ui/KeyboardAvoider';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { ChipSelect } from '@/components/ui/ChipSelect';
@@ -16,6 +19,8 @@ const TIPOS_CONTA = [
 export default function EditarPerfilScreen() {
   const { user, updateProfile } = useAuth();
   const { showToast } = useToast();
+  const headerHeight = useHeaderHeight();
+  const insets = useSafeAreaInsets();
 
   const [nome, setNome] = useState(user?.nome ?? '');
   const [telefone, setTelefone] = useState(user?.telefone ?? '');
@@ -57,11 +62,12 @@ export default function EditarPerfilScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      className="flex-1 bg-neutral-50"
-    >
-      <ScrollView contentContainerClassName="p-4 pb-10 gap-4" keyboardShouldPersistTaps="handled">
+    <KeyboardAvoider offset={headerHeight} className="flex-1 bg-neutral-50">
+      <ScrollView
+        contentContainerClassName="p-4 gap-4"
+        contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <Input label="Nome *" value={nome} onChangeText={setNome} placeholder="O seu nome" />
         <ChipSelect label="Tipo de conta" options={TIPOS_CONTA} value={tipoConta} onChange={setTipoConta} />
         <Input label="Telefone" value={telefone} onChangeText={setTelefone} placeholder="912345678" keyboardType="phone-pad" />
@@ -103,6 +109,6 @@ export default function EditarPerfilScreen() {
           className="mt-2"
         />
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAvoider>
   );
 }

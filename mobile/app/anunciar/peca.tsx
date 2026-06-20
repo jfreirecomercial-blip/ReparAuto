@@ -1,13 +1,9 @@
 import { useState } from 'react';
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { Alert, ScrollView, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { router } from 'expo-router';
+import { KeyboardAvoider } from '@/components/ui/KeyboardAvoider';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { ChipSelect } from '@/components/ui/ChipSelect';
@@ -27,6 +23,8 @@ const ESTADOS = ['Novo', 'Usado', 'Recondicionado'].map((e) => ({ value: e, labe
 export default function AnunciarPecaScreen() {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const headerHeight = useHeaderHeight();
+  const insets = useSafeAreaInsets();
 
   const [foto, setFoto] = useState<string[]>([]);
   const [tipo, setTipo] = useState<TipoPeca>('venda');
@@ -101,11 +99,12 @@ export default function AnunciarPecaScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      className="flex-1 bg-neutral-50"
-    >
-      <ScrollView contentContainerClassName="p-4 pb-10 gap-4" keyboardShouldPersistTaps="handled">
+    <KeyboardAvoider offset={headerHeight} className="flex-1 bg-neutral-50">
+      <ScrollView
+        contentContainerClassName="p-4 gap-4"
+        contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <ChipSelect label="Tipo de anúncio" options={TIPOS} value={tipo} onChange={setTipo} />
         <PhotoPicker fotos={foto} onChange={setFoto} max={1} />
 
@@ -164,6 +163,6 @@ export default function AnunciarPecaScreen() {
           O anúncio fica visível após aprovação da equipa.
         </Text>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAvoider>
   );
 }

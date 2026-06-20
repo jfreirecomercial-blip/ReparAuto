@@ -1,13 +1,9 @@
 import { useState } from 'react';
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { Alert, ScrollView, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { router } from 'expo-router';
+import { KeyboardAvoider } from '@/components/ui/KeyboardAvoider';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { MultiChipSelect } from '@/components/ui/MultiChipSelect';
@@ -24,6 +20,8 @@ const ESPECIALIDADES = (Object.keys(ESPECIALIDADES_LABELS) as EspecialidadeOfici
 export default function RegistarOficinaScreen() {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const headerHeight = useHeaderHeight();
+  const insets = useSafeAreaInsets();
 
   const [logo, setLogo] = useState<string[]>([]);
   const [nome, setNome] = useState('');
@@ -99,11 +97,12 @@ export default function RegistarOficinaScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      className="flex-1 bg-neutral-50"
-    >
-      <ScrollView contentContainerClassName="p-4 pb-10 gap-4" keyboardShouldPersistTaps="handled">
+    <KeyboardAvoider offset={headerHeight} className="flex-1 bg-neutral-50">
+      <ScrollView
+        contentContainerClassName="p-4 gap-4"
+        contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <PhotoPicker fotos={logo} onChange={setLogo} max={1} />
 
         <Input label="Nome da oficina *" value={nome} onChangeText={setNome} placeholder="Auto Reparações Silva" />
@@ -160,6 +159,6 @@ export default function RegistarOficinaScreen() {
           O registo fica visível após aprovação da equipa.
         </Text>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAvoider>
   );
 }

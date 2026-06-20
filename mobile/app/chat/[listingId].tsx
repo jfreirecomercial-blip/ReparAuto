@@ -1,15 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { FlatList, Keyboard, Pressable, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { KeyboardAvoider } from '@/components/ui/KeyboardAvoider';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/context/ChatContext';
 import type { ListingType, Mensagem } from '@/types';
@@ -27,8 +22,21 @@ export default function ChatScreen() {
 
   const { user } = useAuth();
   const { getConversa, enviar, marcarLidas } = useChat();
+  const insets = useSafeAreaInsets();
+  const headerHeight = useHeaderHeight();
   const [texto, setTexto] = useState('');
   const [enviando, setEnviando] = useState(false);
+  // When the keyboard is open it covers the nav bar, so the input bar no longer
+  // needs the safe-area bottom inset — collapse it to avoid a gap above the keys.
+  const [tecladoAberto, setTecladoAberto] = useState(false);
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', () => setTecladoAberto(true));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setTecladoAberto(false));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
 
   const conversa = useMemo(
     () => getConversa(listingId, outroUid),
@@ -62,11 +70,7 @@ export default function ChatScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 92 : 0}
-      className="flex-1 bg-neutral-50"
-    >
+    <KeyboardAvoider offset={headerHeight} className="flex-1 bg-neutral-50">
       <Stack.Screen options={{ title: outroNome || 'Conversa' }} />
 
       <FlatList
@@ -84,7 +88,10 @@ export default function ChatScreen() {
         }
       />
 
-      <View className="flex-row items-end gap-2 border-t border-neutral-200 bg-white px-3 py-2 pb-6">
+      <View
+        className="flex-row items-end gap-2 border-t border-neutral-200 bg-white px-3 pt-2"
+        style={{ paddingBottom: tecladoAberto ? 8 : Math.max(insets.bottom, 8) }}
+      >
         <TextInput
           value={texto}
           onChangeText={setTexto}
@@ -105,7 +112,7 @@ export default function ChatScreen() {
           <Ionicons name="send" size={18} color="#fff" />
         </Pressable>
       </View>
-    </KeyboardAvoidingView>
+    </KeyboardAvoider>
   );
 }
 

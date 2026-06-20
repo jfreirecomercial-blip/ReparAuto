@@ -7,6 +7,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, Stack, router } from 'expo-router';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,6 +23,7 @@ import { colors } from '@/theme/colors';
 export default function DetalhesCarroScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const requireAuth = useRequireAuth();
   const [carro, setCarro] = useState<Carro | null>(null);
@@ -136,7 +138,10 @@ export default function DetalhesCarroScreen() {
       </ScrollView>
 
       {/* Contact bar */}
-      <View className="absolute bottom-0 left-0 right-0 flex-row gap-3 border-t border-neutral-200 bg-white px-4 pb-7 pt-3">
+      <View
+        className="absolute bottom-0 left-0 right-0 flex-row gap-3 border-t border-neutral-200 bg-white px-4 pt-3"
+        style={{ paddingBottom: Math.max(insets.bottom, 12) }}
+      >
         {podeMensagem ? (
           <Button
             label="Mensagem"
