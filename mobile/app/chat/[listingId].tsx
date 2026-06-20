@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FlatList, Keyboard, Pressable, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useHeaderHeight } from '@react-navigation/elements';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { KeyboardAvoider } from '@/components/ui/KeyboardAvoider';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/context/ChatContext';
 import type { ListingType, Mensagem } from '@/types';
@@ -23,20 +21,23 @@ export default function ChatScreen() {
   const { user } = useAuth();
   const { getConversa, enviar, marcarLidas } = useChat();
   const insets = useSafeAreaInsets();
-  const headerHeight = useHeaderHeight();
   const [texto, setTexto] = useState('');
   const [enviando, setEnviando] = useState(false);
-  // When the keyboard is open it covers the nav bar, so the input bar no longer
-  // needs the safe-area bottom inset — collapse it to avoid a gap above the keys.
-  const [tecladoAberto, setTecladoAberto] = useState(false);
+  // Drive the bottom inset straight from the keyboard height. RN's
+  // KeyboardAvoidingView leaves residual padding on Android edge-to-edge after
+  // the keyboard closes; tracking the height ourselves resets cleanly to 0.
+  const [kbHeight, setKbHeight] = useState(0);
   useEffect(() => {
-    const show = Keyboard.addListener('keyboardDidShow', () => setTecladoAberto(true));
-    const hide = Keyboard.addListener('keyboardDidHide', () => setTecladoAberto(false));
+    const show = Keyboard.addListener('keyboardDidShow', (e) =>
+      setKbHeight(e.endCoordinates.height),
+    );
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKbHeight(0));
     return () => {
       show.remove();
       hide.remove();
     };
   }, []);
+  const tecladoAberto = kbHeight > 0;
 
   const conversa = useMemo(
     () => getConversa(listingId, outroUid),
@@ -70,7 +71,7 @@ export default function ChatScreen() {
   }
 
   return (
-    <KeyboardAvoider offset={headerHeight} className="flex-1 bg-neutral-50">
+    <View className="flex-1 bg-neutral-50" style={{ paddingBottom: kbHeight }}>
       <Stack.Screen options={{ title: outroNome || 'Conversa' }} />
 
       <FlatList
@@ -112,7 +113,7 @@ export default function ChatScreen() {
           <Ionicons name="send" size={18} color="#fff" />
         </Pressable>
       </View>
-    </KeyboardAvoider>
+    </View>
   );
 }
 
