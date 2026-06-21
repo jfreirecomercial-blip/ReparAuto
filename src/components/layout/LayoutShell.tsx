@@ -22,9 +22,7 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
   const { user, isLoggedIn, refreshProfile, reenviarEmailVerificacao } = auth;
   const toast = useToast();
 
-  if (isAdminRoute) {
-    return <div className="min-h-screen bg-slate-950 flex flex-col">{children}</div>;
-  }
+
 
   const [resending, setResending] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -79,6 +77,10 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
     toast?.sucesso('Notificações ativadas com sucesso!');
     setShowNotifPrompt(false);
   };
+
+  if (isAdminRoute) {
+    return <div className="min-h-screen bg-slate-950 flex flex-col">{children}</div>;
+  }
 
   return (
     <div className="min-h-screen">
