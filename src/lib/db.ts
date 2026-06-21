@@ -29,6 +29,7 @@ import type { Verification, VerificationInput, StatusVerificacao } from '@/types
 import type { IntencaoCompra, IntencaoCompraInput, ContatoIntencao, ContatoIntencaoInput, DenunciaIntencao } from '@/types/intencao';
 import type { Proposta, PropostaInput, StatusProposta } from '@/types/proposal';
 import type { LeadParceria, LeadParceriaInput } from '@/types/lead';
+import type { OficinaMecanico } from '@/types/oficina';
 
 const CARROS_COLLECTION = 'cars';
 const PECAS_COLLECTION = 'parts';
@@ -1177,7 +1178,6 @@ export async function updateIntencaoStatus(id: string, status: string): Promise<
 }
 
 // ============ OFICINAS E MECÂNICOS ============
-import type { OficinaMecanico } from '@/types/oficina';
 
 export async function getOficinas(): Promise<OficinaMecanico[]> {
   try {
@@ -1539,6 +1539,127 @@ export async function updatePremiumConfig(
     console.error('[DB] Erro ao atualizar premium config:', err);
     throw err;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Admin Dashboard Stats (real data aggregation)
+// ---------------------------------------------------------------------------
+
+export interface DashboardMonthlyStats {
+  mes: string; // "Jan", "Fev", etc.
+  utilizadores: number;
+  carros: number;
+  pecas: number;
+  oficinas: number;
+  intencoes: number;
+}
+
+export interface AdminDashboardStats {
+  /** Contagem de utilizadores por faixa de antiguidade (dias desde dataCriacao) */
+  antiguidade: { range: string; percent: number; count: number }[];
+  /** Métricas mensais para gráfico de evolução (últimos 6 meses) */
+  evolucaoMensal: DashboardMonthlyStats[];
+  /** Total de utilizadores que criaram pelo menos 1 anúncio */
+  utilizadoresAtivos: number;
+  /** Média de anúncios por utilizador */
+  mediaAnunciosPorUtilizador: number;
+  /** Total de visualizações acumuladas */
+  totalVisualizacoes: number;
+  /** Total de contagens de mensagens */
+  totalMensagens: number;
+}
+
+function getMonthLabel(monthIndex: number): string {
+  const labels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  return labels[monthIndex] || '?';
+}
+
+function getLast6Months(): { year: number; month: number; label: string }[] {
+  const now = new Date();
+  const months: { year: number; month: number; label: string }[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ year: d.getFullYear(), month: d.getMonth(), label: getMonthLabel(d.getMonth()) });
+  }
+  return months;
+}
+
+function isInMonth(timestamp: Timestamp | undefined, year: number, month: number): boolean {
+  if (!timestamp) return false;
+  const d = timestamp.toDate();
+  return d.getFullYear() === year && d.getMonth() === month;
+}
+
+export async function getAdminDashboardStats(
+  users: Usuario[],
+  carros: Carro[],
+  pecas: Peca[],
+  oficinas: OficinaMecanico[],
+  intencoes: IntencaoCompra[],
+): Promise<AdminDashboardStats> {
+  // --- Antiguidade dos utilizadores (proxy para faixas etárias / tempo de plataforma) ---
+  const now = Date.now();
+  const antiguidadeRanges = [
+    { label: '0 - 30 dias', min: 0, max: 30 },
+    { label: '1 - 3 meses', min: 31, max: 90 },
+    { label: '3 - 6 meses', min: 91, max: 180 },
+    { label: '6 - 12 meses', min: 181, max: 365 },
+    { label: '+ 1 ano', min: 366, max: Infinity },
+  ];
+
+  const antiguidade = antiguidadeRanges.map((range) => {
+    const count = users.filter((u) => {
+      const dataCriacao = u.dataCriacao?.toDate?.()?.getTime();
+      if (!dataCriacao) return false;
+      const dias = Math.floor((now - dataCriacao) / 86400000);
+      return dias >= range.min && dias <= range.max;
+    }).length;
+    return {
+      range: range.label,
+      percent: users.length > 0 ? Math.round((count / users.length) * 100) : 0,
+      count,
+    };
+  });
+
+  // --- Evolução mensal (últimos 6 meses) ---
+  const meses = getLast6Months();
+  const evolucaoMensal: DashboardMonthlyStats[] = meses.map((m) => ({
+    mes: m.label,
+    utilizadores: users.filter((u) => isInMonth(u.dataCriacao, m.year, m.month)).length,
+    carros: carros.filter((c) => isInMonth(c.dataCriacao, m.year, m.month)).length,
+    pecas: pecas.filter((p) => isInMonth(p.dataCriacao, m.year, m.month)).length,
+    oficinas: oficinas.filter((o) => isInMonth(o.dataCriacao, m.year, m.month)).length,
+    intencoes: intencoes.filter((i) => isInMonth(i.criadaEm, m.year, m.month)).length,
+  }));
+
+  // --- Utilizadores ativos (criaram pelo menos 1 anúncio) ---
+  const criadoresAtivos = new Set<string>();
+  carros.forEach((c) => { if (c.criador) criadoresAtivos.add(c.criador); if (c.criadorUid) criadoresAtivos.add(c.criadorUid); });
+  pecas.forEach((p) => { if (p.criador) criadoresAtivos.add(p.criador); if (p.criadorUid) criadoresAtivos.add(p.criadorUid); });
+  oficinas.forEach((o) => { if (o.criador) criadoresAtivos.add(o.criador); });
+  const utilizadoresAtivos = criadoresAtivos.size;
+
+  // --- Média de anúncios por utilizador ---
+  const totalAnuncios = carros.length + pecas.length + oficinas.length;
+  const mediaAnunciosPorUtilizador = users.length > 0 ? parseFloat((totalAnuncios / users.length).toFixed(1)) : 0;
+
+  // --- Total de visualizações e mensagens ---
+  const totalVisualizacoes =
+    (carros.reduce((acc, c) => acc + (c.visualizacoes || 0), 0)) +
+    (pecas.reduce((acc, p) => acc + (p.visualizacoes || 0), 0));
+
+  const totalMensagens =
+    (carros.reduce((acc, c) => acc + (c.contagemMensagens || 0), 0)) +
+    (pecas.reduce((acc, p) => acc + (p.contagemMensagens || 0), 0));
+
+  return {
+    antiguidade,
+    evolucaoMensal,
+    utilizadoresAtivos,
+    mediaAnunciosPorUtilizador,
+    totalVisualizacoes,
+    totalMensagens,
+  };
 }
 
 export function subscribePremiumConfig(

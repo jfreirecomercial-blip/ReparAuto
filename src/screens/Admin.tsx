@@ -27,10 +27,11 @@ import {
   deleteOficina,
   setUserPlan,
   revokeUserPlan,
+  getAdminDashboardStats,
   type PlanInfo,
+  type AdminDashboardStats,
 } from '@/lib/db';
 import Button from '@/components/ui/Button';
-import AdminStats from '@/components/admin/AdminStats';
 import UserTable from '@/components/admin/UserTable';
 import ListingsTable from '@/components/admin/ListingsTable';
 import ReportsQueue from '@/components/admin/ReportsQueue';
@@ -69,6 +70,7 @@ export default function Admin() {
   const [intencoesAdmin, setIntencoesAdmin] = useState<IntencaoCompra[]>([]);
   const [denunciasIntencao, setDenunciasIntencao] = useState<DenunciaIntencao[]>([]);
   const [oficinasAdmin, setOficinasAdmin] = useState<OficinaMecanico[]>([]);
+  const [dashboardStats, setDashboardStats] = useState<AdminDashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const { reports, loading: reportsLoading, carregar: carregarReports, atualizarStatus: atualizarStatusReport } = useReports();
   const { reviews: adminReviews, loading: reviewsAdminLoading, carregar: carregarReviews, atualizarStatus: atualizarStatusReview, remover: removerReview } = useReviewsAdmin();
@@ -125,6 +127,9 @@ export default function Admin() {
       setIntencoesAdmin(i);
       setDenunciasIntencao(d);
       setOficinasAdmin(o);
+      // Carregar estatísticas reais da dashboard
+      const stats = await getAdminDashboardStats(u, c, p, o, i);
+      setDashboardStats(stats);
       carregarReports();
       carregarReviews();
       carregarVerifications();
@@ -706,45 +711,23 @@ export default function Admin() {
           {tab === 'visao-geral' && (
             <div className="space-y-6">
               
-              {/* Operations Dashboard & Interactive Map */}
-              {/* Operation Filters Bar (matching photo) */}
-              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div className="flex-1">
-                  <h3 className="text-base font-black text-slate-100">Operação</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Estatísticas gerais de tráfego e comportamento do utilizador.</p>
+              {/* Summary Cards with real totals */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5">
+                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Utilizadores</span>
+                  <p className="text-xl font-black text-pink-400 mt-0.5">{users.length}</p>
                 </div>
-
-                {/* Filters dropdowns */}
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Status</span>
-                    <select className="text-xs bg-slate-950 border border-slate-850 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-pink-500 text-slate-300 cursor-pointer">
-                      <option>Todos</option>
-                      <option>Ativos</option>
-                      <option>Pendentes</option>
-                      <option>Suspensos</option>
-                    </select>
-                  </div>
-                  
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Localidade</span>
-                    <select className="text-xs bg-slate-950 border border-slate-850 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-pink-500 text-slate-300 cursor-pointer">
-                      <option>Portugal (Todos)</option>
-                      <option>Norte</option>
-                      <option>Centro</option>
-                      <option>Sul</option>
-                      <option>Ilhas</option>
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Cliente</span>
-                    <select className="text-xs bg-slate-950 border border-slate-850 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-pink-500 text-slate-300 cursor-pointer">
-                      <option>Todos</option>
-                      <option>Particular</option>
-                      <option>Profissional</option>
-                    </select>
-                  </div>
+                <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5">
+                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Anúncios</span>
+                  <p className="text-xl font-black text-amber-400 mt-0.5">{carros.length + pecas.length}</p>
+                </div>
+                <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5">
+                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Oficinas</span>
+                  <p className="text-xl font-black text-blue-400 mt-0.5">{oficinasAdmin.length}</p>
+                </div>
+                <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5">
+                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Intenções</span>
+                  <p className="text-xl font-black text-purple-400 mt-0.5">{intencoesAdmin.length}</p>
                 </div>
               </div>
 
@@ -790,33 +773,30 @@ export default function Admin() {
                     </div>
                   </div>
 
-                  {/* Age Demographics Chart */}
+                  {/* Account Age Distribution (real data) */}
                   <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-5 space-y-4">
                     <div>
-                      <h4 className="text-sm font-bold text-slate-100">Distribuição por Idade</h4>
-                      <p className="text-[10px] text-slate-400">Dados demográficos aproximados dos utilizadores.</p>
+                      <h4 className="text-sm font-bold text-slate-100">Tempo na Plataforma</h4>
+                      <p className="text-[10px] text-slate-400">Antiguidade dos utilizadores com base na data de registo.</p>
                     </div>
                     <div className="space-y-3">
-                      {[
-                        { range: '18 - 24 anos', percent: 18, count: Math.round(users.length * 0.18) },
-                        { range: '25 - 34 anos', percent: 38, count: Math.round(users.length * 0.38) },
-                        { range: '35 - 44 anos', percent: 24, count: Math.round(users.length * 0.24) },
-                        { range: '45 - 54 anos', percent: 12, count: Math.round(users.length * 0.12) },
-                        { range: '55+ anos', percent: 8, count: Math.round(users.length * 0.08) }
-                      ].map((age, idx) => (
+                      {(dashboardStats?.antiguidade ?? []).map((item, idx) => (
                         <div key={idx} className="space-y-1">
                           <div className="flex justify-between text-xs font-semibold">
-                            <span className="text-slate-300">{age.range}</span>
-                            <span className="text-purple-400">{age.percent}% ({age.count})</span>
+                            <span className="text-slate-300">{item.range}</span>
+                            <span className="text-purple-400">{item.percent}% ({item.count})</span>
                           </div>
                           <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-850">
                             <div 
                               className="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full transition-all duration-500" 
-                              style={{ width: `${age.percent}%` }}
+                              style={{ width: `${item.percent}%` }}
                             />
                           </div>
                         </div>
                       ))}
+                      {(!dashboardStats || dashboardStats.antiguidade.every(a => a.count === 0)) && (
+                        <p className="text-xs text-slate-500 text-center py-2">A aguardar dados de antiguidade...</p>
+                      )}
                     </div>
                   </div>
 
@@ -835,16 +815,16 @@ export default function Admin() {
 
               </div>
 
-              {/* Downloads Section */}
+              {/* Activity Metrics (real data replacing mock downloads) */}
               <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-5 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
-                    <h4 className="text-sm font-bold text-slate-100">Downloads da Aplicação</h4>
-                    <p className="text-[10px] text-slate-400">Total acumulado de instalações em dispositivos móveis.</p>
+                    <h4 className="text-sm font-bold text-slate-100">Métricas de Atividade</h4>
+                    <p className="text-[10px] text-slate-400">Engajamento real dos utilizadores na plataforma.</p>
                   </div>
                   <div className="flex gap-4 text-xs font-bold text-slate-400">
-                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" /> Google Play</span>
-                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-505 inline-block" /> Apple Store</span>
+                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" /> Anúncios</span>
+                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500 inline-block" /> Utilizadores</span>
                   </div>
                 </div>
 
@@ -852,61 +832,91 @@ export default function Admin() {
                   
                   <div className="bg-slate-950/40 border border-slate-850 p-4 rounded-xl flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Google Play Store</span>
-                      <p className="text-xl font-black text-emerald-400 mt-1">12.450 <span className="text-[10px] font-normal text-slate-500">inst.</span></p>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Utilizadores Ativos</span>
+                      <p className="text-xl font-black text-emerald-400 mt-1">{dashboardStats?.utilizadoresAtivos ?? '—'} <span className="text-[10px] font-normal text-slate-500">criaram anúncios</span></p>
                     </div>
                     <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-900/30 flex items-center justify-center text-emerald-500 text-xs font-black">
-                      GP
+                      UA
                     </div>
                   </div>
 
                   <div className="bg-slate-950/40 border border-slate-850 p-4 rounded-xl flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Apple App Store</span>
-                      <p className="text-xl font-black text-blue-400 mt-1">9.820 <span className="text-[10px] font-normal text-slate-500">inst.</span></p>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Média Anúncios / Utilizador</span>
+                      <p className="text-xl font-black text-blue-400 mt-1">{dashboardStats?.mediaAnunciosPorUtilizador ?? '—'} <span className="text-[10px] font-normal text-slate-500">anúncios</span></p>
                     </div>
                     <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-900/30 flex items-center justify-center text-blue-500 text-xs font-black">
-                      iOS
+                      MÉD
                     </div>
                   </div>
 
                   <div className="bg-slate-950/40 border border-slate-850 p-4 rounded-xl flex items-center justify-between sm:col-span-2 md:col-span-1">
                     <div>
-                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Taxa de Retenção</span>
-                      <p className="text-xl font-black text-pink-400 mt-1">84,6% <span className="text-[10px] font-normal text-slate-500">30d</span></p>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Visualizações Totais</span>
+                      <p className="text-xl font-black text-pink-400 mt-1">
+                        {dashboardStats ? (dashboardStats.totalVisualizacoes >= 1000 ? `${(dashboardStats.totalVisualizacoes / 1000).toFixed(1)}k` : dashboardStats.totalVisualizacoes) : '—'} 
+                        <span className="text-[10px] font-normal text-slate-500"> views</span>
+                      </p>
                     </div>
                     <div className="w-10 h-10 rounded-lg bg-pink-500/10 border border-pink-900/30 flex items-center justify-center text-pink-500 text-xs font-black">
-                      %
+                      VIEW
                     </div>
                   </div>
 
                 </div>
 
-                {/* Evolution Chart */}
-                <div className="h-28 bg-slate-950/40 border border-slate-850 rounded-xl p-2 relative overflow-hidden flex items-end">
-                  <svg viewBox="0 0 500 100" className="w-full h-full" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id="gpGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
-                        <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-                      </linearGradient>
-                      <linearGradient id="apGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.25" />
-                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
-                      </linearGradient>
-                    </defs>
-                    <path d="M0,80 Q75,70 150,55 T300,45 T450,25 T500,15 L500,100 L0,100 Z" fill="url(#gpGrad)" />
-                    <path d="M0,80 Q75,70 150,55 T300,45 T450,25 T500,15" fill="none" stroke="#10b981" strokeWidth="2.5" />
-                    <path d="M0,90 Q75,85 150,75 T300,60 T450,45 T500,35 L500,100 L0,100 Z" fill="url(#apGrad)" />
-                    <path d="M0,90 Q75,85 150,75 T300,60 T450,45 T500,35" fill="none" stroke="#3b82f6" strokeWidth="2.5" />
-                  </svg>
-                  <div className="absolute inset-x-0 bottom-1.5 flex justify-between px-3 text-[9px] font-bold text-slate-500">
-                    <span>Jan</span>
-                    <span>Fev</span>
-                    <span>Mar</span>
-                    <span>Abr</span>
-                    <span>Mai</span>
-                    <span>Jun (Atual)</span>
+                {/* Real Evolution Chart (last 6 months) */}
+                <div className="bg-slate-950/40 border border-slate-850 rounded-xl p-4">
+                  <h5 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Evolução Mensal (últimos 6 meses)</h5>
+                  <div className="h-36 relative">
+                    {dashboardStats ? (
+                      <>
+                        {/* Y-axis labels */}
+                        <div className="absolute -left-0.5 top-0 bottom-5 flex flex-col justify-between text-[8px] font-bold text-slate-600 pr-1">
+                          {[100, 75, 50, 25, 0].map((pct) => {
+                            const maxVal = Math.max(
+                              1,
+                              ...dashboardStats.evolucaoMensal.flatMap(m => [m.utilizadores, m.carros + m.pecas])
+                            );
+                            return (
+                              <span key={pct}>{Math.round(maxVal * pct / 100)}</span>
+                            );
+                          })}
+                        </div>
+                        {/* Chart area */}
+                        <div className="ml-8 h-full flex items-end gap-2">
+                          {dashboardStats.evolucaoMensal.map((m, idx) => {
+                            const maxVal = Math.max(
+                              1,
+                              ...dashboardStats.evolucaoMensal.flatMap(mm => [mm.utilizadores, mm.carros + mm.pecas])
+                            );
+                            const anunciosH = ((m.carros + m.pecas) / maxVal) * 100;
+                            const usersH = (m.utilizadores / maxVal) * 100;
+                            return (
+                              <div key={idx} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                                <div className="w-full flex gap-0.5 items-end h-full max-h-28">
+                                  <div
+                                    className="flex-1 bg-gradient-to-t from-emerald-600 to-emerald-400 rounded-t-sm transition-all duration-500 min-h-[2px]"
+                                    style={{ height: `${Math.max(anunciosH, 0.5)}%` }}
+                                    title={`Anúncios: ${m.carros + m.pecas}`}
+                                  />
+                                  <div
+                                    className="flex-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-sm transition-all duration-500 min-h-[2px]"
+                                    style={{ height: `${Math.max(usersH, 0.5)}%` }}
+                                    title={`Utilizadores: ${m.utilizadores}`}
+                                  />
+                                </div>
+                                <span className="text-[8px] font-bold text-slate-500 shrink-0">{m.mes}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <span className="text-xs text-slate-500">A carregar dados de evolução...</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
