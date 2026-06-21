@@ -7,13 +7,26 @@ import {
   setDoc,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { incrementCampo, decrementCampo } from '@/lib/db';
+import { incrementCampo, decrementCampo, criarNotificacao } from '@/lib/db';
 import { enqueue, processQueue } from '@/lib/offlineQueue';
 import type { Usuario } from '@/types/usuario';
 
 const STORAGE_KEY = 'favs_reparauto';
 
+function podeUsarCookiesFuncionais(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const consentStr = localStorage.getItem('reparauto_cookie_consent');
+    if (!consentStr) return false;
+    const consent = JSON.parse(consentStr);
+    return !!consent.funcionais;
+  } catch {
+    return false;
+  }
+}
+
 function carregarLocal(): string[] {
+  if (!podeUsarCookiesFuncionais()) return [];
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
   } catch {
@@ -22,7 +35,10 @@ function carregarLocal(): string[] {
 }
 
 function salvarLocal(lista: string[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
+  if (!podeUsarCookiesFuncionais()) return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
+  } catch {}
 }
 
 export default function useFavoritos(user: Usuario | null) {
@@ -105,6 +121,23 @@ export default function useFavoritos(user: Usuario | null) {
         nova = [...favoritos, idStr];
         if (navigator.onLine) {
           incrementCampo('cars', idStr, 'contagemFavoritos');
+          if (uid) {
+            getDoc(doc(db, 'cars', idStr)).then((carSnap) => {
+              if (carSnap.exists()) {
+                const carData = carSnap.data();
+                const criadorUid = carData.criadorUid;
+                if (criadorUid && criadorUid !== uid) {
+                  criarNotificacao(
+                    criadorUid,
+                    'info',
+                    'Anúncio Favoritado ⭐️',
+                    `Alguém favoritou o seu anúncio: ${carData.marca} ${carData.modelo}`,
+                    `/detalhes/${idStr}`
+                  ).catch((err) => console.error('[Favoritos] Erro ao enviar notificação:', err));
+                }
+              }
+            }).catch((err) => console.error('[Favoritos] Erro ao buscar dados do carro:', err));
+          }
         } else {
           enqueue({ uid, type: 'favorito_add', payload: { carId: idStr } });
         }

@@ -116,12 +116,7 @@ export default function GrantPlanModal({
 
   if (!user) return null;
 
-  const planosFiltrados = PLANOS.filter((plano) => {
-    if (plano.categoria === 'anuncios') return premiumConfig.impulsionamento;
-    if (plano.categoria === 'oficinas') return premiumConfig.oficinas;
-    if (plano.categoria === 'leads') return premiumConfig.leads;
-    return true;
-  });
+  const planosFiltrados = PLANOS;
 
   const planoAtivo = user.planoAtivo;
   const hasActivePlan = planoAtivo && planoAtivo.dataExpiracao?.toMillis?.() > Date.now();

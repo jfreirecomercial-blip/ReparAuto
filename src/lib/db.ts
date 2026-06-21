@@ -1304,6 +1304,16 @@ export async function criarProposta(dados: PropostaInput): Promise<Proposta> {
     const agora = Timestamp.now();
     const proposta: Proposta = { id, ...dados, criadaEm: agora, atualizadaEm: agora };
     await setDoc(doc(db, PROPOSTAS_COLLECTION, id), cleanUndefined({ ...proposta }));
+
+    // Criar notificação para o vendedor
+    await criarNotificacao(
+      dados.vendedorUid,
+      'info',
+      'Nova Proposta Recebida 💰',
+      `${dados.compradorNome} enviou uma proposta de ${dados.valor}€ para o seu anúncio: ${dados.anuncioTitulo}`,
+      '/perfil',
+    );
+
     return proposta;
   } catch (err) {
     console.error('[DB] Erro ao criar proposta:', err);
@@ -1335,16 +1345,103 @@ export async function getPropostasPorComprador(compradorUid: string): Promise<Pr
 
 export async function atualizarProposta(id: string, status: StatusProposta): Promise<void> {
   try {
-    const updates: Record<string, unknown> = { status, atualizadaEm: Timestamp.now() };
-    if (status === 'aceita' || status === 'rejeitada') {
-      updates.respostaCompradorEm = Timestamp.now();
+    const docRef = doc(db, PROPOSTAS_COLLECTION, id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const prop = docSnap.data() as Proposta;
+      const updates: Record<string, unknown> = { status, atualizadaEm: Timestamp.now() };
+      if (status === 'aceita' || status === 'rejeitada') {
+        updates.respostaCompradorEm = Timestamp.now();
+      }
+      await updateDoc(docRef as any, updates as any);
+
+      // Notificar o comprador sobre a resposta
+      const statusStr = status === 'aceita' ? 'aceitou' : status === 'rejeitada' ? 'rejeitou' : status;
+      await criarNotificacao(
+        prop.compradorUid,
+        'info',
+        `Proposta de Compra ${status === 'aceita' ? 'Aceite' : 'Rejeitada'} 💰`,
+        `O vendedor ${statusStr} a sua proposta de ${prop.valor}€ no anúncio: ${prop.anuncioTitulo}`,
+        '/perfil',
+      );
     }
-    await updateDoc(doc(db, PROPOSTAS_COLLECTION, id) as any, updates as any);
   } catch (err) {
     console.error('[DB] Erro ao atualizar proposta:', err);
     throw err;
   }
 }
+
+export async function eliminarDadosDoUtilizador(uid: string): Promise<void> {
+  try {
+    // 1. Eliminar anúncios de carros
+    const qCars = query(collection(db, CARROS_COLLECTION), where('criadorUid', '==', uid));
+    const snapCars = await getDocs(qCars);
+    for (const docSnap of snapCars.docs) {
+      await deleteDoc(docSnap.ref);
+    }
+
+    // 2. Eliminar anúncios de peças
+    const qParts = query(collection(db, PECAS_COLLECTION), where('criadorUid', '==', uid));
+    const snapParts = await getDocs(qParts);
+    for (const docSnap of snapParts.docs) {
+      await deleteDoc(docSnap.ref);
+    }
+
+    // 3. Eliminar propostas (onde o utilizador é comprador OU vendedor)
+    const qPropComp = query(collection(db, PROPOSTAS_COLLECTION), where('compradorUid', '==', uid));
+    const snapPropComp = await getDocs(qPropComp);
+    for (const docSnap of snapPropComp.docs) {
+      await deleteDoc(docSnap.ref);
+    }
+    const qPropVend = query(collection(db, PROPOSTAS_COLLECTION), where('vendedorUid', '==', uid));
+    const snapPropVend = await getDocs(qPropVend);
+    for (const docSnap of snapPropVend.docs) {
+      await deleteDoc(docSnap.ref);
+    }
+
+    // 4. Eliminar notificações do utilizador
+    const qNotif = query(collection(db, NOTIFICACOES_COLLECTION), where('uid', '==', uid));
+    const snapNotif = await getDocs(qNotif);
+    for (const docSnap of snapNotif.docs) {
+      await deleteDoc(docSnap.ref);
+    }
+
+    // 5. Eliminar intenções de compra do utilizador
+    const qInten = query(collection(db, INTENCOES_COLLECTION), where('uid', '==', uid));
+    const snapInten = await getDocs(qInten);
+    for (const docSnap of snapInten.docs) {
+      await deleteDoc(docSnap.ref);
+    }
+
+    // 6. Eliminar verificação de identidade
+    const qVerif = query(collection(db, VERIFICATIONS_COLLECTION), where('uid', '==', uid));
+    const snapVerif = await getDocs(qVerif);
+    for (const docSnap of snapVerif.docs) {
+      await deleteDoc(docSnap.ref);
+    }
+
+    // 7. Eliminar reviews escritas pelo utilizador
+    const qRev = query(collection(db, REVIEWS_COLLECTION), where('autorUid', '==', uid));
+    const snapRev = await getDocs(qRev);
+    for (const docSnap of snapRev.docs) {
+      await deleteDoc(docSnap.ref);
+    }
+
+    // 8. Eliminar mensagens de chats do utilizador
+    const qMessages = query(collection(db, 'messages'), where('participants', 'array-contains', uid));
+    const snapMessages = await getDocs(qMessages);
+    for (const docSnap of snapMessages.docs) {
+      await deleteDoc(docSnap.ref);
+    }
+
+    // 9. Eliminar perfil do utilizador
+    await deleteDoc(doc(db, USERS_COLLECTION, uid));
+  } catch (err) {
+    console.error('[DB] Erro ao eliminar dados do utilizador:', err);
+    throw err;
+  }
+}
+
 
 // ---------------------------------------------------------------------------
 // Leads de parceria (financing / insurance simulators) — consent-gated (RGPD)

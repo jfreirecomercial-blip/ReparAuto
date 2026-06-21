@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import MobileTopBar from '@/components/layout/MobileTopBar';
@@ -10,6 +10,7 @@ import ChatModal from '@/components/chat/ChatModal';
 import { useApp } from '@/providers/AppProvider';
 import { useToast } from '@/components/ui/Toast';
 import { WarningCircle } from '@phosphor-icons/react';
+import NotificationPrePrompt from '@/components/ui/NotificationPrePrompt';
 
 export default function LayoutShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -49,6 +50,33 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
     } finally {
       setChecking(false);
     }
+  };
+
+  const [showNotifPrompt, setShowNotifPrompt] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !isLoggedIn || !user) return;
+    if (!('Notification' in window)) return;
+
+    if (Notification.permission === 'default') {
+      const dismissedTime = localStorage.getItem('reparauto_notif_dismissed');
+      if (dismissedTime) {
+        const diff = Date.now() - parseInt(dismissedTime, 10);
+        const sevenDays = 7 * 24 * 60 * 60 * 1000;
+        if (diff < sevenDays) return;
+      }
+      setShowNotifPrompt(true);
+    }
+  }, [isLoggedIn, user]);
+
+  const handleNotifDismiss = () => {
+    localStorage.setItem('reparauto_notif_dismissed', Date.now().toString());
+    setShowNotifPrompt(false);
+  };
+
+  const handleNotifToken = () => {
+    toast?.sucesso('Notificações ativadas com sucesso!');
+    setShowNotifPrompt(false);
   };
 
   return (
@@ -94,6 +122,13 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
 
       <BottomNav />
       <ChatModal />
+      {showNotifPrompt && user && (
+        <NotificationPrePrompt
+          uid={user.uid}
+          onDismiss={handleNotifDismiss}
+          onToken={handleNotifToken}
+        />
+      )}
     </div>
   );
 }
