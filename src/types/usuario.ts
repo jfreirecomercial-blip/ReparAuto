@@ -67,6 +67,9 @@ export interface PremiumConfig {
   impulsionamento: boolean;
   oficinas: boolean;
   leads: boolean;
+  parceriasActive?: boolean;
+  financiamento?: boolean;
+  seguro?: boolean;
   atualizadoEm?: Timestamp;
   atualizadoPor?: string;
 }

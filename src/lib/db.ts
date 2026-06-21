@@ -28,7 +28,7 @@ import type { Report, ReportInput, StatusReport } from '@/types/report';
 import type { Verification, VerificationInput, StatusVerificacao } from '@/types/verification';
 import type { IntencaoCompra, IntencaoCompraInput, ContatoIntencao, ContatoIntencaoInput, DenunciaIntencao } from '@/types/intencao';
 import type { Proposta, PropostaInput, StatusProposta } from '@/types/proposal';
-import type { LeadParceriaInput } from '@/types/lead';
+import type { LeadParceria, LeadParceriaInput } from '@/types/lead';
 
 const CARROS_COLLECTION = 'cars';
 const PECAS_COLLECTION = 'parts';
@@ -1366,6 +1366,17 @@ export async function criarLeadParceria(dados: LeadParceriaInput): Promise<strin
   }
 }
 
+export async function getLeadsParceriaAdmin(): Promise<LeadParceria[]> {
+  try {
+    const q = query(collection(db, LEADS_PARCERIA_COLLECTION), orderBy('criadaEm', 'desc'));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => d.data() as LeadParceria);
+  } catch (err) {
+    console.error('[DB] Erro ao buscar leads de parceria:', err);
+    return [];
+  }
+}
+
 // ============ CONFIG (PREMIUM CONTROLS) ============
 
 const CONFIG_COLLECTION = 'config';
@@ -1382,6 +1393,9 @@ export async function getPremiumConfig(): Promise<PremiumConfig> {
         impulsionamento: data.impulsionamento !== false,
         oficinas: data.oficinas !== false,
         leads: data.leads !== false,
+        parceriasActive: data.parceriasActive !== false,
+        financiamento: data.financiamento !== false,
+        seguro: data.seguro !== false,
         atualizadoEm: data.atualizadoEm,
         atualizadoPor: data.atualizadoPor,
       } as PremiumConfig;
@@ -1391,6 +1405,9 @@ export async function getPremiumConfig(): Promise<PremiumConfig> {
       impulsionamento: true,
       oficinas: true,
       leads: true,
+      parceriasActive: true,
+      financiamento: true,
+      seguro: true,
     };
   } catch (err) {
     console.error('[DB] Erro ao buscar premium config:', err);
@@ -1399,6 +1416,9 @@ export async function getPremiumConfig(): Promise<PremiumConfig> {
       impulsionamento: true,
       oficinas: true,
       leads: true,
+      parceriasActive: true,
+      financiamento: true,
+      seguro: true,
     };
   }
 }
@@ -1439,6 +1459,9 @@ export function subscribePremiumConfig(
           impulsionamento: data.impulsionamento !== false,
           oficinas: data.oficinas !== false,
           leads: data.leads !== false,
+          parceriasActive: data.parceriasActive !== false,
+          financiamento: data.financiamento !== false,
+          seguro: data.seguro !== false,
           atualizadoEm: data.atualizadoEm,
           atualizadoPor: data.atualizadoPor,
         });
@@ -1448,6 +1471,9 @@ export function subscribePremiumConfig(
           impulsionamento: true,
           oficinas: true,
           leads: true,
+          parceriasActive: true,
+          financiamento: true,
+          seguro: true,
         });
       }
     },

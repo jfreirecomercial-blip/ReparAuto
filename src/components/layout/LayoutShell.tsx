@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import MobileTopBar from '@/components/layout/MobileTopBar';
 import Footer from '@/components/layout/Footer';
@@ -11,10 +12,17 @@ import { useToast } from '@/components/ui/Toast';
 import { WarningCircle } from '@phosphor-icons/react';
 
 export default function LayoutShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const isAdminRoute = pathname?.startsWith('/admin');
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { auth } = useApp();
   const { user, isLoggedIn, refreshProfile, reenviarEmailVerificacao } = auth;
   const toast = useToast();
+
+  if (isAdminRoute) {
+    return <div className="min-h-screen bg-slate-950 flex flex-col">{children}</div>;
+  }
 
   const [resending, setResending] = useState(false);
   const [checking, setChecking] = useState(false);

@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { ChartBar, Users, List, StarHalf, MagnifyingGlass, Flag, ShieldCheck, CircleNotch, ArrowsClockwise, Wrench, Crown, type Icon } from '@phosphor-icons/react';
+import { ChartBar, Users, List, StarHalf, MagnifyingGlass, Flag, ShieldCheck, CircleNotch, ArrowsClockwise, Wrench, Crown, Handshake, Clock, House, type Icon } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useApp } from '@/providers/AppProvider';
 import { useToast } from '@/components/ui/Toast';
 import {
@@ -36,6 +37,8 @@ import ReportsQueue from '@/components/admin/ReportsQueue';
 import VerificationsQueue from '@/components/admin/VerificationsQueue';
 import ReviewsQueue from '@/components/admin/ReviewsQueue';
 import PremiumTogglePanel from '@/components/admin/PremiumTogglePanel';
+import PortugalMap from '@/components/admin/PortugalMap';
+import SeguroFinanciamentoTab from '@/components/admin/SeguroFinanciamentoTab';
 import useReports from '@/hooks/useReports';
 import { useReviewsAdmin } from '@/hooks/useReviews';
 import { useVerificationsAdmin } from '@/hooks/useVerification';
@@ -48,7 +51,7 @@ import type { OficinaMecanico } from '@/types/oficina';
 import { ESPECIALIDADES_LABELS } from '@/types/oficina';
 
 
-type TabAdmin = 'visao-geral' | 'utilizadores' | 'anuncios' | 'denuncias' | 'verificacoes' | 'avaliacoes' | 'intencoes' | 'oficinas' | 'premium';
+type TabAdmin = 'visao-geral' | 'utilizadores' | 'anuncios' | 'intencoes' | 'oficinas' | 'premium' | 'seguro-financiamento' | 'pendentes';
 
 export default function Admin() {
   const { auth } = useApp();
@@ -58,6 +61,7 @@ export default function Admin() {
 
   const [tab, setTab] = useState<TabAdmin>('visao-geral');
   const [subTabAnuncios, setSubTabAnuncios] = useState<'carros' | 'pecas'>('carros');
+  const [subTabPendentes, setSubTabPendentes] = useState<'anuncios' | 'oficinas' | 'avaliacoes' | 'denuncias' | 'verificacoes'>('anuncios');
   const [statusFilter, setStatusFilter] = useState<StatusAnuncio | null>(null);
   const [users, setUsers] = useState<Usuario[]>([]);
   const [carros, setCarros] = useState<Carro[]>([]);
@@ -287,8 +291,13 @@ export default function Admin() {
     }
   };
 
-  const handleNavigateStats = (targetTab: 'utilizadores' | 'anuncios' | 'oficinas' | 'intencoes' | 'avaliacoes', subTab?: 'carros' | 'pecas', filter?: StatusAnuncio) => {
-    setTab(targetTab);
+  const handleNavigateStats = (targetTab: 'utilizadores' | 'anuncios' | 'oficinas' | 'intencoes' | 'avaliacoes' | 'pendentes', subTab?: 'carros' | 'pecas', filter?: StatusAnuncio) => {
+    if (targetTab === 'avaliacoes') {
+      setTab('pendentes');
+      setSubTabPendentes('avaliacoes');
+    } else {
+      setTab(targetTab as TabAdmin);
+    }
     if (subTab) setSubTabAnuncios(subTab);
     setStatusFilter(filter ?? null);
   };
@@ -393,11 +402,15 @@ export default function Admin() {
     }
   };
 
+  const totalCarrosPendentes = carros.filter((c) => c.status === 'pendente').length;
+  const totalPecasPendentes = pecas.filter((p) => p.status === 'pendente').length;
+  const totalAnunciosPendentes = totalCarrosPendentes + totalPecasPendentes;
+  const totalOficinasPendentes = oficinasAdmin.filter((o) => o.status === 'pendente').length;
   const intencoesDenunciasPendentes = denunciasIntencao.filter((d) => d.status === 'aberta').length;
-
   const reportsPendentes = reports.filter((r) => r.status === 'pendente').length;
   const reviewsPendentes = adminReviews.filter((r) => r.status === 'pendente').length;
   const verificationsPendentes = verifications.filter((v) => v.status === 'pendente').length;
+  const totalPendentes = totalCarrosPendentes + totalPecasPendentes + totalOficinasPendentes + reviewsPendentes + reportsPendentes + verificationsPendentes + intencoesDenunciasPendentes;
 
   const handleApproveReview = async (id: string) => {
     try {
@@ -464,264 +477,786 @@ export default function Admin() {
     { key: 'visao-geral', label: 'Visão Geral', Icon: ChartBar },
     { key: 'utilizadores', label: 'Utilizadores', Icon: Users },
     { key: 'anuncios', label: 'Anúncios', Icon: List },
-    { key: 'oficinas', label: `Oficinas${oficinasAdmin.filter(o => o.status === 'pendente').length > 0 ? ` (${oficinasAdmin.filter(o => o.status === 'pendente').length})` : ''}`, Icon: Wrench },
-    { key: 'avaliacoes', label: `Avaliações${reviewsPendentes > 0 ? ` (${reviewsPendentes})` : ''}`, Icon: StarHalf },
-    { key: 'intencoes', label: `Intenções${intencoesDenunciasPendentes > 0 ? ` (${intencoesDenunciasPendentes})` : ''}`, Icon: MagnifyingGlass },
-    { key: 'denuncias', label: `Denúncias${reportsPendentes > 0 ? ` (${reportsPendentes})` : ''}`, Icon: Flag },
-    { key: 'verificacoes', label: `Verificações${verificationsPendentes > 0 ? ` (${verificationsPendentes})` : ''}`, Icon: ShieldCheck },
+    { key: 'oficinas', label: 'Oficinas', Icon: Wrench },
+    { key: 'intencoes', label: 'Intenções', Icon: MagnifyingGlass },
     { key: 'premium', label: 'Premium', Icon: Crown },
+    { key: 'seguro-financiamento', label: 'Seguro & Financiamento', Icon: Handshake },
+    { key: 'pendentes', label: 'Pendentes', Icon: Clock }
   ];
 
   if (authLoading || loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <CircleNotch className="animate-spin text-3xl text-accent" />
+      <div className="flex items-center justify-center py-20 bg-slate-950 min-h-screen">
+        <CircleNotch className="animate-spin text-3xl text-pink-500" />
       </div>
     );
   }
 
+  const sidebarButtons = [
+    {
+      key: 'visao-geral' as TabAdmin,
+      label: 'Visão Geral',
+      Icon: ChartBar,
+      value: null,
+      gradient: 'from-slate-800/40 to-slate-900/40',
+      borderClass: 'border-slate-800/80',
+      activeGradient: 'from-slate-800 to-slate-900',
+      activeBorder: 'border-slate-700',
+      textColor: 'text-slate-400',
+      activeTextColor: 'text-white',
+    },
+    {
+      key: 'utilizadores' as TabAdmin,
+      label: 'Utilizadores',
+      Icon: Users,
+      value: users.length,
+      gradient: 'from-pink-500/10 via-purple-500/5 to-transparent',
+      borderClass: 'border-pink-500/10',
+      activeGradient: 'from-pink-500 via-purple-500 to-indigo-600',
+      activeBorder: 'border-pink-400/30',
+      textColor: 'text-pink-400',
+      activeTextColor: 'text-white',
+    },
+    {
+      key: 'anuncios' as TabAdmin,
+      label: 'Anúncios',
+      Icon: List,
+      value: carros.length + pecas.length,
+      gradient: 'from-amber-500/10 via-orange-500/5 to-transparent',
+      borderClass: 'border-amber-500/10',
+      activeGradient: 'from-amber-500 via-orange-500 to-red-600',
+      activeBorder: 'border-amber-400/30',
+      textColor: 'text-amber-500',
+      activeTextColor: 'text-white',
+    },
+    {
+      key: 'oficinas' as TabAdmin,
+      label: 'Oficinas',
+      Icon: Wrench,
+      value: oficinasAdmin.length,
+      gradient: 'from-blue-500/10 via-indigo-500/5 to-transparent',
+      borderClass: 'border-blue-500/10',
+      activeGradient: 'from-blue-500 via-indigo-500 to-violet-600',
+      activeBorder: 'border-blue-400/30',
+      textColor: 'text-blue-400',
+      activeTextColor: 'text-white',
+    },
+    {
+      key: 'intencoes' as TabAdmin,
+      label: 'Intenções',
+      Icon: MagnifyingGlass,
+      value: intencoesAdmin.length,
+      gradient: 'from-purple-500/10 via-fuchsia-500/5 to-transparent',
+      borderClass: 'border-purple-500/10',
+      activeGradient: 'from-purple-500 via-fuchsia-500 to-rose-600',
+      activeBorder: 'border-purple-400/30',
+      textColor: 'text-purple-400',
+      activeTextColor: 'text-white',
+    },
+    {
+      key: 'premium' as TabAdmin,
+      label: 'Premium',
+      Icon: Crown,
+      value: null,
+      gradient: 'from-yellow-500/10 via-amber-500/5 to-transparent',
+      borderClass: 'border-yellow-500/10',
+      activeGradient: 'from-yellow-500 to-amber-600',
+      activeBorder: 'border-yellow-400/30',
+      textColor: 'text-yellow-500',
+      activeTextColor: 'text-white',
+    },
+    {
+      key: 'seguro-financiamento' as TabAdmin,
+      label: 'Seguro & Fin.',
+      Icon: Handshake,
+      value: null,
+      gradient: 'from-emerald-500/10 via-teal-500/5 to-transparent',
+      borderClass: 'border-emerald-500/10',
+      activeGradient: 'from-emerald-500 to-teal-600',
+      activeBorder: 'border-emerald-400/30',
+      textColor: 'text-emerald-400',
+      activeTextColor: 'text-white',
+    },
+    {
+      key: 'pendentes' as TabAdmin,
+      label: 'Pendentes',
+      Icon: Clock,
+      value: totalPendentes,
+      gradient: 'from-red-500/10 via-rose-500/5 to-transparent',
+      borderClass: 'border-red-500/25',
+      activeGradient: 'from-red-600 via-rose-600 to-orange-600',
+      activeBorder: 'border-red-400/40',
+      textColor: 'text-red-500',
+      activeTextColor: 'text-white',
+    },
+  ];
+
   return (
-    <div className="page-enter">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-extrabold text-fg-heading flex items-center gap-2">
-          <ShieldCheck className="text-accent" /> Painel de Administração
-        </h1>
-        <Button
-          tipo="secundario"
-          tamanho="sm"
-          icone={<ArrowsClockwise />}
-          onClick={carregarDados}
-        >
-          Atualizar
-        </Button>
-      </div>
-
-      <div className="flex gap-1 mb-6 bg-slate-100 rounded-xl p-1 overflow-x-auto scrollbar-hide [-webkit-overflow-scrolling:touch] snap-x snap-mandatory">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`snap-start shrink-0 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-bold rounded-lg whitespace-nowrap transition ${
-              tab === t.key ? 'bg-white text-accent shadow-sm' : 'text-fg-subtle hover:text-fg-heading'
-            }`}
-          >
-            <t.Icon className="shrink-0" /> {t.label}
-          </button>
-        ))}
-      </div>
-
-      {tab === 'visao-geral' && (
-        <AdminStats
-          totalUsers={users.length}
-          totalCarros={carros.length}
-          totalPecas={pecas.length}
-          carrosPendentes={carros.filter((c) => c.status === 'pendente').length}
-          pecasPendentes={pecas.filter((p) => p.status === 'pendente').length}
-          totalOficinas={oficinasAdmin.length}
-          oficinasPendentes={oficinasAdmin.filter((o) => o.status === 'pendente').length}
-          totalIntencoes={intencoesAdmin.length}
-          intencoesPendentes={intencoesAdmin.filter((i) => i.status === 'pendente').length}
-          totalReviews={adminReviews.length}
-          reviewsPendentes={reviewsPendentes}
-          onNavigate={handleNavigateStats}
-        />
-      )}
-
-      {tab === 'utilizadores' && (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-          <h2 className="text-lg font-extrabold text-fg-heading mb-4">
-            <Users className="mr-2 text-accent" /> Gestão de Utilizadores
-          </h2>
-          <UserTable
-            users={users}
-            onRoleChange={handleRoleChange}
-            adminUid={auth.user?.uid || ''}
-            adminNome={auth.user?.nome || 'Admin'}
-            onGrantPlan={handleGrantPlan}
-            onRevokePlan={handleRevokePlan}
-          />
-        </div>
-      )}
-
-      {tab === 'anuncios' && (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-          <h2 className="text-lg font-extrabold text-fg-heading mb-4">
-            <List className="mr-2 text-accent" /> Gestão de Anúncios
-          </h2>
-          <ListingsTable
-            carros={carrosOrdenados}
-            pecas={pecasOrdenados}
-            defaultTab={subTabAnuncios}
-            statusFilter={statusFilter}
-            onDeleteCarro={handleDeleteCarro}
-            onDeletePeca={handleDeletePeca}
-            onApproveCarro={handleApproveCarro}
-            onRejectCarro={handleRejectCarro}
-            onApprovePeca={handleApprovePeca}
-            onRejectPeca={handleRejectPeca}
-            onUpdateCarro={handleUpdateCarro}
-            onUpdatePeca={handleUpdatePeca}
-          />
-        </div>
-      )}
-
-      {tab === 'avaliacoes' && (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-          <ReviewsQueue
-            reviews={adminReviews}
-            loading={reviewsAdminLoading}
-            onApprove={handleApproveReview}
-            onReject={handleRejectReview}
-            onDelete={handleDeleteReview}
-          />
-        </div>
-      )}
-
-      {tab === 'intencoes' && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-            <h2 className="text-lg font-extrabold text-fg-heading mb-4 flex items-center gap-2">
-              <MagnifyingGlass className="text-accent" /> Gestão de Intenções de Compra
-            </h2>
-            {intencoesAdmin.length === 0 ? (
-              <p className="text-sm text-fg-subtle">Nenhuma intenção encontrada.</p>
-            ) : (
-              <div className="space-y-2">
-                {intencoesOrdenadas.filter((i) => i.status !== 'deletada').map((intencao) => (
-                  <div key={intencao.id} className="flex items-center justify-between bg-slate-50 rounded-xl p-3 border border-slate-200">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-fg-heading truncate">{intencao.titulo}</p>
-                      <p className="text-xs text-fg-subtle">
-                        {intencao.criterios.marca} {intencao.criterios.modelo} • {intencao.status} • {intencao.stats.visualizacoes} visualizações
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                      {intencao.status === 'pendente' && (
-                        <>
-                          <Button tipo="verde" tamanho="sm" onClick={() => handleApproveIntencao(intencao.id)}>Aprovar</Button>
-                          <Button tipo="perigo" tamanho="sm" onClick={() => handleRejectIntencao(intencao.id)}>Rejeitar</Button>
-                        </>
-                      )}
-                      {intencao.status === 'ativa' && (
-                        <Button tipo="aviso" tamanho="sm" onClick={() => handleUpdateIntencaoStatus(intencao.id, 'pausada')}>Pausar</Button>
-                      )}
-                      {intencao.status === 'pausada' && (
-                        <Button tipo="verde" tamanho="sm" onClick={() => handleUpdateIntencaoStatus(intencao.id, 'ativa')}>Ativar</Button>
-                      )}
-                      {intencao.status !== 'pendente' && (
-                        <Button tipo="perigo" tamanho="sm" onClick={() => handleUpdateIntencaoStatus(intencao.id, 'deletada')}>Remover</Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+    <div className="flex h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden">
+      
+      {/* Sleek Left Sidebar Navigation */}
+      <aside className="w-64 bg-slate-900 border-r border-slate-850 flex flex-col justify-between flex-shrink-0 z-30">
+        <div className="p-5 flex flex-col h-full justify-between">
+          <div className="space-y-6">
+            {/* Logo */}
+            <div className="flex items-center gap-2.5 pb-4 border-b border-slate-800/80">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-pink-500/25 text-white font-black text-lg">
+                R
               </div>
-            )}
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-            <h2 className="text-lg font-extrabold text-fg-heading mb-4 flex items-center gap-2">
-              <Flag className="text-red-600" /> Denúncias de Intenções
-            </h2>
-            {denunciasIntencao.length === 0 ? (
-              <p className="text-sm text-fg-subtle">Nenhuma denúncia pendente.</p>
-            ) : (
-              <div className="space-y-2">
-                {denunciasIntencao.map((denuncia) => (
-                  <div key={denuncia.id} className="flex items-center justify-between bg-slate-50 rounded-xl p-3 border border-slate-200">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-fg-heading">Motivo: {denuncia.motivo}</p>
-                      <p className="text-xs text-fg-subtle">{denuncia.descricao} • Status: {denuncia.status}</p>
-                    </div>
-                    <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                      <Button tipo="perigo" tamanho="sm" onClick={async () => { await updateIntencaoStatus(denuncia.intencaoId, 'deletada'); await updateDenunciaIntencaoStatus(denuncia.id, 'resolvida', auth.user?.email || 'admin', 'remocao'); setIntencoesAdmin((prev) => prev.filter((i) => i.id !== denuncia.intencaoId)); }}>Remover Intenção</Button>
-                      <Button tipo="aviso" tamanho="sm" onClick={() => updateDenunciaIntencaoStatus(denuncia.id, 'resolvida', auth.user?.email || 'admin', 'aviso')}>Avisar</Button>
-                    </div>
-                  </div>
-                ))}
+              <div>
+                <h1 className="font-extrabold text-sm text-slate-100 tracking-tight">ReparAuto</h1>
+                <p className="text-[9px] text-pink-500 font-extrabold uppercase tracking-wider">Painel Admin</p>
               </div>
-            )}
-          </div>
-        </div>
-      )}
+            </div>
 
-      {tab === 'oficinas' && (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-          <h2 className="text-lg font-extrabold text-fg-heading mb-4 flex items-center gap-2">
-            <Wrench className="text-accent" /> Moderação de Oficinas & Mecânicos
-          </h2>
-          {oficinasAdmin.length === 0 ? (
-            <p className="text-sm text-fg-subtle">Nenhuma oficina registada.</p>
-          ) : (
-            <div className="space-y-4">
-              {oficinasAdmin.map((oficina) => (
-                <div key={oficina.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 rounded-2xl p-4 border border-slate-200 gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-bold text-fg-heading truncate">{oficina.nome}</p>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        oficina.status === 'aprovado' ? 'bg-green-100 text-green-700' :
-                        oficina.status === 'rejeitado' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
-                      }`}>
-                        {oficina.status.toUpperCase()}
+            {/* Navigation Links */}
+            <nav className="space-y-2 overflow-y-auto max-h-[calc(100vh-210px)] pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+              {sidebarButtons.map((btn) => {
+                const isActive = tab === btn.key;
+                return (
+                  <button
+                    key={btn.key}
+                    onClick={() => setTab(btn.key)}
+                    className={`w-full relative rounded-xl p-2.5 flex items-center justify-between text-left transition-all duration-200 border group ${
+                      isActive
+                        ? `bg-gradient-to-r ${btn.activeGradient} ${btn.activeBorder} shadow-lg shadow-black/20 text-white scale-[1.01]`
+                        : `bg-slate-950/40 ${btn.borderClass} text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 hover:scale-[1.005]`
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className={`p-1.5 rounded-lg ${isActive ? 'bg-white/10' : 'bg-slate-950/60 border border-slate-800 group-hover:bg-slate-850'} transition-colors flex items-center justify-center shrink-0`}>
+                        <btn.Icon
+                          className={`text-sm shrink-0 ${
+                            isActive ? 'text-white' : btn.textColor
+                          }`}
+                          weight={isActive ? 'bold' : 'regular'}
+                        />
+                      </div>
+                      <span className={`text-[11px] font-bold tracking-tight truncate ${isActive ? 'text-white' : 'text-slate-300'}`}>
+                        {btn.label}
                       </span>
                     </div>
-                    <p className="text-xs text-fg-subtle mt-0.5">
-                      Responsável: {oficina.responsavel} • Contacto: {oficina.telefone} • Criador: {oficina.criador}
-                    </p>
-                    <p className="text-xs text-fg-subtle mt-0.5 font-medium">
-                      Especialidades: {oficina.especialidades.map(e => ESPECIALIDADES_LABELS[e]).join(', ')}
-                    </p>
+                    {btn.value !== null && (
+                      <span
+                        className={`text-[10px] font-black px-2 py-0.5 rounded-md ${
+                          isActive
+                            ? 'bg-white/20 text-white'
+                            : `bg-slate-950/60 border border-slate-850 ${btn.textColor}`
+                        }`}
+                      >
+                        {btn.value}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* User profile & exit section in sidebar footer */}
+          <div className="space-y-2 mt-4 pt-3 border-t border-slate-800/80">
+            <Link
+              href="/"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[11px] font-bold bg-slate-950/60 hover:bg-slate-850 border border-slate-850 hover:border-slate-800 text-slate-300 hover:text-white transition-all duration-200"
+            >
+              <House className="text-sm text-pink-500" />
+              <span>Voltar ao Site</span>
+            </Link>
+
+            <div className="p-3 bg-slate-950/20 rounded-xl flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 border border-slate-700 font-extrabold uppercase text-xs shrink-0">
+                {auth.user?.nome ? auth.user.nome.substring(0, 2) : 'A'}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-slate-200 truncate">{auth.user?.nome || 'Administrador'}</p>
+                <p className="text-[9px] text-slate-500 font-semibold truncate">{auth.user?.email}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main content viewport */}
+      <main className="flex-1 bg-slate-950 overflow-y-auto flex flex-col z-10 relative">
+        
+        {/* Header bar */}
+        <header className="sticky top-0 bg-slate-950/80 backdrop-blur-md border-b border-slate-850 p-5 flex items-center justify-between z-20">
+          <h2 className="text-lg font-black text-slate-100 flex items-center gap-2 capitalize">
+            {tabs.find(t => t.key === tab)?.label.split(' (')[0]}
+          </h2>
+          
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] bg-pink-950/40 border border-pink-900/30 text-pink-400 font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-pink-500 rounded-full animate-pulse" /> Live Admin
+            </span>
+            <Button
+              tipo="secundario"
+              tamanho="sm"
+              icone={<ArrowsClockwise />}
+              onClick={carregarDados}
+            >
+              Sincronizar
+            </Button>
+          </div>
+        </header>
+
+        {/* Content wrapper */}
+        <div className="p-6 flex-1">
+
+          {tab === 'visao-geral' && (
+            <div className="space-y-6">
+              
+              {/* Operations Dashboard & Interactive Map */}
+              {/* Operation Filters Bar (matching photo) */}
+              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="flex-1">
+                  <h3 className="text-base font-black text-slate-100">Operação</h3>
+                  <p className="text-xs text-slate-400 mt-0.5">Estatísticas gerais de tráfego e comportamento do utilizador.</p>
+                </div>
+
+                {/* Filters dropdowns */}
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Status</span>
+                    <select className="text-xs bg-slate-950 border border-slate-850 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-pink-500 text-slate-300 cursor-pointer">
+                      <option>Todos</option>
+                      <option>Ativos</option>
+                      <option>Pendentes</option>
+                      <option>Suspensos</option>
+                    </select>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {oficina.status === 'pendente' && (
-                      <>
-                        <Button tipo="verde" tamanho="sm" onClick={() => handleApproveOficina(oficina.id)}>Aprovar</Button>
-                        <Button tipo="perigo" tamanho="sm" onClick={() => handleRejectOficina(oficina.id)}>Rejeitar</Button>
-                      </>
-                    )}
-                    {oficina.status === 'aprovado' && (
-                      <Button tipo="aviso" tamanho="sm" onClick={() => handleRejectOficina(oficina.id)}>Desativar</Button>
-                    )}
-                    {oficina.status === 'rejeitado' && (
-                      <Button tipo="verde" tamanho="sm" onClick={() => handleApproveOficina(oficina.id)}>Ativar</Button>
-                    )}
-                    <Button tipo="perigo" tamanho="sm" onClick={() => handleDeleteOficina(oficina.id)}>Eliminar</Button>
+                  
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Localidade</span>
+                    <select className="text-xs bg-slate-950 border border-slate-850 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-pink-500 text-slate-300 cursor-pointer">
+                      <option>Portugal (Todos)</option>
+                      <option>Norte</option>
+                      <option>Centro</option>
+                      <option>Sul</option>
+                      <option>Ilhas</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Cliente</span>
+                    <select className="text-xs bg-slate-950 border border-slate-850 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-pink-500 text-slate-300 cursor-pointer">
+                      <option>Todos</option>
+                      <option>Particular</option>
+                      <option>Profissional</option>
+                    </select>
                   </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Charts & Map Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                {/* Left & Middle: CSS/SVG Demographics Charts */}
+                <div className="md:col-span-2 space-y-6">
+                  
+                  {/* District Distribution Chart */}
+                  <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-5 space-y-4">
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-100">Clientes por Distrito</h4>
+                      <p className="text-[10px] text-slate-400">Distribuição com base nas moradas de registo.</p>
+                    </div>
+                    <div className="space-y-3">
+                      {Object.entries(
+                        users.reduce((acc, u) => {
+                          const dist = u.distrito || 'Não Especificado';
+                          acc[dist] = (acc[dist] || 0) + 1;
+                          return acc;
+                        }, {} as Record<string, number>)
+                      )
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 5)
+                        .map(([dist, count], idx) => {
+                          const percentage = users.length > 0 ? Math.round((count / users.length) * 100) : 0;
+                          return (
+                            <div key={idx} className="space-y-1">
+                              <div className="flex justify-between text-xs font-semibold">
+                                <span className="text-slate-300">{dist}</span>
+                                <span className="text-pink-400">{percentage}% ({count})</span>
+                              </div>
+                              <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-850">
+                                <div 
+                                  className="bg-gradient-to-r from-pink-500 to-rose-500 h-full rounded-full transition-all duration-500" 
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+
+                  {/* Age Demographics Chart */}
+                  <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-5 space-y-4">
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-100">Distribuição por Idade</h4>
+                      <p className="text-[10px] text-slate-400">Dados demográficos aproximados dos utilizadores.</p>
+                    </div>
+                    <div className="space-y-3">
+                      {[
+                        { range: '18 - 24 anos', percent: 18, count: Math.round(users.length * 0.18) },
+                        { range: '25 - 34 anos', percent: 38, count: Math.round(users.length * 0.38) },
+                        { range: '35 - 44 anos', percent: 24, count: Math.round(users.length * 0.24) },
+                        { range: '45 - 54 anos', percent: 12, count: Math.round(users.length * 0.12) },
+                        { range: '55+ anos', percent: 8, count: Math.round(users.length * 0.08) }
+                      ].map((age, idx) => (
+                        <div key={idx} className="space-y-1">
+                          <div className="flex justify-between text-xs font-semibold">
+                            <span className="text-slate-300">{age.range}</span>
+                            <span className="text-purple-400">{age.percent}% ({age.count})</span>
+                          </div>
+                          <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-850">
+                            <div 
+                              className="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full transition-all duration-500" 
+                              style={{ width: `${age.percent}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Right: SVG Interactive Portugal Map */}
+                <div className="md:col-span-1">
+                  <PortugalMap 
+                    userCountsByDistrict={users.reduce((acc, u) => {
+                      const dist = u.distrito || 'Não Especificado';
+                      acc[dist] = (acc[dist] || 0) + 1;
+                      return acc;
+                    }, {} as Record<string, number>)}
+                  />
+                </div>
+
+              </div>
+
+              {/* Downloads Section */}
+              <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-100">Downloads da Aplicação</h4>
+                    <p className="text-[10px] text-slate-400">Total acumulado de instalações em dispositivos móveis.</p>
+                  </div>
+                  <div className="flex gap-4 text-xs font-bold text-slate-400">
+                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" /> Google Play</span>
+                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-505 inline-block" /> Apple Store</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  
+                  <div className="bg-slate-950/40 border border-slate-850 p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Google Play Store</span>
+                      <p className="text-xl font-black text-emerald-400 mt-1">12.450 <span className="text-[10px] font-normal text-slate-500">inst.</span></p>
+                    </div>
+                    <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-900/30 flex items-center justify-center text-emerald-500 text-xs font-black">
+                      GP
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-950/40 border border-slate-850 p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Apple App Store</span>
+                      <p className="text-xl font-black text-blue-400 mt-1">9.820 <span className="text-[10px] font-normal text-slate-500">inst.</span></p>
+                    </div>
+                    <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-900/30 flex items-center justify-center text-blue-500 text-xs font-black">
+                      iOS
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-950/40 border border-slate-850 p-4 rounded-xl flex items-center justify-between sm:col-span-2 md:col-span-1">
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Taxa de Retenção</span>
+                      <p className="text-xl font-black text-pink-400 mt-1">84,6% <span className="text-[10px] font-normal text-slate-500">30d</span></p>
+                    </div>
+                    <div className="w-10 h-10 rounded-lg bg-pink-500/10 border border-pink-900/30 flex items-center justify-center text-pink-500 text-xs font-black">
+                      %
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Evolution Chart */}
+                <div className="h-28 bg-slate-950/40 border border-slate-850 rounded-xl p-2 relative overflow-hidden flex items-end">
+                  <svg viewBox="0 0 500 100" className="w-full h-full" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="gpGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+                        <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                      </linearGradient>
+                      <linearGradient id="apGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.25" />
+                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <path d="M0,80 Q75,70 150,55 T300,45 T450,25 T500,15 L500,100 L0,100 Z" fill="url(#gpGrad)" />
+                    <path d="M0,80 Q75,70 150,55 T300,45 T450,25 T500,15" fill="none" stroke="#10b981" strokeWidth="2.5" />
+                    <path d="M0,90 Q75,85 150,75 T300,60 T450,45 T500,35 L500,100 L0,100 Z" fill="url(#apGrad)" />
+                    <path d="M0,90 Q75,85 150,75 T300,60 T450,45 T500,35" fill="none" stroke="#3b82f6" strokeWidth="2.5" />
+                  </svg>
+                  <div className="absolute inset-x-0 bottom-1.5 flex justify-between px-3 text-[9px] font-bold text-slate-500">
+                    <span>Jan</span>
+                    <span>Fev</span>
+                    <span>Mar</span>
+                    <span>Abr</span>
+                    <span>Mai</span>
+                    <span>Jun (Atual)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {tab === 'utilizadores' && (
+            <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5">
+              <h2 className="text-lg font-extrabold text-slate-100 mb-4 flex items-center gap-2">
+                <Users className="text-pink-500" /> Gestão de Utilizadores
+              </h2>
+              <UserTable
+                users={users}
+                onRoleChange={handleRoleChange}
+                adminUid={auth.user?.uid || ''}
+                adminNome={auth.user?.nome || 'Admin'}
+                onGrantPlan={handleGrantPlan}
+                onRevokePlan={handleRevokePlan}
+              />
+            </div>
+          )}
+
+          {tab === 'anuncios' && (
+            <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 text-slate-100">
+              <h2 className="text-lg font-extrabold text-slate-100 mb-4 flex items-center gap-2">
+                <List className="text-pink-500" /> Gestão de Anúncios
+              </h2>
+              <ListingsTable
+                carros={carrosOrdenados}
+                pecas={pecasOrdenados}
+                defaultTab={subTabAnuncios}
+                statusFilter={statusFilter}
+                onDeleteCarro={handleDeleteCarro}
+                onDeletePeca={handleDeletePeca}
+                onApproveCarro={handleApproveCarro}
+                onRejectCarro={handleRejectCarro}
+                onApprovePeca={handleApprovePeca}
+                onRejectPeca={handleRejectPeca}
+                onUpdateCarro={handleUpdateCarro}
+                onUpdatePeca={handleUpdatePeca}
+              />
+            </div>
+          )}
+
+
+
+          {tab === 'intencoes' && (
+            <div className="space-y-6 text-slate-100">
+              <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5">
+                <h2 className="text-lg font-extrabold text-slate-100 mb-4 flex items-center gap-2">
+                  <MagnifyingGlass className="text-pink-500" /> Gestão de Intenções de Compra
+                </h2>
+                {intencoesAdmin.length === 0 ? (
+                  <p className="text-sm text-slate-500">Nenhuma intenção encontrada.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {intencoesOrdenadas.filter((i) => i.status !== 'deletada').map((intencao) => (
+                      <div key={intencao.id} className="flex items-center justify-between bg-slate-950 border border-slate-850 rounded-xl p-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-slate-200 truncate">{intencao.titulo}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            {intencao.criterios.marca} {intencao.criterios.modelo} • {intencao.status} • {intencao.stats.visualizacoes} visualizações
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                          {intencao.status === 'pendente' && (
+                            <>
+                              <Button tipo="verde" tamanho="sm" onClick={() => handleApproveIntencao(intencao.id)}>Aprovar</Button>
+                              <Button tipo="perigo" tamanho="sm" onClick={() => handleRejectIntencao(intencao.id)}>Rejeitar</Button>
+                            </>
+                          )}
+                          {intencao.status === 'ativa' && (
+                            <Button tipo="aviso" tamanho="sm" onClick={() => handleUpdateIntencaoStatus(intencao.id, 'pausada')}>Pausar</Button>
+                          )}
+                          {intencao.status === 'pausada' && (
+                            <Button tipo="verde" tamanho="sm" onClick={() => handleUpdateIntencaoStatus(intencao.id, 'ativa')}>Ativar</Button>
+                          )}
+                          {intencao.status !== 'pendente' && (
+                            <Button tipo="perigo" tamanho="sm" onClick={() => handleUpdateIntencaoStatus(intencao.id, 'deletada')}>Remover</Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5">
+                <h2 className="text-lg font-extrabold text-slate-100 mb-4 flex items-center gap-2">
+                  <Flag className="text-red-500" /> Denúncias de Intenções
+                </h2>
+                {denunciasIntencao.length === 0 ? (
+                  <p className="text-sm text-slate-500">Nenhuma denúncia pendente.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {denunciasIntencao.map((denuncia) => (
+                      <div key={denuncia.id} className="flex items-center justify-between bg-slate-950 border border-slate-850 rounded-xl p-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-slate-200">Motivo: {denuncia.motivo}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">{denuncia.descricao} • Status: {denuncia.status}</p>
+                        </div>
+                        <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                          <Button tipo="perigo" tamanho="sm" onClick={async () => { await updateIntencaoStatus(denuncia.intencaoId, 'deletada'); await updateDenunciaIntencaoStatus(denuncia.id, 'resolvida', auth.user?.email || 'admin', 'remocao'); setIntencoesAdmin((prev) => prev.filter((i) => i.id !== denuncia.intencaoId)); }}>Remover Intenção</Button>
+                          <Button tipo="aviso" tamanho="sm" onClick={() => updateDenunciaIntencaoStatus(denuncia.id, 'resolvida', auth.user?.email || 'admin', 'aviso')}>Avisar</Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {tab === 'oficinas' && (
+            <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 text-slate-100">
+              <h2 className="text-lg font-extrabold text-slate-100 mb-4 flex items-center gap-2">
+                <Wrench className="text-pink-500" /> Moderação de Oficinas & Mecânicos
+              </h2>
+              {oficinasAdmin.length === 0 ? (
+                <p className="text-sm text-slate-500">Nenhuma oficina registada.</p>
+              ) : (
+                <div className="space-y-4">
+                  {oficinasAdmin.map((oficina) => (
+                    <div key={oficina.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-950 border border-slate-850 rounded-2xl p-4 gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-bold text-slate-200 truncate">{oficina.nome}</p>
+                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${
+                            oficina.status === 'aprovado' ? 'bg-green-950/40 text-green-400 border-green-900/40' :
+                            oficina.status === 'rejeitado' ? 'bg-red-950/40 text-red-400 border-red-900/40' : 'bg-yellow-950/40 text-yellow-400 border-yellow-900/40'
+                          }`}>
+                            {oficina.status.toUpperCase()}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Responsável: {oficina.responsavel} • Contacto: {oficina.telefone} • Criador: {oficina.criador}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                          Especialidades: {oficina.especialidades.map(e => ESPECIALIDADES_LABELS[e]).join(', ')}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {oficina.status === 'pendente' && (
+                          <>
+                            <Button tipo="verde" tamanho="sm" onClick={() => handleApproveOficina(oficina.id)}>Aprovar</Button>
+                            <Button tipo="perigo" tamanho="sm" onClick={() => handleRejectOficina(oficina.id)}>Rejeitar</Button>
+                          </>
+                        )}
+                        {oficina.status === 'aprovado' && (
+                          <Button tipo="aviso" tamanho="sm" onClick={() => handleRejectOficina(oficina.id)}>Desativar</Button>
+                        )}
+                        {oficina.status === 'rejeitado' && (
+                          <Button tipo="verde" tamanho="sm" onClick={() => handleApproveOficina(oficina.id)}>Ativar</Button>
+                        )}
+                        <Button tipo="perigo" tamanho="sm" onClick={() => handleDeleteOficina(oficina.id)}>Eliminar</Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === 'pendentes' && (
+            <div className="space-y-6 text-slate-100">
+              
+              {/* Header/Subtabs for Pendentes */}
+              <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => setSubTabPendentes('anuncios')}
+                  className={`px-4 py-2 text-xs font-bold rounded-xl transition flex items-center gap-2 ${
+                    subTabPendentes === 'anuncios'
+                      ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md'
+                      : 'bg-slate-950/40 text-slate-400 hover:text-slate-200 border border-slate-850'
+                  }`}
+                >
+                  <List className="text-sm" /> Anúncios ({totalAnunciosPendentes})
+                </button>
+
+                <button
+                  onClick={() => setSubTabPendentes('oficinas')}
+                  className={`px-4 py-2 text-xs font-bold rounded-xl transition flex items-center gap-2 ${
+                    subTabPendentes === 'oficinas'
+                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
+                      : 'bg-slate-950/40 text-slate-400 hover:text-slate-200 border border-slate-850'
+                  }`}
+                >
+                  <Wrench className="text-sm" /> Oficinas ({totalOficinasPendentes})
+                </button>
+
+                <button
+                  onClick={() => setSubTabPendentes('avaliacoes')}
+                  className={`px-4 py-2 text-xs font-bold rounded-xl transition flex items-center gap-2 ${
+                    subTabPendentes === 'avaliacoes'
+                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md'
+                      : 'bg-slate-950/40 text-slate-400 hover:text-slate-200 border border-slate-850'
+                  }`}
+                >
+                  <StarHalf className="text-sm" /> Avaliações ({reviewsPendentes})
+                </button>
+
+                <button
+                  onClick={() => setSubTabPendentes('denuncias')}
+                  className={`px-4 py-2 text-xs font-bold rounded-xl transition flex items-center gap-2 ${
+                    subTabPendentes === 'denuncias'
+                      ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-md'
+                      : 'bg-slate-950/40 text-slate-400 hover:text-slate-200 border border-slate-850'
+                  }`}
+                >
+                  <Flag className="text-sm" /> Denúncias ({reportsPendentes + intencoesDenunciasPendentes})
+                </button>
+
+                <button
+                  onClick={() => setSubTabPendentes('verificacoes')}
+                  className={`px-4 py-2 text-xs font-bold rounded-xl transition flex items-center gap-2 ${
+                    subTabPendentes === 'verificacoes'
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md'
+                      : 'bg-slate-950/40 text-slate-400 hover:text-slate-200 border border-slate-850'
+                  }`}
+                >
+                  <ShieldCheck className="text-sm" /> Verificações ({verificationsPendentes})
+                </button>
+              </div>
+
+              {/* Subtab content */}
+              {subTabPendentes === 'anuncios' && (
+                <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5">
+                  <h3 className="text-sm font-extrabold text-slate-100 mb-4 flex items-center gap-2">
+                    <List className="text-amber-500" /> Anúncios Pendentes de Moderação
+                  </h3>
+                  <ListingsTable
+                    carros={carrosOrdenados}
+                    pecas={pecasOrdenados}
+                    defaultTab="carros"
+                    statusFilter="pendente"
+                    onDeleteCarro={handleDeleteCarro}
+                    onDeletePeca={handleDeletePeca}
+                    onApproveCarro={handleApproveCarro}
+                    onRejectCarro={handleRejectCarro}
+                    onApprovePeca={handleApprovePeca}
+                    onRejectPeca={handleRejectPeca}
+                    onUpdateCarro={handleUpdateCarro}
+                    onUpdatePeca={handleUpdatePeca}
+                  />
+                </div>
+              )}
+
+              {subTabPendentes === 'oficinas' && (
+                <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5">
+                  <h3 className="text-sm font-extrabold text-slate-100 mb-4 flex items-center gap-2">
+                    <Wrench className="text-blue-500" /> Oficinas & Mecânicos Pendentes
+                  </h3>
+                  {oficinasAdmin.filter(o => o.status === 'pendente').length === 0 ? (
+                    <p className="text-xs text-slate-500">Nenhuma oficina pendente de moderação.</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {oficinasAdmin.filter(o => o.status === 'pendente').map((oficina) => (
+                        <div key={oficina.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-950 border border-slate-850 rounded-2xl p-4 gap-4">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-slate-200 truncate">{oficina.nome}</p>
+                            <p className="text-xs text-slate-500 mt-1">
+                              Responsável: {oficina.responsavel} • Contacto: {oficina.telefone} • Criador: {oficina.criador}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <Button tipo="verde" tamanho="sm" onClick={() => handleApproveOficina(oficina.id)}>Aprovar</Button>
+                            <Button tipo="perigo" tamanho="sm" onClick={() => handleRejectOficina(oficina.id)}>Rejeitar</Button>
+                            <Button tipo="perigo" tamanho="sm" onClick={() => handleDeleteOficina(oficina.id)}>Eliminar</Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {subTabPendentes === 'avaliacoes' && (
+                <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5">
+                  <ReviewsQueue
+                    reviews={adminReviews}
+                    loading={reviewsAdminLoading}
+                    onApprove={handleApproveReview}
+                    onReject={handleRejectReview}
+                    onDelete={handleDeleteReview}
+                  />
+                </div>
+              )}
+
+              {subTabPendentes === 'denuncias' && (
+                <div className="space-y-6">
+                  <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5">
+                    <ReportsQueue
+                      reports={reports}
+                      loading={reportsLoading}
+                      onUpdateStatus={handleReportStatusUpdate}
+                    />
+                  </div>
+
+                  {denunciasIntencao.length > 0 && (
+                    <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5">
+                      <h3 className="text-sm font-extrabold text-slate-100 mb-4 flex items-center gap-2">
+                        <Flag className="text-red-500" /> Denúncias de Intenções
+                      </h3>
+                      <div className="space-y-2">
+                        {denunciasIntencao.map((denuncia) => (
+                          <div key={denuncia.id} className="flex items-center justify-between bg-slate-950 border border-slate-850 rounded-xl p-3">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold text-slate-200">Motivo: {denuncia.motivo}</p>
+                              <p className="text-xs text-slate-500 mt-0.5">{denuncia.descricao} • Status: {denuncia.status}</p>
+                            </div>
+                            <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                              <Button tipo="perigo" tamanho="sm" onClick={async () => { await updateIntencaoStatus(denuncia.intencaoId, 'deletada'); await updateDenunciaIntencaoStatus(denuncia.id, 'resolvida', auth.user?.email || 'admin', 'remocao'); setIntencoesAdmin((prev) => prev.filter((i) => i.id !== denuncia.intencaoId)); }}>Remover Intenção</Button>
+                              <Button tipo="aviso" tamanho="sm" onClick={() => updateDenunciaIntencaoStatus(denuncia.id, 'resolvida', auth.user?.email || 'admin', 'aviso')}>Avisar</Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {subTabPendentes === 'verificacoes' && (
+                <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5">
+                  <VerificationsQueue
+                    verifications={verifications}
+                    loading={verificationsLoading}
+                    onUpdateStatus={handleVerificationStatusUpdate}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === 'premium' && (
+            <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 text-slate-100">
+              <h2 className="text-lg font-extrabold text-slate-100 mb-4 flex items-center gap-2">
+                <Crown className="text-pink-500 shrink-0" weight="fill" /> Controlo de Módulos Premium
+              </h2>
+              <PremiumTogglePanel />
+            </div>
+          )}
+
+          {tab === 'seguro-financiamento' && (
+            <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 text-slate-100">
+              <SeguroFinanciamentoTab />
             </div>
           )}
         </div>
-      )}
-
-      {tab === 'denuncias' && (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-          <ReportsQueue
-            reports={reports}
-            loading={reportsLoading}
-            onUpdateStatus={handleReportStatusUpdate}
-          />
-        </div>
-      )}
-
-      {tab === 'verificacoes' && (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-          <VerificationsQueue
-            verifications={verifications}
-            loading={verificationsLoading}
-            onUpdateStatus={handleVerificationStatusUpdate}
-          />
-        </div>
-      )}
-
-      {tab === 'premium' && (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-          <h2 className="text-lg font-extrabold text-fg-heading mb-4 flex items-center gap-2">
-            <Crown className="text-amber-500 shrink-0" weight="fill" /> Controlo de Módulos Premium
-          </h2>
-          <PremiumTogglePanel />
-        </div>
-      )}
+      </main>
     </div>
   );
 }

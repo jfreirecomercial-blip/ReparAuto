@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Coins, ShieldCheck, Calculator, ArrowRight, CheckCircle } from '@phosphor-icons/react';
 import Button from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { criarLeadParceria } from '@/lib/db';
+import usePremiumConfig from '@/hooks/usePremiumConfig';
 
 interface FinanciamentoSeguroWidgetProps {
   carroPreco: number;
@@ -24,7 +25,21 @@ export default function FinanciamentoSeguroWidget({
   defaultTelefone = '',
 }: FinanciamentoSeguroWidgetProps) {
   const toast = useToast();
+  const { parceriasActive, financiamento: financiamentoEnabled, seguro: seguroEnabled } = usePremiumConfig();
   const [activeTab, setActiveTab] = useState<'financiamento' | 'seguro'>('financiamento');
+
+  // Adjust active tab if one of them is disabled
+  useEffect(() => {
+    if (!financiamentoEnabled && seguroEnabled && activeTab === 'financiamento') {
+      setActiveTab('seguro');
+    } else if (financiamentoEnabled && !seguroEnabled && activeTab === 'seguro') {
+      setActiveTab('financiamento');
+    }
+  }, [financiamentoEnabled, seguroEnabled, activeTab]);
+
+  if (!parceriasActive || (!financiamentoEnabled && !seguroEnabled)) {
+    return null;
+  }
 
   // Shared contact + consent (RGPD)
   const [nome, setNome] = useState(defaultNome);
@@ -173,31 +188,50 @@ export default function FinanciamentoSeguroWidget({
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm mt-4">
-      {/* Tabs header */}
-      <div className="flex border-b border-slate-100 pb-3 mb-4">
-        <button
-          onClick={() => setActiveTab('financiamento')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-1 text-sm font-bold border-b-2 transition-all ${
-            activeTab === 'financiamento'
-              ? 'border-accent text-accent'
-              : 'border-transparent text-fg-subtle hover:text-fg'
-          }`}
-        >
-          <Coins size={18} />
-          Financiamento
-        </button>
-        <button
-          onClick={() => setActiveTab('seguro')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-1 text-sm font-bold border-b-2 transition-all ${
-            activeTab === 'seguro'
-              ? 'border-accent text-accent'
-              : 'border-transparent text-fg-subtle hover:text-fg'
-          }`}
-        >
-          <ShieldCheck size={18} />
-          Seguro Auto
-        </button>
-      </div>
+      {/* Tabs header - only shown if BOTH are enabled */}
+      {financiamentoEnabled && seguroEnabled && (
+        <div className="flex border-b border-slate-100 pb-3 mb-4">
+          <button
+            onClick={() => setActiveTab('financiamento')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-1 text-sm font-bold border-b-2 transition-all ${
+              activeTab === 'financiamento'
+                ? 'border-accent text-accent'
+                : 'border-transparent text-fg-subtle hover:text-fg'
+            }`}
+          >
+            <Coins size={18} />
+            Financiamento
+          </button>
+          <button
+            onClick={() => setActiveTab('seguro')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-1 text-sm font-bold border-b-2 transition-all ${
+              activeTab === 'seguro'
+                ? 'border-accent text-accent'
+                : 'border-transparent text-fg-subtle hover:text-fg'
+            }`}
+          >
+            <ShieldCheck size={18} />
+            Seguro Auto
+          </button>
+        </div>
+      )}
+
+      {/* Title when only one tab is enabled */}
+      {!(financiamentoEnabled && seguroEnabled) && (
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-3 mb-4 text-sm font-bold text-fg-heading">
+          {financiamentoEnabled ? (
+            <>
+              <Coins size={18} className="text-accent" />
+              <span>Financiamento Automóvel</span>
+            </>
+          ) : (
+            <>
+              <ShieldCheck size={18} className="text-accent" />
+              <span>Seguro Automóvel</span>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Financiamento Tab */}
       {activeTab === 'financiamento' && (
