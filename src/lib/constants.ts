@@ -5,8 +5,7 @@ import type { CategoriaIntencao } from '@/types/intencao';
 // ============ CONSTANTES REPARAUTO ============
 
 // Limites
-export const MARCAS_MODELOS_COLLECTION = 'marcas-modelos';
-export const MARCAS_MODELOS_DOC = 'all';
+export const MARCAS_MODELOS_COLLECTION = 'marcas_modelos';
 
 export const MAX_FOTOS_CARRO = 6;
 export const MAX_FOTO_SIZE_MB = 10;

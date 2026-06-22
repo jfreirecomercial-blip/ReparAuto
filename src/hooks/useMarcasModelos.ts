@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import dados from '@/data/marcas-modelos.json';
+import { MARCAS_MODELOS_COLLECTION } from '@/lib/constants';
 import type { MarcaModeloDoc, MarcasModelosCache, TipoVeiculo } from '@/types/marcas-modelos';
 
 export interface MarcaModelos {
@@ -92,7 +93,7 @@ export function useMarcasModelos(options?: UseMarcasModelosOptions): UseMarcasMo
 
       try {
         const q = query(
-          collection(db, 'marcas_modelos'),
+          collection(db, MARCAS_MODELOS_COLLECTION),
           where('ativo', '==', true),
           orderBy('nome')
         );

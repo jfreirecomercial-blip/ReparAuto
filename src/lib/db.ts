@@ -18,8 +18,7 @@ import {
 } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
 import { db, storage } from './firebase';
-import { DB_VERSION, DB_VERSION_KEY, MARCAS_MODELOS_COLLECTION, MARCAS_MODELOS_DOC } from './constants';
-import marcasModelosData from '@/data/marcas-modelos.json';
+import { DB_VERSION, DB_VERSION_KEY } from './constants';
 import { contemProfanity } from './profanity';
 import type { Carro, CarroInput, StatusAnuncio } from '@/types/carro';
 import type { Peca, PecaInput, CompatibilityEntry } from '@/types/peca';

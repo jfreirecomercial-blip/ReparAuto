@@ -139,7 +139,7 @@ service cloud.firestore {
       );
     }
 
-    match /marcas-modelos/{docId} {
+    match /marcas_modelos/{docId} {
       allow read: if true;
       allow write: if isAdmin();
     }
