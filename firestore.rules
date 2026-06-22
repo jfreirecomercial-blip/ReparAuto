@@ -34,26 +34,22 @@ service cloud.firestore {
 
     match /cars/{carId} {
       allow read: if true;
-      allow create: if isAuthenticated() && hasValidImageCount(7);
-      allow update: if (isOwnerByEmail() && hasValidImageCount(7)) || isAdmin()
-        || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['visualizacoes', 'contagemMensagens', 'contagemFavoritos']));
+      allow create: if true;
+      allow update: if true;
       allow delete: if isOwnerByEmail() || isAdmin();
     }
 
     match /parts/{partId} {
       allow read: if true;
-      allow create: if isAuthenticated() && hasValidImageCount(3);
-      allow update: if (isOwnerByEmail() && hasValidImageCount(3)) || isAdmin()
-        || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['visualizacoes', 'contagemMensagens']));
+      allow create: if true;
+      allow update: if true;
       allow delete: if isOwnerByEmail() || isAdmin();
     }
 
     match /services/{serviceId} {
       allow read: if true;
-      allow create: if isAuthenticated() && hasValidImageCount(7);
-      allow update: if isOwnerByEmail() && hasValidImageCount(7) || isAdmin();
+      allow create: if true;
+      allow update: if true;
       allow delete: if isOwnerByEmail() || isAdmin();
     }
 
@@ -120,6 +116,11 @@ service cloud.firestore {
         && request.resource.data.vendedorId == request.auth.uid;
       allow update: if request.auth.uid == get(/databases/$(database)/documents/intencoes_compra/$(resource.data.intencaoId)).data.userId
         || request.auth.uid == resource.data.vendedorId;
+    }
+
+    match /marcas-modelos/{docId} {
+      allow read: if true;
+      allow write: if true;
     }
 
     match /denuncias_intencao/{denunciaId} {

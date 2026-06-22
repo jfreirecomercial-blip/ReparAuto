@@ -1056,26 +1056,33 @@ jobs:
     {
   "stats": {
     "branch": "pr-10",
-    "lastUpdated": "05/06/2026, 12:25:01",
+    "lastUpdated": "22/06/2026, 12:35:12",
     "commitsCount": 50,
     "contributorsCount": 5,
-    "totalFiles": 221,
-    "totalSize": "2.88 MB",
+    "totalFiles": 250,
+    "totalSize": "3.10 MB",
     "firebase": {
       "cars": 2,
-      "parts": 1,
+      "parts": 8,
       "oficinas": 3,
-      "users": 11,
+      "users": 14,
       "intentions": 4,
-      "reviews": 1,
+      "reviews": 0,
       "reports": 0
     }
   },
   "branch": "pr-10",
-  "lastUpdated": "05/06/2026, 12:25:01",
+  "lastUpdated": "22/06/2026, 12:35:12",
   "commits": [
     {
-      "hash": "2b7f6b0",
+      "hash": "d8c6274",
+      "author": "jlecter88",
+      "email": "jfreire.comercial@gmail.com",
+      "date": "2026-06-22",
+      "subject": "feat: migrate marcas-modelos from static JSON to Firestore with cache fallback"
+    },
+    {
+      "hash": "d49db48",
       "author": "jlecter88",
       "email": "jfreire.comercial@gmail.com",
       "date": "2026-06-05",
@@ -1416,22 +1423,15 @@ jobs:
       "email": "26871415+flavioislima@users.noreply.github.com",
       "date": "2026-05-28",
       "subject": "Merge branch 'claude/zen-maxwell-NSdeg' of http://127.0.0.1:43599/git/jfreirecomercial-blip/ReparAuto into claude/zen-maxwell-NSdeg"
-    },
-    {
-      "hash": "f1732f3",
-      "author": "Flavio F Lima",
-      "email": "26871415+flavioislima@users.noreply.github.com",
-      "date": "2026-05-28",
-      "subject": "Merge remote-tracking branch 'origin/main' into claude/zen-maxwell-NSdeg"
     }
   ],
   "contributors": [
     {
-      "commits": 61,
+      "commits": 111,
       "name": "Flavio F Lima"
     },
     {
-      "commits": 43,
+      "commits": 75,
       "name": "jlecter88"
     },
     {
@@ -1439,15 +1439,71 @@ jobs:
       "name": "Antigravity"
     },
     {
-      "commits": 7,
-      "name": "Biliane Silva"
+      "commits": 11,
+      "name": "Flávio Fearn"
     },
     {
       "commits": 7,
-      "name": "Flávio Fearn"
+      "name": "Biliane Silva"
     }
   ],
   "githubPrs": [
+    {
+      "number": 23,
+      "state": "closed",
+      "title": "feat(mobile): app React Native (Expo SDK 55) — completa (Fases 1 a 6)",
+      "user": "flavioislima",
+      "html_url": "https://github.com/jfreirecomercial-blip/ReparAuto/pull/23",
+      "created_at": "2026-06-18T16:21:43Z"
+    },
+    {
+      "number": 22,
+      "state": "closed",
+      "title": "feat(admin): admin pode conceder planos premium e impulsos a utilizadores",
+      "user": "jfreirecomercial-blip",
+      "html_url": "https://github.com/jfreirecomercial-blip/ReparAuto/pull/22",
+      "created_at": "2026-06-18T15:00:01Z"
+    },
+    {
+      "number": 21,
+      "state": "closed",
+      "title": "Add touch swipe navigation and fix form control styling",
+      "user": "flavioislima",
+      "html_url": "https://github.com/jfreirecomercial-blip/ReparAuto/pull/21",
+      "created_at": "2026-06-18T13:44:16Z"
+    },
+    {
+      "number": 20,
+      "state": "closed",
+      "title": "Review fixes for #19: unblock build + consent-gated leads",
+      "user": "flavioislima",
+      "html_url": "https://github.com/jfreirecomercial-blip/ReparAuto/pull/20",
+      "created_at": "2026-06-17T23:17:39Z"
+    },
+    {
+      "number": 19,
+      "state": "closed",
+      "title": "feat: implementar plano de monetização e carrossel de banners",
+      "user": "jfreirecomercial-blip",
+      "html_url": "https://github.com/jfreirecomercial-blip/ReparAuto/pull/19",
+      "created_at": "2026-06-16T14:11:48Z"
+    },
+    {
+      "number": 18,
+      "state": "closed",
+      "title": "feat: require login to view seller contacts",
+      "user": "jfreirecomercial-blip",
+      "html_url": "https://github.com/jfreirecomercial-blip/ReparAuto/pull/18",
+      "created_at": "2026-06-16T13:21:46Z"
+    },
+    {
+      "number": 17,
+      "state": "closed",
+      "title": "fix/perf: XSS armazenado, fluxos quebrados por regras do Firestore e grande redução de custo de leitura/renders",
+      "user": "flavioislima",
+      "html_url": "https://github.com/jfreirecomercial-blip/ReparAuto/pull/17",
+      "created_at": "2026-06-11T18:14:44Z"
+    },
     {
       "number": 16,
       "state": "open",
@@ -1474,7 +1530,7 @@ jobs:
     },
     {
       "number": 13,
-      "state": "open",
+      "state": "closed",
       "title": "Feat/adicionar fale conosco",
       "user": "jfreirecomercial-blip",
       "html_url": "https://github.com/jfreirecomercial-blip/ReparAuto/pull/13",
@@ -1688,22 +1744,22 @@ jobs:
     {
       "filename": "00-summary.md",
       "title": "Plano Completo de Alterações",
-      "content": "# Plano Completo de Alterações\n\n## Resumo dos 3 problemas\n\n| # | Problema | Solução |\n|---|---------|---------|\n| 1 | Login redireciona para perfil em vez de voltar ao anúncio | LoginModal global + redirect via contexto |\n| 2 | Botões de contacto duplicados e escondem-se se faltam dados | Consolidar ContactSection, remover StatusPanel, mostrar fallbacks |\n| 3 | Não há página pública de intenção de compra com perfil do comprador | Nova rota `/intencao/[id]` + screen DetalhesIntencao |\n\n## Ordem de implementação\n\n1. **`src/types/app.ts`** — Adicionar `LoginModalContextValue`\n2. **`src/providers/AppProvider.tsx`** — Adicionar estado loginModal + renderizar LoginModal\n3. **`src/components/auth/LoginModal.tsx`** — Adicionar `onSuccess` prop\n4. **`src/screens/Perfil.tsx`** — Usar contexto em vez de estado local\n5. **`src/components/detalhes/ContactSection.tsx`** — Substituir link por openLoginModal + fallbacks\n6. **`src/components/pecas/DetalhesPecaModal.tsx`** — Substituir link por openLoginModal\n7. **`src/components/home/CarGrid.tsx`** — Substituir link por openLoginModal + ligar intenções\n8. **`src/screens/DetalhesCarro.tsx`** — Remover StatusPanel, mostrar preço no topo\n9. **`app/intencao/[id]/page.tsx`** — (NOVO) Server component com metadata\n10. **`src/screens/DetalhesIntencao.tsx`** — (NOVO) Client component com UI completa\n\n## Ficheiros a criar (2)\n\n- `app/intencao/[id]/page.tsx`\n- `src/screens/DetalhesIntencao.tsx`\n\n## Ficheiros a modificar (8)\n\n- `src/types/app.ts`\n- `src/providers/AppProvider.tsx`\n- `src/components/auth/LoginModal.tsx`\n- `src/screens/Perfil.tsx`\n- `src/components/detalhes/ContactSection.tsx`\n- `src/components/pecas/DetalhesPecaModal.tsx`\n- `src/components/home/CarGrid.tsx`\n- `src/screens/DetalhesCarro.tsx`\n\n## Fluxo pós-implementação\n\n```\nUtilizador não logado vê anúncio /detalhes/abc\n  → Clica \"Faça login para enviar mensagem\"\n  → LoginModal abre (sem sair da página!)\n  → Faz login/registo com sucesso\n  → Modal fecha\n  → Redirecionado de volta para /detalhes/abc\n  → Vê botão \"Enviar Mensagem (Chat Interno)\"\n```\n\n```\nIntenção de compra visível na homepage\n  → Clica no título ou \"Ver detalhes completos\"\n  → Navega para /intencao/xyz\n  → Vê critérios completos, preferências, perfil do comprador\n  → Contacta via WhatsApp/Email/Telefone/Chat\n```\n"
+      "content": "# Plano Completo de Alterações\r\n\r\n## Resumo dos 3 problemas\r\n\r\n| # | Problema | Solução |\r\n|---|---------|---------|\r\n| 1 | Login redireciona para perfil em vez de voltar ao anúncio | LoginModal global + redirect via contexto |\r\n| 2 | Botões de contacto duplicados e escondem-se se faltam dados | Consolidar ContactSection, remover StatusPanel, mostrar fallbacks |\r\n| 3 | Não há página pública de intenção de compra com perfil do comprador | Nova rota `/intencao/[id]` + screen DetalhesIntencao |\r\n\r\n## Ordem de implementação\r\n\r\n1. **`src/types/app.ts`** — Adicionar `LoginModalContextValue`\r\n2. **`src/providers/AppProvider.tsx`** — Adicionar estado loginModal + renderizar LoginModal\r\n3. **`src/components/auth/LoginModal.tsx`** — Adicionar `onSuccess` prop\r\n4. **`src/screens/Perfil.tsx`** — Usar contexto em vez de estado local\r\n5. **`src/components/detalhes/ContactSection.tsx`** — Substituir link por openLoginModal + fallbacks\r\n6. **`src/components/pecas/DetalhesPecaModal.tsx`** — Substituir link por openLoginModal\r\n7. **`src/components/home/CarGrid.tsx`** — Substituir link por openLoginModal + ligar intenções\r\n8. **`src/screens/DetalhesCarro.tsx`** — Remover StatusPanel, mostrar preço no topo\r\n9. **`app/intencao/[id]/page.tsx`** — (NOVO) Server component com metadata\r\n10. **`src/screens/DetalhesIntencao.tsx`** — (NOVO) Client component com UI completa\r\n\r\n## Ficheiros a criar (2)\r\n\r\n- `app/intencao/[id]/page.tsx`\r\n- `src/screens/DetalhesIntencao.tsx`\r\n\r\n## Ficheiros a modificar (8)\r\n\r\n- `src/types/app.ts`\r\n- `src/providers/AppProvider.tsx`\r\n- `src/components/auth/LoginModal.tsx`\r\n- `src/screens/Perfil.tsx`\r\n- `src/components/detalhes/ContactSection.tsx`\r\n- `src/components/pecas/DetalhesPecaModal.tsx`\r\n- `src/components/home/CarGrid.tsx`\r\n- `src/screens/DetalhesCarro.tsx`\r\n\r\n## Fluxo pós-implementação\r\n\r\n```\r\nUtilizador não logado vê anúncio /detalhes/abc\r\n  → Clica \"Faça login para enviar mensagem\"\r\n  → LoginModal abre (sem sair da página!)\r\n  → Faz login/registo com sucesso\r\n  → Modal fecha\r\n  → Redirecionado de volta para /detalhes/abc\r\n  → Vê botão \"Enviar Mensagem (Chat Interno)\"\r\n```\r\n\r\n```\r\nIntenção de compra visível na homepage\r\n  → Clica no título ou \"Ver detalhes completos\"\r\n  → Navega para /intencao/xyz\r\n  → Vê critérios completos, preferências, perfil do comprador\r\n  → Contacta via WhatsApp/Email/Telefone/Chat\r\n```\r\n"
     },
     {
       "filename": "01-login-redirect.md",
       "title": "Fase 1 — LoginModal Global + Redirect pós-login",
-      "content": "# Fase 1 — LoginModal Global + Redirect pós-login\n\n## Problema\n- Links \"Faça login para enviar mensagem\" navegam para `/perfil` (e perdem o anúncio atual)\n- `LoginModal` só existe na página `/perfil`, não é global\n- Após login, utilizador fica no `/perfil` sem voltar ao anúncio\n\n## Solução\nAdicionar `loginModal` ao `AppContextValue`, gerir estado no `AppProvider`, renderizar `LoginModal` globalmente no `LayoutShell`, e substituir todos os `<a href=\"/perfil\">` por `openLoginModal(currentPath)`.\n\n---\n\n## Ficheiro 1: `src/types/app.ts`\n\nAdicionar interface `LoginModalContextValue` e incluí-la no `AppContextValue`:\n\n```typescript\nexport interface LoginModalContextValue {\n  isOpen: boolean;\n  openLoginModal: (redirectTo?: string) => void;\n  closeLoginModal: () => void;\n}\n\nexport interface AppContextValue {\n  dbReady: boolean;\n  auth: AuthContextValue;\n  carros: CarrosContextValue;\n  pecas: PecasContextValue;\n  favoritos: FavoritosContextValue;\n  chat: ChatContextValue;\n  intencoes: IntencaoContextValue;\n  loginModal: LoginModalContextValue;  // <-- NOVO\n}\n```\n\n---\n\n## Ficheiro 2: `src/providers/AppProvider.tsx`\n\nAdicionar estado para controlar o modal de login + redirect, e expor via context:\n\n```typescript\n'use client';\n\nimport { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';\nimport { usePathname, useRouter } from 'next/navigation';\nimport { initDatabase } from '@/lib/db';\nimport useAuth from '@/hooks/useAuth';\nimport useCarros from '@/hooks/useCarros';\nimport usePecas from '@/hooks/usePecas';\nimport useFavoritos from '@/hooks/useFavoritos';\nimport { useChat } from '@/hooks/useChat';\nimport { useIntencoes } from '@/hooks/useIntencoes';\nimport LoginModal from '@/components/auth/LoginModal';\nimport type { AppContextValue } from '@/types/app';\n\nconst AppContext = createContext<AppContextValue | null>(null);\n\nexport function useApp(): AppContextValue {\n  const ctx = useContext(AppContext);\n  if (!ctx) {\n    throw new Error('useApp deve ser usado dentro de AppProvider');\n  }\n  return ctx;\n}\n\nexport default function AppProvider({ children }: { children: ReactNode }) {\n  const [dbReady, setDbReady] = useState(false);\n  const router = useRouter();\n  const pathname = usePathname();\n\n  // --- Login modal global state ---\n  const [loginModalOpen, setLoginModalOpen] = useState(false);\n  const [loginRedirectTo, setLoginRedirectTo] = useState<string | undefined>();\n  // Track whether user was logged in before modal opened\n  const [wasLoggedIn, setWasLoggedIn] = useState(false);\n\n  const openLoginModal = useCallback((redirectTo?: string) => {\n    setLoginRedirectTo(redirectTo);\n    setWasLoggedIn(false);\n    setLoginModalOpen(true);\n  }, []);\n\n  const closeLoginModal = useCallback(() => {\n    setLoginModalOpen(false);\n    setLoginRedirectTo(undefined);\n  }, []);\n\n  const handleLoginSuccess = useCallback(() => {\n    setLoginModalOpen(false);\n    // If there was a redirect path, navigate there\n    if (loginRedirectTo) {\n      router.push(loginRedirectTo);\n      setLoginRedirectTo(undefined);\n    }\n  }, [loginRedirectTo, router]);\n\n  // --- End login modal state ---\n\n  useEffect(() => {\n    initDatabase().then(() => {\n      setDbReady(true);\n    });\n  }, []);\n\n  const auth = useAuth();\n  const carros = useCarros();\n  const pecas = usePecas();\n  const favoritos = useFavoritos(auth.user);\n  const chat = useChat(auth.user?.uid || null, auth.user?.nome || '');\n  const intencoes = useIntencoes(auth.user?.uid || null);\n\n  const { isLoggedIn, loading, profileCompleted } = auth;\n\n  useEffect(() => {\n    if (loading) return;\n    if (isLoggedIn && !profileCompleted && pathname !== '/setup-perfil') {\n      router.replace('/setup-perfil');\n    }\n  }, [isLoggedIn, loading, profileCompleted, router, pathname]);\n\n  const value: AppContextValue = {\n    dbReady,\n    auth,\n    carros,\n    pecas,\n    favoritos,\n    chat,\n    intencoes,\n    loginModal: {\n      isOpen: loginModalOpen,\n      openLoginModal,\n      closeLoginModal,\n    },\n  };\n\n  return (\n    <AppContext.Provider value={value}>\n      {children}\n      <LoginModal\n        show={loginModalOpen}\n        onClose={closeLoginModal}\n        onSuccess={handleLoginSuccess}\n      />\n    </AppContext.Provider>\n  );\n}\n```\n\n---\n\n## Ficheiro 3: `src/components/auth/LoginModal.tsx`\n\nAdicionar `onSuccess` opcional à interface:\n\n```typescript\ninterface LoginModalProps {\n  show: boolean;\n  onClose: () => void;\n  onSuccess?: () => void;\n}\n\n// Chamar onSuccess() depois de onClose() em ambos handleSubmit e handleGoogle:\n// handleSubmit:\n      setNome('');\n      setEmail('');\n      setPassword('');\n      onClose();\n      onSuccess?.();\n\n// handleGoogle:\n      toast?.sucesso('Login com Google efetuado!');\n      onClose();\n      onSuccess?.();\n```\n\n---\n\n## Ficheiro 4: `src/screens/Perfil.tsx`\n\nEm vez de estado local, usar o contexto global `loginModal`:\n\n```typescript\n'use client';\n\nimport { useApp } from '@/providers/AppProvider';\nimport ProfileLoggedOut from '@/components/perfil/ProfileLoggedOut';\nimport ProfileLoggedIn from '@/components/perfil/ProfileLoggedIn';\n\nexport default function Perfil() {\n  const { auth, loginModal } = useApp();\n  const { isLoggedIn } = auth;\n\n  return (\n    <div className=\"page-enter\">\n      {isLoggedIn ? (\n        <ProfileLoggedIn />\n      ) : (\n        <ProfileLoggedOut onLogin={() => loginModal.openLoginModal('/perfil')} />\n      )}\n    </div>\n  );\n}\n```\n\n---\n\n## Ficheiro 5: `src/components/detalhes/ContactSection.tsx`\n\nSubstituir `<a href=\"#/perfil\">` por `openLoginModal()`:\n\n```typescript\n// NOVA importação no topo:\nimport { useRouter } from 'next/navigation';\n\n// NO hook, adicionar:\nconst router = useRouter();\nconst { loginModal } = useApp();\n\n// Substituir bloco \"Faça login para enviar mensagem\" (linhas 136-144):\n          {!temChat && !user && (\n            <button\n              onClick={() => loginModal.openLoginModal(router.current ? undefined : `/detalhes/${carro.id}`)}\n              className=\"flex items-center justify-center gap-2 w-full bg-slate-100 hover:bg-slate-200 text-fg-muted font-semibold py-3 px-4 rounded-xl transition text-sm\"\n            >\n              <SignIn />\n              Faça login para enviar mensagem\n            </button>\n          )}\n```\n\n---\n\n## Ficheiro 6: `src/components/pecas/DetalhesPecaModal.tsx`\n\nSubstituir `<a href=\"#/perfil\">`:\n\n```typescript\n// NO hook, adicionar:\nconst { loginModal } = useApp();\nconst router = useRouter();\n\n// Substituir bloco \"Faça login para enviar mensagem\" (linhas 158-166):\n          {!temChat && !user && (\n            <button\n              onClick={() => loginModal.openLoginModal(window.location.pathname)}\n              className=\"flex items-center justify-center gap-2 w-full bg-slate-100 hover:bg-slate-200 text-fg-muted font-semibold py-2.5 px-4 rounded-xl transition text-sm\"\n            >\n              <SignIn />\n              Faça login para enviar mensagem\n            </button>\n          )}\n```\n\n---\n\n## Ficheiro 7: `src/components/home/CarGrid.tsx`\n\nSubstituir `<Link href=\"/perfil\">` no bloco de intenções:\n\n```typescript\n// NO hook, adicionar (já existe useApp, adicionar loginModal):\nconst { carros, auth, chat, loginModal } = useApp();\n\n// Substituir bloco \"Faça login para contactar\" (linhas 392-399):\n                      {!user && (\n                        <button\n                          onClick={() => loginModal.openLoginModal('/')}\n                          className=\"flex items-center justify-center gap-1.5 w-full bg-slate-100 hover:bg-slate-200 text-fg-muted font-semibold py-1.5 px-3 rounded-xl transition text-xs\"\n                        >\n                          <SignIn size={14} />\n                          Faça login para contactar\n                        </button>\n                      )}\n```\n"
+      "content": "# Fase 1 — LoginModal Global + Redirect pós-login\r\n\r\n## Problema\r\n- Links \"Faça login para enviar mensagem\" navegam para `/perfil` (e perdem o anúncio atual)\r\n- `LoginModal` só existe na página `/perfil`, não é global\r\n- Após login, utilizador fica no `/perfil` sem voltar ao anúncio\r\n\r\n## Solução\r\nAdicionar `loginModal` ao `AppContextValue`, gerir estado no `AppProvider`, renderizar `LoginModal` globalmente no `LayoutShell`, e substituir todos os `<a href=\"/perfil\">` por `openLoginModal(currentPath)`.\r\n\r\n---\r\n\r\n## Ficheiro 1: `src/types/app.ts`\r\n\r\nAdicionar interface `LoginModalContextValue` e incluí-la no `AppContextValue`:\r\n\r\n```typescript\r\nexport interface LoginModalContextValue {\r\n  isOpen: boolean;\r\n  openLoginModal: (redirectTo?: string) => void;\r\n  closeLoginModal: () => void;\r\n}\r\n\r\nexport interface AppContextValue {\r\n  dbReady: boolean;\r\n  auth: AuthContextValue;\r\n  carros: CarrosContextValue;\r\n  pecas: PecasContextValue;\r\n  favoritos: FavoritosContextValue;\r\n  chat: ChatContextValue;\r\n  intencoes: IntencaoContextValue;\r\n  loginModal: LoginModalContextValue;  // <-- NOVO\r\n}\r\n```\r\n\r\n---\r\n\r\n## Ficheiro 2: `src/providers/AppProvider.tsx`\r\n\r\nAdicionar estado para controlar o modal de login + redirect, e expor via context:\r\n\r\n```typescript\r\n'use client';\r\n\r\nimport { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';\r\nimport { usePathname, useRouter } from 'next/navigation';\r\nimport { initDatabase } from '@/lib/db';\r\nimport useAuth from '@/hooks/useAuth';\r\nimport useCarros from '@/hooks/useCarros';\r\nimport usePecas from '@/hooks/usePecas';\r\nimport useFavoritos from '@/hooks/useFavoritos';\r\nimport { useChat } from '@/hooks/useChat';\r\nimport { useIntencoes } from '@/hooks/useIntencoes';\r\nimport LoginModal from '@/components/auth/LoginModal';\r\nimport type { AppContextValue } from '@/types/app';\r\n\r\nconst AppContext = createContext<AppContextValue | null>(null);\r\n\r\nexport function useApp(): AppContextValue {\r\n  const ctx = useContext(AppContext);\r\n  if (!ctx) {\r\n    throw new Error('useApp deve ser usado dentro de AppProvider');\r\n  }\r\n  return ctx;\r\n}\r\n\r\nexport default function AppProvider({ children }: { children: ReactNode }) {\r\n  const [dbReady, setDbReady] = useState(false);\r\n  const router = useRouter();\r\n  const pathname = usePathname();\r\n\r\n  // --- Login modal global state ---\r\n  const [loginModalOpen, setLoginModalOpen] = useState(false);\r\n  const [loginRedirectTo, setLoginRedirectTo] = useState<string | undefined>();\r\n  // Track whether user was logged in before modal opened\r\n  const [wasLoggedIn, setWasLoggedIn] = useState(false);\r\n\r\n  const openLoginModal = useCallback((redirectTo?: string) => {\r\n    setLoginRedirectTo(redirectTo);\r\n    setWasLoggedIn(false);\r\n    setLoginModalOpen(true);\r\n  }, []);\r\n\r\n  const closeLoginModal = useCallback(() => {\r\n    setLoginModalOpen(false);\r\n    setLoginRedirectTo(undefined);\r\n  }, []);\r\n\r\n  const handleLoginSuccess = useCallback(() => {\r\n    setLoginModalOpen(false);\r\n    // If there was a redirect path, navigate there\r\n    if (loginRedirectTo) {\r\n      router.push(loginRedirectTo);\r\n      setLoginRedirectTo(undefined);\r\n    }\r\n  }, [loginRedirectTo, router]);\r\n\r\n  // --- End login modal state ---\r\n\r\n  useEffect(() => {\r\n    initDatabase().then(() => {\r\n      setDbReady(true);\r\n    });\r\n  }, []);\r\n\r\n  const auth = useAuth();\r\n  const carros = useCarros();\r\n  const pecas = usePecas();\r\n  const favoritos = useFavoritos(auth.user);\r\n  const chat = useChat(auth.user?.uid || null, auth.user?.nome || '');\r\n  const intencoes = useIntencoes(auth.user?.uid || null);\r\n\r\n  const { isLoggedIn, loading, profileCompleted } = auth;\r\n\r\n  useEffect(() => {\r\n    if (loading) return;\r\n    if (isLoggedIn && !profileCompleted && pathname !== '/setup-perfil') {\r\n      router.replace('/setup-perfil');\r\n    }\r\n  }, [isLoggedIn, loading, profileCompleted, router, pathname]);\r\n\r\n  const value: AppContextValue = {\r\n    dbReady,\r\n    auth,\r\n    carros,\r\n    pecas,\r\n    favoritos,\r\n    chat,\r\n    intencoes,\r\n    loginModal: {\r\n      isOpen: loginModalOpen,\r\n      openLoginModal,\r\n      closeLoginModal,\r\n    },\r\n  };\r\n\r\n  return (\r\n    <AppContext.Provider value={value}>\r\n      {children}\r\n      <LoginModal\r\n        show={loginModalOpen}\r\n        onClose={closeLoginModal}\r\n        onSuccess={handleLoginSuccess}\r\n      />\r\n    </AppContext.Provider>\r\n  );\r\n}\r\n```\r\n\r\n---\r\n\r\n## Ficheiro 3: `src/components/auth/LoginModal.tsx`\r\n\r\nAdicionar `onSuccess` opcional à interface:\r\n\r\n```typescript\r\ninterface LoginModalProps {\r\n  show: boolean;\r\n  onClose: () => void;\r\n  onSuccess?: () => void;\r\n}\r\n\r\n// Chamar onSuccess() depois de onClose() em ambos handleSubmit e handleGoogle:\r\n// handleSubmit:\r\n      setNome('');\r\n      setEmail('');\r\n      setPassword('');\r\n      onClose();\r\n      onSuccess?.();\r\n\r\n// handleGoogle:\r\n      toast?.sucesso('Login com Google efetuado!');\r\n      onClose();\r\n      onSuccess?.();\r\n```\r\n\r\n---\r\n\r\n## Ficheiro 4: `src/screens/Perfil.tsx`\r\n\r\nEm vez de estado local, usar o contexto global `loginModal`:\r\n\r\n```typescript\r\n'use client';\r\n\r\nimport { useApp } from '@/providers/AppProvider';\r\nimport ProfileLoggedOut from '@/components/perfil/ProfileLoggedOut';\r\nimport ProfileLoggedIn from '@/components/perfil/ProfileLoggedIn';\r\n\r\nexport default function Perfil() {\r\n  const { auth, loginModal } = useApp();\r\n  const { isLoggedIn } = auth;\r\n\r\n  return (\r\n    <div className=\"page-enter\">\r\n      {isLoggedIn ? (\r\n        <ProfileLoggedIn />\r\n      ) : (\r\n        <ProfileLoggedOut onLogin={() => loginModal.openLoginModal('/perfil')} />\r\n      )}\r\n    </div>\r\n  );\r\n}\r\n```\r\n\r\n---\r\n\r\n## Ficheiro 5: `src/components/detalhes/ContactSection.tsx`\r\n\r\nSubstituir `<a href=\"#/perfil\">` por `openLoginModal()`:\r\n\r\n```typescript\r\n// NOVA importação no topo:\r\nimport { useRouter } from 'next/navigation';\r\n\r\n// NO hook, adicionar:\r\nconst router = useRouter();\r\nconst { loginModal } = useApp();\r\n\r\n// Substituir bloco \"Faça login para enviar mensagem\" (linhas 136-144):\r\n          {!temChat && !user && (\r\n            <button\r\n              onClick={() => loginModal.openLoginModal(router.current ? undefined : `/detalhes/${carro.id}`)}\r\n              className=\"flex items-center justify-center gap-2 w-full bg-slate-100 hover:bg-slate-200 text-fg-muted font-semibold py-3 px-4 rounded-xl transition text-sm\"\r\n            >\r\n              <SignIn />\r\n              Faça login para enviar mensagem\r\n            </button>\r\n          )}\r\n```\r\n\r\n---\r\n\r\n## Ficheiro 6: `src/components/pecas/DetalhesPecaModal.tsx`\r\n\r\nSubstituir `<a href=\"#/perfil\">`:\r\n\r\n```typescript\r\n// NO hook, adicionar:\r\nconst { loginModal } = useApp();\r\nconst router = useRouter();\r\n\r\n// Substituir bloco \"Faça login para enviar mensagem\" (linhas 158-166):\r\n          {!temChat && !user && (\r\n            <button\r\n              onClick={() => loginModal.openLoginModal(window.location.pathname)}\r\n              className=\"flex items-center justify-center gap-2 w-full bg-slate-100 hover:bg-slate-200 text-fg-muted font-semibold py-2.5 px-4 rounded-xl transition text-sm\"\r\n            >\r\n              <SignIn />\r\n              Faça login para enviar mensagem\r\n            </button>\r\n          )}\r\n```\r\n\r\n---\r\n\r\n## Ficheiro 7: `src/components/home/CarGrid.tsx`\r\n\r\nSubstituir `<Link href=\"/perfil\">` no bloco de intenções:\r\n\r\n```typescript\r\n// NO hook, adicionar (já existe useApp, adicionar loginModal):\r\nconst { carros, auth, chat, loginModal } = useApp();\r\n\r\n// Substituir bloco \"Faça login para contactar\" (linhas 392-399):\r\n                      {!user && (\r\n                        <button\r\n                          onClick={() => loginModal.openLoginModal('/')}\r\n                          className=\"flex items-center justify-center gap-1.5 w-full bg-slate-100 hover:bg-slate-200 text-fg-muted font-semibold py-1.5 px-3 rounded-xl transition text-xs\"\r\n                        >\r\n                          <SignIn size={14} />\r\n                          Faça login para contactar\r\n                        </button>\r\n                      )}\r\n```\r\n"
     },
     {
       "filename": "02-contact-buttons-consolidation.md",
       "title": "Fase 2 — Botões de Contacto Consistentes + Remover Duplicação",
-      "content": "# Fase 2 — Botões de Contacto Consistentes + Remover Duplicação\n\n## Problema\n- `DetalhesCarro.tsx` renderiza **StatusPanel** (legacy) **E** **ContactSection** (modern) — duplicando WhatsApp, Email, Telefone\n- Botões escondem-se se o vendedor não preencheu os dados (apenas Chat aparece na prática)\n- Nos cards de intenção (`CarGrid.tsx`), os botões também dependem de dados facultativos\n\n## Solução\n1. Remover `StatusPanel` de `DetalhesCarro.tsx` (consolidar contacto no `ContactSection`)\n2. `ContactSection` passa a mostrar **sempre** todos os botões — se o dado não existe, mostrar botão desativado com fallback\n3. Garantir que o preço e badge Low-Cost são mostrados mesmo sem StatusPanel\n\n---\n\n## Ficheiro 1: `src/screens/DetalhesCarro.tsx`\n\nRemover `StatusPanel` e mostrar preço + badge no topo:\n\n```typescript\n// Remover import de StatusPanel (linha 10):\n// import StatusPanel from '@/components/detalhes/StatusPanel';\n\n// Remover o bloco que renderiza StatusPanel (linhas 181-190):\n// Substituir por:\n        <div className=\"mb-6\">\n          {carro.estadoVeiculo === 'manutencao' && (\n            <Alert tipo=\"aviso\" icone={<Wrench />} className=\"!p-3 !rounded-lg !items-center font-semibold\">\n              Este veículo precisa de manutenção/reparações\n            </Alert>\n          )}\n        </div>\n\n// No topo, junto ao título, adicionar o preço (logo abaixo do h1 ou ao lado):\n        <div className=\"flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4\">\n          <div>\n            <h1 className=\"text-2xl sm:text-3xl font-extrabold text-fg-heading\">\n              {carro.marca} {carro.modelo}\n            </h1>\n            <p className=\"text-fg-subtle text-sm mt-1\">\n              {carro.anoFabricacao} • {carro.km?.toLocaleString('pt-PT')} km • {carro.local || 'Portugal'}\n            </p>\n          </div>\n          <div className=\"flex flex-col items-end gap-2\">\n            {/* Preço + badge Low-Cost */}\n            <div className=\"flex items-center gap-2\">\n              <span className=\"text-2xl sm:text-3xl font-extrabold text-accent\">\n                {formatarPreco(carro.preco)}\n              </span>\n              {isLowCost && <Badge cor=\"accent\" variante=\"solid\">Low-Cost</Badge>}\n            </div>\n            <div className=\"flex items-center gap-2\">\n              {carro.status === 'pendente' && <Badge cor=\"yellow\">Pendente</Badge>}\n              {carro.status === 'rejeitado' && <Badge cor=\"red\">Rejeitado</Badge>}\n              <button\n                onClick={() => toggleFavorito(carro.id)}\n                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition flex items-center gap-1 ${\n                  isFavorito(carro.id)\n                    ? 'bg-red-50 text-red-600 border-red-200'\n                    : 'bg-white text-fg-muted border-slate-200 hover:bg-slate-50'\n                }`}\n              >\n                <Heart weight={isFavorito(carro.id) ? 'fill' : 'regular'} className={isFavorito(carro.id) ? '' : 'text-slate-400'} />\n                {isFavorito(carro.id) ? 'Favorito' : 'Favoritar'}\n              </button>\n              <ShareButton\n                title={`${carro.marca} ${carro.modelo} - ReparAuto`}\n                text={`${carro.marca} ${carro.modelo} ${carro.anoFabricacao} - ${formatarPreco(carro.preco)}`}\n              />\n            </div>\n          </div>\n        </div>\n```\n\nNota: também remover import de `StatusPanel`.\n\n---\n\n## Ficheiro 2: `src/components/detalhes/ContactSection.tsx`\n\nGarantir que os botões aparecem sempre (com fallback quando dados em falta):\n\n```typescript\n// Modificar a lógica de temWhatsApp/temTelefone/temEmail para SEMPRE mostrar:\n  const whatsapp = obterWhatsApp(carro.vendedorWhatsApp, carro.vendedorTelefone);\n  const telefone = carro.vendedorTelefone;\n  const email = carro.vendedorEmail || carro.criador;\n  // Remover os \"tem\" checks que escondem — mostrar SEMPRE os botões\n  // Se não tem WhatsApp, mostrar botão desativado com tooltip\n  // Se não tem telefone, esconder o botão (não há fallback para telefone)\n  // Se não tem email, esconder o botão (não há fallback útil)\n\n  // Novo approach: manter os checks mas sempre mostrar visualmente\n  const temWhatsApp = !!whatsapp;\n  const temTelefone = !!telefone;\n  const temEmail = !!email;\n\n// Manter os botões como estão, mas ADICIONAR tooltips/estados disabled:\n// No grid de WhatsApp + Email:\n        <div className=\"grid grid-cols-1 sm:grid-cols-2 gap-3\">\n          {temWhatsApp ? (\n            <a\n              href={gerarLinkWhatsApp(whatsapp, `${carro.marca} ${carro.modelo}`)}\n              target=\"_blank\"\n              rel=\"noopener noreferrer\"\n              className=\"flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl transition text-sm\"\n            >\n              <WhatsappLogo className=\"text-lg\" />\n              WhatsApp\n            </a>\n          ) : (\n            <div\n              title=\"Vendedor não disponibilizou WhatsApp\"\n              className=\"flex items-center justify-center gap-2 bg-green-100 text-green-300 font-bold py-3 px-4 rounded-xl text-sm cursor-not-allowed\"\n            >\n              <WhatsappLogo className=\"text-lg\" />\n              WhatsApp indisponível\n            </div>\n          )}\n\n          {temEmail ? (\n            <a\n              href={`mailto:${email}`}\n              className=\"flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-fg font-semibold py-3 px-4 rounded-xl transition border border-slate-300 text-sm\"\n            >\n              <Envelope />\n              Enviar Email\n            </a>\n          ) : (\n            <div\n              title=\"Vendedor não disponibilizou email\"\n              className=\"flex items-center justify-center gap-2 bg-white text-fg-subtle font-semibold py-3 px-4 rounded-xl border border-slate-200 text-sm cursor-not-allowed\"\n            >\n              <Envelope />\n              Email indisponível\n            </div>\n          )}\n        </div>\n\n// Telefone (toggle reveal) — manter como está (já mostra sempre se temTelefone)\n\n// Na secção de Chat:\n          {temChat && (\n            <Button\n              tipo=\"azul\"\n              tamanho=\"lg\"\n              blocoCompleto\n              onClick={() => abrirChat(carro.id, 'carro', `${carro.marca} ${carro.modelo}`, vendedorUid!, carro.vendedorNome || carro.criador || 'Vendedor')}\n              icone={<ChatCircleDots />}\n            >\n              Enviar Mensagem (Chat Interno)\n            </Button>\n          )}\n\n          {!temChat && !user && (\n            <button\n              onClick={() => loginModal.openLoginModal(window.location.pathname)}\n              className=\"flex items-center justify-center gap-2 w-full bg-slate-100 hover:bg-slate-200 text-fg-muted font-semibold py-3 px-4 rounded-xl transition text-sm\"\n            >\n              <SignIn />\n              Faça login para enviar mensagem\n            </button>\n          )}\n\n          {/* NOVO: Se está logado mas não tem chat (mesmo utilizador), mostrar info */}\n          {!temChat && user && !vendedorUid && (\n            <div className=\"text-xs text-fg-subtle text-center py-2\">\n              Chat indisponível para este anúncio.\n            </div>\n          )}\n```\n\nAdicionar ao topo:\n```typescript\nimport { useRouter } from 'next/navigation';\n```\nE no hook:\n```typescript\nconst router = useRouter();\nconst { loginModal } = useApp();\n```\n"
+      "content": "# Fase 2 — Botões de Contacto Consistentes + Remover Duplicação\r\n\r\n## Problema\r\n- `DetalhesCarro.tsx` renderiza **StatusPanel** (legacy) **E** **ContactSection** (modern) — duplicando WhatsApp, Email, Telefone\r\n- Botões escondem-se se o vendedor não preencheu os dados (apenas Chat aparece na prática)\r\n- Nos cards de intenção (`CarGrid.tsx`), os botões também dependem de dados facultativos\r\n\r\n## Solução\r\n1. Remover `StatusPanel` de `DetalhesCarro.tsx` (consolidar contacto no `ContactSection`)\r\n2. `ContactSection` passa a mostrar **sempre** todos os botões — se o dado não existe, mostrar botão desativado com fallback\r\n3. Garantir que o preço e badge Low-Cost são mostrados mesmo sem StatusPanel\r\n\r\n---\r\n\r\n## Ficheiro 1: `src/screens/DetalhesCarro.tsx`\r\n\r\nRemover `StatusPanel` e mostrar preço + badge no topo:\r\n\r\n```typescript\r\n// Remover import de StatusPanel (linha 10):\r\n// import StatusPanel from '@/components/detalhes/StatusPanel';\r\n\r\n// Remover o bloco que renderiza StatusPanel (linhas 181-190):\r\n// Substituir por:\r\n        <div className=\"mb-6\">\r\n          {carro.estadoVeiculo === 'manutencao' && (\r\n            <Alert tipo=\"aviso\" icone={<Wrench />} className=\"!p-3 !rounded-lg !items-center font-semibold\">\r\n              Este veículo precisa de manutenção/reparações\r\n            </Alert>\r\n          )}\r\n        </div>\r\n\r\n// No topo, junto ao título, adicionar o preço (logo abaixo do h1 ou ao lado):\r\n        <div className=\"flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4\">\r\n          <div>\r\n            <h1 className=\"text-2xl sm:text-3xl font-extrabold text-fg-heading\">\r\n              {carro.marca} {carro.modelo}\r\n            </h1>\r\n            <p className=\"text-fg-subtle text-sm mt-1\">\r\n              {carro.anoFabricacao} • {carro.km?.toLocaleString('pt-PT')} km • {carro.local || 'Portugal'}\r\n            </p>\r\n          </div>\r\n          <div className=\"flex flex-col items-end gap-2\">\r\n            {/* Preço + badge Low-Cost */}\r\n            <div className=\"flex items-center gap-2\">\r\n              <span className=\"text-2xl sm:text-3xl font-extrabold text-accent\">\r\n                {formatarPreco(carro.preco)}\r\n              </span>\r\n              {isLowCost && <Badge cor=\"accent\" variante=\"solid\">Low-Cost</Badge>}\r\n            </div>\r\n            <div className=\"flex items-center gap-2\">\r\n              {carro.status === 'pendente' && <Badge cor=\"yellow\">Pendente</Badge>}\r\n              {carro.status === 'rejeitado' && <Badge cor=\"red\">Rejeitado</Badge>}\r\n              <button\r\n                onClick={() => toggleFavorito(carro.id)}\r\n                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition flex items-center gap-1 ${\r\n                  isFavorito(carro.id)\r\n                    ? 'bg-red-50 text-red-600 border-red-200'\r\n                    : 'bg-white text-fg-muted border-slate-200 hover:bg-slate-50'\r\n                }`}\r\n              >\r\n                <Heart weight={isFavorito(carro.id) ? 'fill' : 'regular'} className={isFavorito(carro.id) ? '' : 'text-slate-400'} />\r\n                {isFavorito(carro.id) ? 'Favorito' : 'Favoritar'}\r\n              </button>\r\n              <ShareButton\r\n                title={`${carro.marca} ${carro.modelo} - ReparAuto`}\r\n                text={`${carro.marca} ${carro.modelo} ${carro.anoFabricacao} - ${formatarPreco(carro.preco)}`}\r\n              />\r\n            </div>\r\n          </div>\r\n        </div>\r\n```\r\n\r\nNota: também remover import de `StatusPanel`.\r\n\r\n---\r\n\r\n## Ficheiro 2: `src/components/detalhes/ContactSection.tsx`\r\n\r\nGarantir que os botões aparecem sempre (com fallback quando dados em falta):\r\n\r\n```typescript\r\n// Modificar a lógica de temWhatsApp/temTelefone/temEmail para SEMPRE mostrar:\r\n  const whatsapp = obterWhatsApp(carro.vendedorWhatsApp, carro.vendedorTelefone);\r\n  const telefone = carro.vendedorTelefone;\r\n  const email = carro.vendedorEmail || carro.criador;\r\n  // Remover os \"tem\" checks que escondem — mostrar SEMPRE os botões\r\n  // Se não tem WhatsApp, mostrar botão desativado com tooltip\r\n  // Se não tem telefone, esconder o botão (não há fallback para telefone)\r\n  // Se não tem email, esconder o botão (não há fallback útil)\r\n\r\n  // Novo approach: manter os checks mas sempre mostrar visualmente\r\n  const temWhatsApp = !!whatsapp;\r\n  const temTelefone = !!telefone;\r\n  const temEmail = !!email;\r\n\r\n// Manter os botões como estão, mas ADICIONAR tooltips/estados disabled:\r\n// No grid de WhatsApp + Email:\r\n        <div className=\"grid grid-cols-1 sm:grid-cols-2 gap-3\">\r\n          {temWhatsApp ? (\r\n            <a\r\n              href={gerarLinkWhatsApp(whatsapp, `${carro.marca} ${carro.modelo}`)}\r\n              target=\"_blank\"\r\n              rel=\"noopener noreferrer\"\r\n              className=\"flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl transition text-sm\"\r\n            >\r\n              <WhatsappLogo className=\"text-lg\" />\r\n              WhatsApp\r\n            </a>\r\n          ) : (\r\n            <div\r\n              title=\"Vendedor não disponibilizou WhatsApp\"\r\n              className=\"flex items-center justify-center gap-2 bg-green-100 text-green-300 font-bold py-3 px-4 rounded-xl text-sm cursor-not-allowed\"\r\n            >\r\n              <WhatsappLogo className=\"text-lg\" />\r\n              WhatsApp indisponível\r\n            </div>\r\n          )}\r\n\r\n          {temEmail ? (\r\n            <a\r\n              href={`mailto:${email}`}\r\n              className=\"flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-fg font-semibold py-3 px-4 rounded-xl transition border border-slate-300 text-sm\"\r\n            >\r\n              <Envelope />\r\n              Enviar Email\r\n            </a>\r\n          ) : (\r\n            <div\r\n              title=\"Vendedor não disponibilizou email\"\r\n              className=\"flex items-center justify-center gap-2 bg-white text-fg-subtle font-semibold py-3 px-4 rounded-xl border border-slate-200 text-sm cursor-not-allowed\"\r\n            >\r\n              <Envelope />\r\n              Email indisponível\r\n            </div>\r\n          )}\r\n        </div>\r\n\r\n// Telefone (toggle reveal) — manter como está (já mostra sempre se temTelefone)\r\n\r\n// Na secção de Chat:\r\n          {temChat && (\r\n            <Button\r\n              tipo=\"azul\"\r\n              tamanho=\"lg\"\r\n              blocoCompleto\r\n              onClick={() => abrirChat(carro.id, 'carro', `${carro.marca} ${carro.modelo}`, vendedorUid!, carro.vendedorNome || carro.criador || 'Vendedor')}\r\n              icone={<ChatCircleDots />}\r\n            >\r\n              Enviar Mensagem (Chat Interno)\r\n            </Button>\r\n          )}\r\n\r\n          {!temChat && !user && (\r\n            <button\r\n              onClick={() => loginModal.openLoginModal(window.location.pathname)}\r\n              className=\"flex items-center justify-center gap-2 w-full bg-slate-100 hover:bg-slate-200 text-fg-muted font-semibold py-3 px-4 rounded-xl transition text-sm\"\r\n            >\r\n              <SignIn />\r\n              Faça login para enviar mensagem\r\n            </button>\r\n          )}\r\n\r\n          {/* NOVO: Se está logado mas não tem chat (mesmo utilizador), mostrar info */}\r\n          {!temChat && user && !vendedorUid && (\r\n            <div className=\"text-xs text-fg-subtle text-center py-2\">\r\n              Chat indisponível para este anúncio.\r\n            </div>\r\n          )}\r\n```\r\n\r\nAdicionar ao topo:\r\n```typescript\r\nimport { useRouter } from 'next/navigation';\r\n```\r\nE no hook:\r\n```typescript\r\nconst router = useRouter();\r\nconst { loginModal } = useApp();\r\n```\r\n"
     },
     {
       "filename": "03-intention-detail-page.md",
       "title": "Fase 3 — Página Pública de Detalhes da Intenção",
-      "content": "# Fase 3 — Página Pública de Detalhes da Intenção\n\n## Problema\n- Não existe uma página pública `/intencao/[id]` para ver detalhes completos de uma intenção de compra\n- As intenções só aparecem como cards inline no `CarGrid` (homepage) e na lista `Minhas Intenções`\n- Vendedores não conseguem ver perfil completo do comprador, reviews, badges, etc.\n- Falta SEO para intenções de compra\n\n## Solução\nCriar:\n1. Rota `app/intencao/[id]/page.tsx` (server component com metadata)\n2. Screen `src/screens/DetalhesIntencao.tsx` (client component com UI completa)\n3. Atualizar `CarGrid.tsx` para ligar os cards à nova página\n\n---\n\n## Ficheiro 1: `app/intencao/[id]/page.tsx` (NOVO)\n\n```typescript\nimport type { Metadata } from 'next';\nimport { notFound } from 'next/navigation';\nimport { getIntencaoCompra } from '@/lib/db';\nimport DetalhesIntencao from '@/screens/DetalhesIntencao';\n\nexport const dynamic = 'force-dynamic';\n\ntype PageProps = { params: Promise<{ id: string }> };\n\nconst SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://recargarage.com';\n\nexport async function generateMetadata({ params }: PageProps): Promise<Metadata> {\n  const { id } = await params;\n  const intencao = await getIntencaoCompra(id);\n  if (!intencao || intencao.status !== 'ativa') {\n    return { title: 'Intenção não encontrada', robots: { index: false, follow: false } };\n  }\n  const title = intencao.titulo;\n  const description = `${intencao.criterios.marca} ${intencao.criterios.modelo} • Ano ${intencao.criterios.anoMinimo}${intencao.criterios.anoMaximo ? `–${intencao.criterios.anoMaximo}` : '+'} • Orçamento até ${intencao.criterios.precoMaximo.toLocaleString('pt-PT')}€ • ${intencao.criterios.combustivel.join(', ')} • ${intencao.criterios.localizacao.distrito}`;\n\n  return {\n    title,\n    description,\n    alternates: { canonical: `/intencao/${id}` },\n    openGraph: {\n      type: 'article',\n      title,\n      description,\n      url: `/intencao/${id}`,\n    },\n    twitter: { card: 'summary_large_image', title, description },\n  };\n}\n\nexport default async function Page({ params }: PageProps) {\n  const { id } = await params;\n  const intencao = await getIntencaoCompra(id);\n  if (!intencao || (intencao.status !== 'ativa' && intencao.status !== 'pausada')) notFound();\n\n  return <DetalhesIntencao intencao={intencao} />;\n}\n```\n\n---\n\n## Ficheiro 2: `src/screens/DetalhesIntencao.tsx` (NOVO)\n\n```typescript\n'use client';\n\nimport { ArrowLeft, Calendar, ChatCircleDots, Envelope, GasCan, Gear, IdentificationCard, MapPin, Money, Phone, SignIn, Speedometer, Star, User, WhatsappLogo } from '@phosphor-icons/react';\nimport { useState, useEffect } from 'react';\nimport { useRouter } from 'next/navigation';\nimport { useApp } from '@/providers/AppProvider';\nimport { getUserByEmail } from '@/lib/db';\nimport { formatarPreco, formatarData, obterWhatsApp, gerarLinkWhatsApp } from '@/lib/utils';\nimport Button from '@/components/ui/Button';\nimport Badge from '@/components/ui/Badge';\nimport SellerBadges from '@/components/trust/SellerBadges';\nimport type { IntencaoCompra } from '@/types/intencao';\nimport type { Usuario } from '@/types/usuario';\n\nexport default function DetalhesIntencao({ intencao }: { intencao: IntencaoCompra }) {\n  const router = useRouter();\n  const { auth, chat, loginModal } = useApp();\n  const { user } = auth;\n  const { abrirChat } = chat;\n  const [mostrarTelefone, setMostrarTelefone] = useState(false);\n  const [compradorProfile, setCompradorProfile] = useState<Usuario | null>(null);\n\n  useEffect(() => {\n    if (!intencao.vendedorEmail) return;\n    let stale = false;\n    getUserByEmail(intencao.vendedorEmail).then((found) => {\n      if (!stale && found) setCompradorProfile(found);\n    });\n    return () => { stale = true; };\n  }, [intencao.vendedorEmail]);\n\n  const whatsapp = obterWhatsApp(intencao.vendedorWhatsApp, intencao.vendedorTelefone);\n  const telefone = intencao.vendedorTelefone;\n  const email = intencao.vendedorEmail || '';\n  const temWhatsApp = !!whatsapp && (intencao.contatoPreferido === 'whatsapp' || intencao.contatoPreferido === 'ambos');\n  const temTelefone = !!telefone && intencao.mostrarTelefone;\n  const temEmail = !!email && (intencao.contatoPreferido === 'whatsapp' || intencao.contatoPreferido === 'ambos');\n  const isOwn = user?.uid === intencao.userId;\n  const temChat = !!user && !!intencao.userId && !isOwn;\n\n  const c = intencao.criterios;\n  const p = intencao.preferencias;\n\n  return (\n    <div className=\"page-enter max-w-3xl mx-auto\">\n      <Button tipo=\"terciario\" tamanho=\"sm\" icone={<ArrowLeft />} onClick={() => router.back()} className=\"mb-3\">\n        Voltar\n      </Button>\n\n      <div className=\"bg-white rounded-2xl shadow-lg p-4 sm:p-6\">\n        {/* Título + Status */}\n        <div className=\"flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6\">\n          <div>\n            <h1 className=\"text-2xl sm:text-3xl font-extrabold text-fg-heading\">{intencao.titulo}</h1>\n            <p className=\"text-fg-subtle text-sm mt-1 flex items-center gap-1\">\n              <Calendar /> Publicado em {formatarData(intencao.criadaEm)}\n            </p>\n          </div>\n          <Badge cor={intencao.status === 'ativa' ? 'green' : 'yellow'}>\n            {intencao.status === 'ativa' ? 'Ativa' : 'Pausada'}\n          </Badge>\n        </div>\n\n        {/* Critérios de busca */}\n        <div className=\"bg-slate-50 rounded-xl p-4 sm:p-5 mb-6\">\n          <h3 className=\"font-extrabold text-fg-heading mb-4 flex items-center gap-2\">\n            <IdentificationCard className=\"text-accent\" /> Critérios de Busca\n          </h3>\n          <div className=\"grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-sm\">\n            <div>\n              <span className=\"text-xs font-semibold text-fg-subtle\">Marca</span>\n              <p className=\"font-semibold text-fg-heading\">{c.marca}</p>\n            </div>\n            <div>\n              <span className=\"text-xs font-semibold text-fg-subtle\">Modelo</span>\n              <p className=\"font-semibold text-fg-heading\">{c.modelo}</p>\n            </div>\n            <div>\n              <span className=\"text-xs font-semibold text-fg-subtle\">Ano</span>\n              <p className=\"font-semibold text-fg-heading\">{c.anoMinimo}{c.anoMaximo ? ` – ${c.anoMaximo}` : '+'}</p>\n            </div>\n            <div>\n              <span className=\"text-xs font-semibold text-fg-subtle flex items-center gap-1\"><Money /> Orçamento</span>\n              <p className=\"font-semibold text-accent\">\n                {c.precoMinimo ? `${formatarPreco(c.precoMinimo)} – ` : 'Até '}{formatarPreco(c.precoMaximo)}\n              </p>\n            </div>\n            <div>\n              <span className=\"text-xs font-semibold text-fg-subtle flex items-center gap-1\"><GasCan /> Combustível</span>\n              <p className=\"font-semibold text-fg-heading\">{c.combustivel.join(', ')}</p>\n            </div>\n            <div>\n              <span className=\"text-xs font-semibold text-fg-subtle flex items-center gap-1\"><Gear /> Transmissão</span>\n              <p className=\"font-semibold text-fg-heading\">{c.tipoTransmissao.join(', ')}</p>\n            </div>\n            <div>\n              <span className=\"text-xs font-semibold text-fg-subtle flex items-center gap-1\"><Speedometer /> Km máx</span>\n              <p className=\"font-semibold text-fg-heading\">{c.quilometragemMaxima.toLocaleString('pt-PT')} km</p>\n            </div>\n            <div>\n              <span className=\"text-xs font-semibold text-fg-subtle flex items-center gap-1\"><MapPin /> Localização</span>\n              <p className=\"font-semibold text-fg-heading\">{c.localizacao.distrito} ({c.localizacao.raio} km)</p>\n            </div>\n          </div>\n        </div>\n\n        {/* Preferências */}\n        {p && (p.cores || p.tipoCarroceria || p.itensDesejados || p.aceitaFinanciamento !== undefined || p.aceitaTroca !== undefined) && (\n          <div className=\"bg-slate-50 rounded-xl p-4 sm:p-5 mb-6\">\n            <h3 className=\"font-extrabold text-fg-heading mb-4\">Preferências</h3>\n            <div className=\"grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-sm\">\n              {p.cores && p.cores.length > 0 && (\n                <div>\n                  <span className=\"text-xs font-semibold text-fg-subtle\">Cores</span>\n                  <p className=\"font-semibold text-fg-heading\">{p.cores.join(', ')}</p>\n                </div>\n              )}\n              {p.tipoCarroceria && p.tipoCarroceria.length > 0 && (\n                <div>\n                  <span className=\"text-xs font-semibold text-fg-subtle\">Carroceria</span>\n                  <p className=\"font-semibold text-fg-heading\">{p.tipoCarroceria.join(', ')}</p>\n                </div>\n              )}\n              {p.itensDesejados && p.itensDesejados.length > 0 && (\n                <div>\n                  <span className=\"text-xs font-semibold text-fg-subtle\">Itens desejados</span>\n                  <p className=\"font-semibold text-fg-heading\">{p.itensDesejados.join(', ')}</p>\n                </div>\n              )}\n              {p.aceitaFinanciamento !== undefined && (\n                <div>\n                  <span className=\"text-xs font-semibold text-fg-subtle\">Financiamento</span>\n                  <p className=\"font-semibold text-fg-heading\">{p.aceitaFinanciamento ? 'Aceita' : 'Não aceita'}</p>\n                </div>\n              )}\n              {p.aceitaTroca !== undefined && (\n                <div>\n                  <span className=\"text-xs font-semibold text-fg-subtle\">Troca</span>\n                  <p className=\"font-semibold text-fg-heading\">{p.aceitaTroca ? 'Aceita' : 'Não aceita'}</p>\n                </div>\n              )}\n            </div>\n          </div>\n        )}\n\n        {/* Descrição adicional */}\n        {intencao.descricao && (\n          <div className=\"mb-6\">\n            <h3 className=\"font-extrabold text-fg-heading mb-2\">Descrição</h3>\n            <p className=\"text-sm text-fg leading-relaxed whitespace-pre-wrap\">{intencao.descricao}</p>\n          </div>\n        )}\n\n        {/* Contactar Comprador */}\n        <div className=\"bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm mt-6\">\n          <h3 className=\"font-extrabold text-fg-heading mb-4 flex items-center gap-2\">\n            <IdentificationCard className=\"text-accent\" /> Contactar Comprador\n          </h3>\n\n          <div className=\"flex items-center gap-2 text-sm text-brand-700 mb-2\">\n            <User className=\"text-slate-400\" />\n            <span className=\"font-semibold\">{intencao.vendedorNome || 'Comprador'}</span>\n          </div>\n\n          {compradorProfile && (\n            <div className=\"mb-4\">\n              <SellerBadges\n                verificado={compradorProfile.verificado}\n                badges={compradorProfile.badges}\n                mediaAvaliacoes={compradorProfile.mediaAvaliacoes}\n                totalAvaliacoes={compradorProfile.totalAvaliacoes}\n              />\n            </div>\n          )}\n\n          <div className=\"grid grid-cols-1 sm:grid-cols-2 gap-3\">\n            {temWhatsApp && (\n              <a\n                href={gerarLinkWhatsApp(whatsapp!, intencao.titulo)}\n                target=\"_blank\"\n                rel=\"noopener noreferrer\"\n                className=\"flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl transition text-sm\"\n              >\n                <WhatsappLogo className=\"text-lg\" />\n                WhatsApp\n              </a>\n            )}\n            {temEmail && (\n              <a\n                href={`mailto:${email}`}\n                className=\"flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-fg font-semibold py-3 px-4 rounded-xl transition border border-slate-300 text-sm\"\n              >\n                <Envelope />\n                Enviar Email\n              </a>\n            )}\n          </div>\n\n          <div className=\"mt-3\">\n            {temTelefone && !mostrarTelefone && (\n              <Button tipo=\"primario\" tamanho=\"lg\" blocoCompleto onClick={() => setMostrarTelefone(true)} icone={<Phone />}>\n                Ver Telefone\n              </Button>\n            )}\n            {temTelefone && mostrarTelefone && (\n              <a\n                href={`tel:${telefone}`}\n                className=\"flex items-center justify-center gap-2 w-full bg-accent hover:bg-accent-hover text-white font-bold py-3 px-4 rounded-xl transition text-sm\"\n              >\n                <Phone />\n                {telefone}\n              </a>\n            )}\n          </div>\n\n          <div className=\"mt-3\">\n            {temChat && (\n              <Button\n                tipo=\"azul\"\n                tamanho=\"lg\"\n                blocoCompleto\n                onClick={() => abrirChat(intencao.id, 'intencao', intencao.titulo, intencao.userId, intencao.vendedorNome || 'Comprador')}\n                icone={<ChatCircleDots />}\n              >\n                Enviar Mensagem (Chat Interno)\n              </Button>\n            )}\n            {!temChat && !user && (\n              <button\n                onClick={() => loginModal.openLoginModal(window.location.pathname)}\n                className=\"flex items-center justify-center gap-2 w-full bg-slate-100 hover:bg-slate-200 text-fg-muted font-semibold py-3 px-4 rounded-xl transition text-sm\"\n              >\n                <SignIn />\n                Faça login para enviar mensagem\n              </button>\n            )}\n          </div>\n        </div>\n\n        {/* Stats */}\n        <div className=\"mt-4 flex items-center gap-4 text-xs text-fg-subtle\">\n          <span>{intencao.stats.visualizacoes} visualizações</span>\n          <span>{intencao.stats.contatos} contactos</span>\n        </div>\n      </div>\n    </div>\n  );\n}\n```\n\n---\n\n## Ficheiro 3: `src/components/home/CarGrid.tsx`\n\nTornar os cards de intenção clicáveis para navegar para `/intencao/[id]`:\n\n```typescript\n// ADICIONAR import de Link no topo (já existe, mas verificar)\nimport Link from 'next/link';\n\n// No bloco de renderização de cada intenção (linha 322-403):\n// Envolver o card num Link para /intencao/[id]\n                  return (\n                  <Link\n                    key={intencao.id}\n                    href={`/intencao/${intencao.id}`}\n                    className=\"block bg-white rounded-2xl shadow-sm border border-slate-200 p-4 hover:border-accent/40 hover:shadow-md transition-all\"\n                  >\n                    {/* ... conteúdo existente do card ... */}\n                  </Link>\n                  );\n```\n\nNota: O card atual não está num Link. Envolver todo o conteúdo do card (dentro do `map`) num `<Link>` para `/intencao/${intencao.id}`. Os botões de contacto internos (WhatsApp, Email, Telefone, Chat) devem ter `e.preventDefault()` no onClick para não navegar quando se clica neles.\n\nOu melhor: em vez de envolver tudo num Link, manter o card como `div` e ADICIONAR um \"Ver detalhes\" ou tornar o título clicável. Isto evita conflitos com os botões de contacto.\n\nAbordagem recomendada:\n\n```typescript\n// No título do card, tornar clicável:\n<h3 className=\"font-bold text-fg-heading text-sm mb-2\">\n  <Link href={`/intencao/${intencao.id}`} className=\"hover:text-accent transition-colors\">\n    {intencao.titulo}\n  </Link>\n</h3>\n\n// E adicionar um botão \"Ver detalhes\" no fundo:\n<div className=\"mt-2 pt-2 border-t border-slate-100\">\n  <Link\n    href={`/intencao/${intencao.id}`}\n    className=\"flex items-center justify-center gap-1.5 w-full bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-1.5 px-3 rounded-xl transition text-xs\"\n  >\n    Ver detalhes completos\n  </Link>\n</div>\n```\n\nOs botões de contacto (WhatsApp, Email, Telefone, Chat) mantêm-se como `<a>`, `<button>` ou `<Link>` independentes — não precisam de `preventDefault` porque não estão dentro de um Link ancestral.\n"
+      "content": "# Fase 3 — Página Pública de Detalhes da Intenção\r\n\r\n## Problema\r\n- Não existe uma página pública `/intencao/[id]` para ver detalhes completos de uma intenção de compra\r\n- As intenções só aparecem como cards inline no `CarGrid` (homepage) e na lista `Minhas Intenções`\r\n- Vendedores não conseguem ver perfil completo do comprador, reviews, badges, etc.\r\n- Falta SEO para intenções de compra\r\n\r\n## Solução\r\nCriar:\r\n1. Rota `app/intencao/[id]/page.tsx` (server component com metadata)\r\n2. Screen `src/screens/DetalhesIntencao.tsx` (client component com UI completa)\r\n3. Atualizar `CarGrid.tsx` para ligar os cards à nova página\r\n\r\n---\r\n\r\n## Ficheiro 1: `app/intencao/[id]/page.tsx` (NOVO)\r\n\r\n```typescript\r\nimport type { Metadata } from 'next';\r\nimport { notFound } from 'next/navigation';\r\nimport { getIntencaoCompra } from '@/lib/db';\r\nimport DetalhesIntencao from '@/screens/DetalhesIntencao';\r\n\r\nexport const dynamic = 'force-dynamic';\r\n\r\ntype PageProps = { params: Promise<{ id: string }> };\r\n\r\nconst SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://recargarage.com';\r\n\r\nexport async function generateMetadata({ params }: PageProps): Promise<Metadata> {\r\n  const { id } = await params;\r\n  const intencao = await getIntencaoCompra(id);\r\n  if (!intencao || intencao.status !== 'ativa') {\r\n    return { title: 'Intenção não encontrada', robots: { index: false, follow: false } };\r\n  }\r\n  const title = intencao.titulo;\r\n  const description = `${intencao.criterios.marca} ${intencao.criterios.modelo} • Ano ${intencao.criterios.anoMinimo}${intencao.criterios.anoMaximo ? `–${intencao.criterios.anoMaximo}` : '+'} • Orçamento até ${intencao.criterios.precoMaximo.toLocaleString('pt-PT')}€ • ${intencao.criterios.combustivel.join(', ')} • ${intencao.criterios.localizacao.distrito}`;\r\n\r\n  return {\r\n    title,\r\n    description,\r\n    alternates: { canonical: `/intencao/${id}` },\r\n    openGraph: {\r\n      type: 'article',\r\n      title,\r\n      description,\r\n      url: `/intencao/${id}`,\r\n    },\r\n    twitter: { card: 'summary_large_image', title, description },\r\n  };\r\n}\r\n\r\nexport default async function Page({ params }: PageProps) {\r\n  const { id } = await params;\r\n  const intencao = await getIntencaoCompra(id);\r\n  if (!intencao || (intencao.status !== 'ativa' && intencao.status !== 'pausada')) notFound();\r\n\r\n  return <DetalhesIntencao intencao={intencao} />;\r\n}\r\n```\r\n\r\n---\r\n\r\n## Ficheiro 2: `src/screens/DetalhesIntencao.tsx` (NOVO)\r\n\r\n```typescript\r\n'use client';\r\n\r\nimport { ArrowLeft, Calendar, ChatCircleDots, Envelope, GasCan, Gear, IdentificationCard, MapPin, Money, Phone, SignIn, Speedometer, Star, User, WhatsappLogo } from '@phosphor-icons/react';\r\nimport { useState, useEffect } from 'react';\r\nimport { useRouter } from 'next/navigation';\r\nimport { useApp } from '@/providers/AppProvider';\r\nimport { getUserByEmail } from '@/lib/db';\r\nimport { formatarPreco, formatarData, obterWhatsApp, gerarLinkWhatsApp } from '@/lib/utils';\r\nimport Button from '@/components/ui/Button';\r\nimport Badge from '@/components/ui/Badge';\r\nimport SellerBadges from '@/components/trust/SellerBadges';\r\nimport type { IntencaoCompra } from '@/types/intencao';\r\nimport type { Usuario } from '@/types/usuario';\r\n\r\nexport default function DetalhesIntencao({ intencao }: { intencao: IntencaoCompra }) {\r\n  const router = useRouter();\r\n  const { auth, chat, loginModal } = useApp();\r\n  const { user } = auth;\r\n  const { abrirChat } = chat;\r\n  const [mostrarTelefone, setMostrarTelefone] = useState(false);\r\n  const [compradorProfile, setCompradorProfile] = useState<Usuario | null>(null);\r\n\r\n  useEffect(() => {\r\n    if (!intencao.vendedorEmail) return;\r\n    let stale = false;\r\n    getUserByEmail(intencao.vendedorEmail).then((found) => {\r\n      if (!stale && found) setCompradorProfile(found);\r\n    });\r\n    return () => { stale = true; };\r\n  }, [intencao.vendedorEmail]);\r\n\r\n  const whatsapp = obterWhatsApp(intencao.vendedorWhatsApp, intencao.vendedorTelefone);\r\n  const telefone = intencao.vendedorTelefone;\r\n  const email = intencao.vendedorEmail || '';\r\n  const temWhatsApp = !!whatsapp && (intencao.contatoPreferido === 'whatsapp' || intencao.contatoPreferido === 'ambos');\r\n  const temTelefone = !!telefone && intencao.mostrarTelefone;\r\n  const temEmail = !!email && (intencao.contatoPreferido === 'whatsapp' || intencao.contatoPreferido === 'ambos');\r\n  const isOwn = user?.uid === intencao.userId;\r\n  const temChat = !!user && !!intencao.userId && !isOwn;\r\n\r\n  const c = intencao.criterios;\r\n  const p = intencao.preferencias;\r\n\r\n  return (\r\n    <div className=\"page-enter max-w-3xl mx-auto\">\r\n      <Button tipo=\"terciario\" tamanho=\"sm\" icone={<ArrowLeft />} onClick={() => router.back()} className=\"mb-3\">\r\n        Voltar\r\n      </Button>\r\n\r\n      <div className=\"bg-white rounded-2xl shadow-lg p-4 sm:p-6\">\r\n        {/* Título + Status */}\r\n        <div className=\"flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6\">\r\n          <div>\r\n            <h1 className=\"text-2xl sm:text-3xl font-extrabold text-fg-heading\">{intencao.titulo}</h1>\r\n            <p className=\"text-fg-subtle text-sm mt-1 flex items-center gap-1\">\r\n              <Calendar /> Publicado em {formatarData(intencao.criadaEm)}\r\n            </p>\r\n          </div>\r\n          <Badge cor={intencao.status === 'ativa' ? 'green' : 'yellow'}>\r\n            {intencao.status === 'ativa' ? 'Ativa' : 'Pausada'}\r\n          </Badge>\r\n        </div>\r\n\r\n        {/* Critérios de busca */}\r\n        <div className=\"bg-slate-50 rounded-xl p-4 sm:p-5 mb-6\">\r\n          <h3 className=\"font-extrabold text-fg-heading mb-4 flex items-center gap-2\">\r\n            <IdentificationCard className=\"text-accent\" /> Critérios de Busca\r\n          </h3>\r\n          <div className=\"grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-sm\">\r\n            <div>\r\n              <span className=\"text-xs font-semibold text-fg-subtle\">Marca</span>\r\n              <p className=\"font-semibold text-fg-heading\">{c.marca}</p>\r\n            </div>\r\n            <div>\r\n              <span className=\"text-xs font-semibold text-fg-subtle\">Modelo</span>\r\n              <p className=\"font-semibold text-fg-heading\">{c.modelo}</p>\r\n            </div>\r\n            <div>\r\n              <span className=\"text-xs font-semibold text-fg-subtle\">Ano</span>\r\n              <p className=\"font-semibold text-fg-heading\">{c.anoMinimo}{c.anoMaximo ? ` – ${c.anoMaximo}` : '+'}</p>\r\n            </div>\r\n            <div>\r\n              <span className=\"text-xs font-semibold text-fg-subtle flex items-center gap-1\"><Money /> Orçamento</span>\r\n              <p className=\"font-semibold text-accent\">\r\n                {c.precoMinimo ? `${formatarPreco(c.precoMinimo)} – ` : 'Até '}{formatarPreco(c.precoMaximo)}\r\n              </p>\r\n            </div>\r\n            <div>\r\n              <span className=\"text-xs font-semibold text-fg-subtle flex items-center gap-1\"><GasCan /> Combustível</span>\r\n              <p className=\"font-semibold text-fg-heading\">{c.combustivel.join(', ')}</p>\r\n            </div>\r\n            <div>\r\n              <span className=\"text-xs font-semibold text-fg-subtle flex items-center gap-1\"><Gear /> Transmissão</span>\r\n              <p className=\"font-semibold text-fg-heading\">{c.tipoTransmissao.join(', ')}</p>\r\n            </div>\r\n            <div>\r\n              <span className=\"text-xs font-semibold text-fg-subtle flex items-center gap-1\"><Speedometer /> Km máx</span>\r\n              <p className=\"font-semibold text-fg-heading\">{c.quilometragemMaxima.toLocaleString('pt-PT')} km</p>\r\n            </div>\r\n            <div>\r\n              <span className=\"text-xs font-semibold text-fg-subtle flex items-center gap-1\"><MapPin /> Localização</span>\r\n              <p className=\"font-semibold text-fg-heading\">{c.localizacao.distrito} ({c.localizacao.raio} km)</p>\r\n            </div>\r\n          </div>\r\n        </div>\r\n\r\n        {/* Preferências */}\r\n        {p && (p.cores || p.tipoCarroceria || p.itensDesejados || p.aceitaFinanciamento !== undefined || p.aceitaTroca !== undefined) && (\r\n          <div className=\"bg-slate-50 rounded-xl p-4 sm:p-5 mb-6\">\r\n            <h3 className=\"font-extrabold text-fg-heading mb-4\">Preferências</h3>\r\n            <div className=\"grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-sm\">\r\n              {p.cores && p.cores.length > 0 && (\r\n                <div>\r\n                  <span className=\"text-xs font-semibold text-fg-subtle\">Cores</span>\r\n                  <p className=\"font-semibold text-fg-heading\">{p.cores.join(', ')}</p>\r\n                </div>\r\n              )}\r\n              {p.tipoCarroceria && p.tipoCarroceria.length > 0 && (\r\n                <div>\r\n                  <span className=\"text-xs font-semibold text-fg-subtle\">Carroceria</span>\r\n                  <p className=\"font-semibold text-fg-heading\">{p.tipoCarroceria.join(', ')}</p>\r\n                </div>\r\n              )}\r\n              {p.itensDesejados && p.itensDesejados.length > 0 && (\r\n                <div>\r\n                  <span className=\"text-xs font-semibold text-fg-subtle\">Itens desejados</span>\r\n                  <p className=\"font-semibold text-fg-heading\">{p.itensDesejados.join(', ')}</p>\r\n                </div>\r\n              )}\r\n              {p.aceitaFinanciamento !== undefined && (\r\n                <div>\r\n                  <span className=\"text-xs font-semibold text-fg-subtle\">Financiamento</span>\r\n                  <p className=\"font-semibold text-fg-heading\">{p.aceitaFinanciamento ? 'Aceita' : 'Não aceita'}</p>\r\n                </div>\r\n              )}\r\n              {p.aceitaTroca !== undefined && (\r\n                <div>\r\n                  <span className=\"text-xs font-semibold text-fg-subtle\">Troca</span>\r\n                  <p className=\"font-semibold text-fg-heading\">{p.aceitaTroca ? 'Aceita' : 'Não aceita'}</p>\r\n                </div>\r\n              )}\r\n            </div>\r\n          </div>\r\n        )}\r\n\r\n        {/* Descrição adicional */}\r\n        {intencao.descricao && (\r\n          <div className=\"mb-6\">\r\n            <h3 className=\"font-extrabold text-fg-heading mb-2\">Descrição</h3>\r\n            <p className=\"text-sm text-fg leading-relaxed whitespace-pre-wrap\">{intencao.descricao}</p>\r\n          </div>\r\n        )}\r\n\r\n        {/* Contactar Comprador */}\r\n        <div className=\"bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm mt-6\">\r\n          <h3 className=\"font-extrabold text-fg-heading mb-4 flex items-center gap-2\">\r\n            <IdentificationCard className=\"text-accent\" /> Contactar Comprador\r\n          </h3>\r\n\r\n          <div className=\"flex items-center gap-2 text-sm text-brand-700 mb-2\">\r\n            <User className=\"text-slate-400\" />\r\n            <span className=\"font-semibold\">{intencao.vendedorNome || 'Comprador'}</span>\r\n          </div>\r\n\r\n          {compradorProfile && (\r\n            <div className=\"mb-4\">\r\n              <SellerBadges\r\n                verificado={compradorProfile.verificado}\r\n                badges={compradorProfile.badges}\r\n                mediaAvaliacoes={compradorProfile.mediaAvaliacoes}\r\n                totalAvaliacoes={compradorProfile.totalAvaliacoes}\r\n              />\r\n            </div>\r\n          )}\r\n\r\n          <div className=\"grid grid-cols-1 sm:grid-cols-2 gap-3\">\r\n            {temWhatsApp && (\r\n              <a\r\n                href={gerarLinkWhatsApp(whatsapp!, intencao.titulo)}\r\n                target=\"_blank\"\r\n                rel=\"noopener noreferrer\"\r\n                className=\"flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl transition text-sm\"\r\n              >\r\n                <WhatsappLogo className=\"text-lg\" />\r\n                WhatsApp\r\n              </a>\r\n            )}\r\n            {temEmail && (\r\n              <a\r\n                href={`mailto:${email}`}\r\n                className=\"flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-fg font-semibold py-3 px-4 rounded-xl transition border border-slate-300 text-sm\"\r\n              >\r\n                <Envelope />\r\n                Enviar Email\r\n              </a>\r\n            )}\r\n          </div>\r\n\r\n          <div className=\"mt-3\">\r\n            {temTelefone && !mostrarTelefone && (\r\n              <Button tipo=\"primario\" tamanho=\"lg\" blocoCompleto onClick={() => setMostrarTelefone(true)} icone={<Phone />}>\r\n                Ver Telefone\r\n              </Button>\r\n            )}\r\n            {temTelefone && mostrarTelefone && (\r\n              <a\r\n                href={`tel:${telefone}`}\r\n                className=\"flex items-center justify-center gap-2 w-full bg-accent hover:bg-accent-hover text-white font-bold py-3 px-4 rounded-xl transition text-sm\"\r\n              >\r\n                <Phone />\r\n                {telefone}\r\n              </a>\r\n            )}\r\n          </div>\r\n\r\n          <div className=\"mt-3\">\r\n            {temChat && (\r\n              <Button\r\n                tipo=\"azul\"\r\n                tamanho=\"lg\"\r\n                blocoCompleto\r\n                onClick={() => abrirChat(intencao.id, 'intencao', intencao.titulo, intencao.userId, intencao.vendedorNome || 'Comprador')}\r\n                icone={<ChatCircleDots />}\r\n              >\r\n                Enviar Mensagem (Chat Interno)\r\n              </Button>\r\n            )}\r\n            {!temChat && !user && (\r\n              <button\r\n                onClick={() => loginModal.openLoginModal(window.location.pathname)}\r\n                className=\"flex items-center justify-center gap-2 w-full bg-slate-100 hover:bg-slate-200 text-fg-muted font-semibold py-3 px-4 rounded-xl transition text-sm\"\r\n              >\r\n                <SignIn />\r\n                Faça login para enviar mensagem\r\n              </button>\r\n            )}\r\n          </div>\r\n        </div>\r\n\r\n        {/* Stats */}\r\n        <div className=\"mt-4 flex items-center gap-4 text-xs text-fg-subtle\">\r\n          <span>{intencao.stats.visualizacoes} visualizações</span>\r\n          <span>{intencao.stats.contatos} contactos</span>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n```\r\n\r\n---\r\n\r\n## Ficheiro 3: `src/components/home/CarGrid.tsx`\r\n\r\nTornar os cards de intenção clicáveis para navegar para `/intencao/[id]`:\r\n\r\n```typescript\r\n// ADICIONAR import de Link no topo (já existe, mas verificar)\r\nimport Link from 'next/link';\r\n\r\n// No bloco de renderização de cada intenção (linha 322-403):\r\n// Envolver o card num Link para /intencao/[id]\r\n                  return (\r\n                  <Link\r\n                    key={intencao.id}\r\n                    href={`/intencao/${intencao.id}`}\r\n                    className=\"block bg-white rounded-2xl shadow-sm border border-slate-200 p-4 hover:border-accent/40 hover:shadow-md transition-all\"\r\n                  >\r\n                    {/* ... conteúdo existente do card ... */}\r\n                  </Link>\r\n                  );\r\n```\r\n\r\nNota: O card atual não está num Link. Envolver todo o conteúdo do card (dentro do `map`) num `<Link>` para `/intencao/${intencao.id}`. Os botões de contacto internos (WhatsApp, Email, Telefone, Chat) devem ter `e.preventDefault()` no onClick para não navegar quando se clica neles.\r\n\r\nOu melhor: em vez de envolver tudo num Link, manter o card como `div` e ADICIONAR um \"Ver detalhes\" ou tornar o título clicável. Isto evita conflitos com os botões de contacto.\r\n\r\nAbordagem recomendada:\r\n\r\n```typescript\r\n// No título do card, tornar clicável:\r\n<h3 className=\"font-bold text-fg-heading text-sm mb-2\">\r\n  <Link href={`/intencao/${intencao.id}`} className=\"hover:text-accent transition-colors\">\r\n    {intencao.titulo}\r\n  </Link>\r\n</h3>\r\n\r\n// E adicionar um botão \"Ver detalhes\" no fundo:\r\n<div className=\"mt-2 pt-2 border-t border-slate-100\">\r\n  <Link\r\n    href={`/intencao/${intencao.id}`}\r\n    className=\"flex items-center justify-center gap-1.5 w-full bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-1.5 px-3 rounded-xl transition text-xs\"\r\n  >\r\n    Ver detalhes completos\r\n  </Link>\r\n</div>\r\n```\r\n\r\nOs botões de contacto (WhatsApp, Email, Telefone, Chat) mantêm-se como `<a>`, `<button>` ou `<Link>` independentes — não precisam de `preventDefault` porque não estão dentro de um Link ancestral.\r\n"
     }
   ],
   "fileTree": {
@@ -1739,6 +1795,12 @@ jobs:
         ]
       },
       {
+        "name": ".codegraph",
+        "path": ".codegraph",
+        "isDirectory": true,
+        "children": []
+      },
+      {
         "name": ".firebase",
         "path": ".firebase",
         "isDirectory": true,
@@ -1765,9 +1827,22 @@ jobs:
                 "name": "update-dashboard.yml",
                 "path": ".github/workflows/update-dashboard.yml",
                 "isDirectory": false,
-                "size": 944
+                "size": 982
               }
             ]
+          }
+        ]
+      },
+      {
+        "name": ".omo",
+        "path": ".omo",
+        "isDirectory": true,
+        "children": [
+          {
+            "name": "run-continuation",
+            "path": ".omo/run-continuation",
+            "isDirectory": true,
+            "children": []
           }
         ]
       },
@@ -1785,25 +1860,25 @@ jobs:
                 "name": "00-summary.md",
                 "path": ".opencode/plans/00-summary.md",
                 "isDirectory": false,
-                "size": 2378
+                "size": 2436
               },
               {
                 "name": "01-login-redirect.md",
                 "path": ".opencode/plans/01-login-redirect.md",
                 "isDirectory": false,
-                "size": 7821
+                "size": 8096
               },
               {
                 "name": "02-contact-buttons-consolidation.md",
                 "path": ".opencode/plans/02-contact-buttons-consolidation.md",
                 "isDirectory": false,
-                "size": 7509
+                "size": 7689
               },
               {
                 "name": "03-intention-detail-page.md",
                 "path": ".opencode/plans/03-intention-detail-page.md",
                 "isDirectory": false,
-                "size": 15949
+                "size": 16315
               }
             ]
           },
@@ -1818,6 +1893,181 @@ jobs:
             "path": ".opencode/package.json",
             "isDirectory": false,
             "size": 65
+          }
+        ]
+      },
+      {
+        "name": ".playwright-mcp",
+        "path": ".playwright-mcp",
+        "isDirectory": true,
+        "children": [
+          {
+            "name": "page-2026-06-22T08-25-06-896Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-25-06-896Z.yml",
+            "isDirectory": false,
+            "size": 7423
+          },
+          {
+            "name": "page-2026-06-22T08-25-20-821Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-25-20-821Z.yml",
+            "isDirectory": false,
+            "size": 4906
+          },
+          {
+            "name": "page-2026-06-22T08-25-27-007Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-25-27-007Z.yml",
+            "isDirectory": false,
+            "size": 6581
+          },
+          {
+            "name": "page-2026-06-22T08-25-33-179Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-25-33-179Z.yml",
+            "isDirectory": false,
+            "size": 4911
+          },
+          {
+            "name": "page-2026-06-22T08-25-39-694Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-25-39-694Z.yml",
+            "isDirectory": false,
+            "size": 10318
+          },
+          {
+            "name": "page-2026-06-22T08-26-00-965Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-26-00-965Z.yml",
+            "isDirectory": false,
+            "size": 4285
+          },
+          {
+            "name": "page-2026-06-22T08-26-06-914Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-26-06-914Z.yml",
+            "isDirectory": false,
+            "size": 6491
+          },
+          {
+            "name": "page-2026-06-22T08-26-12-642Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-26-12-642Z.yml",
+            "isDirectory": false,
+            "size": 14208
+          },
+          {
+            "name": "page-2026-06-22T08-26-16-773Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-26-16-773Z.yml",
+            "isDirectory": false,
+            "size": 4117
+          },
+          {
+            "name": "page-2026-06-22T08-26-24-703Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-26-24-703Z.yml",
+            "isDirectory": false,
+            "size": 10318
+          },
+          {
+            "name": "page-2026-06-22T08-26-31-467Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-26-31-467Z.yml",
+            "isDirectory": false,
+            "size": 10318
+          },
+          {
+            "name": "page-2026-06-22T08-26-56-534Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-26-56-534Z.yml",
+            "isDirectory": false,
+            "size": 4152
+          },
+          {
+            "name": "page-2026-06-22T08-27-00-203Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-27-00-203Z.yml",
+            "isDirectory": false,
+            "size": 4561
+          },
+          {
+            "name": "page-2026-06-22T08-33-24-612Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-33-24-612Z.yml",
+            "isDirectory": false,
+            "size": 3703
+          },
+          {
+            "name": "page-2026-06-22T08-42-07-266Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T08-42-07-266Z.yml",
+            "isDirectory": false,
+            "size": 3703
+          },
+          {
+            "name": "page-2026-06-22T10-35-20-497Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T10-35-20-497Z.yml",
+            "isDirectory": false,
+            "size": 4622
+          },
+          {
+            "name": "page-2026-06-22T10-35-28-808Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T10-35-28-808Z.yml",
+            "isDirectory": false,
+            "size": 4308
+          },
+          {
+            "name": "page-2026-06-22T10-37-02-015Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T10-37-02-015Z.yml",
+            "isDirectory": false,
+            "size": 8772
+          },
+          {
+            "name": "page-2026-06-22T10-42-32-652Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T10-42-32-652Z.yml",
+            "isDirectory": false,
+            "size": 4308
+          },
+          {
+            "name": "page-2026-06-22T11-12-29-291Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T11-12-29-291Z.yml",
+            "isDirectory": false,
+            "size": 6301
+          },
+          {
+            "name": "page-2026-06-22T11-12-52-430Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T11-12-52-430Z.yml",
+            "isDirectory": false,
+            "size": 6714
+          },
+          {
+            "name": "page-2026-06-22T11-17-09-071Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T11-17-09-071Z.yml",
+            "isDirectory": false,
+            "size": 6714
+          },
+          {
+            "name": "page-2026-06-22T11-18-23-032Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T11-18-23-032Z.yml",
+            "isDirectory": false,
+            "size": 8769
+          },
+          {
+            "name": "page-2026-06-22T11-19-01-085Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T11-19-01-085Z.yml",
+            "isDirectory": false,
+            "size": 17517
+          },
+          {
+            "name": "page-2026-06-22T11-29-47-414Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T11-29-47-414Z.yml",
+            "isDirectory": false,
+            "size": 6714
+          },
+          {
+            "name": "page-2026-06-22T11-30-47-185Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T11-30-47-185Z.yml",
+            "isDirectory": false,
+            "size": 6714
+          },
+          {
+            "name": "page-2026-06-22T11-31-02-462Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T11-31-02-462Z.yml",
+            "isDirectory": false,
+            "size": 6146
+          },
+          {
+            "name": "page-2026-06-22T11-32-37-288Z.yml",
+            "path": ".playwright-mcp/page-2026-06-22T11-32-37-288Z.yml",
+            "isDirectory": false,
+            "size": 20675
           }
         ]
       },
@@ -1957,7 +2207,7 @@ jobs:
                     "name": "page.tsx",
                     "path": "app/intencao/[id]/page.tsx",
                     "isDirectory": false,
-                    "size": 1444
+                    "size": 1481
                   }
                 ]
               }
@@ -2252,7 +2502,7 @@ jobs:
             "name": "dashboard.html",
             "path": "docs/dashboard.html",
             "isDirectory": false,
-            "size": 829067
+            "size": 832921
           },
           {
             "name": "implementation_roadmap.md",
@@ -2277,6 +2527,26 @@ jobs:
             "path": "docs/ui_ux_design_system.md",
             "isDirectory": false,
             "size": 7839
+          }
+        ]
+      },
+      {
+        "name": "functions",
+        "path": "functions",
+        "isDirectory": true,
+        "children": [
+          {
+            "name": "lib",
+            "path": "functions/lib",
+            "isDirectory": true,
+            "children": [
+              {
+                "name": "index.js",
+                "path": "functions/lib/index.js",
+                "isDirectory": false,
+                "size": 2816
+              }
+            ]
           }
         ]
       },
@@ -2314,13 +2584,13 @@ jobs:
             "name": "dashboard-template.html",
             "path": "scripts/dashboard-template.html",
             "isDirectory": false,
-            "size": 48435
+            "size": 49899
           },
           {
             "name": "README-importar-pecas.md",
             "path": "scripts/README-importar-pecas.md",
             "isDirectory": false,
-            "size": 3240
+            "size": 3331
           }
         ]
       },
@@ -2379,7 +2649,7 @@ jobs:
                     "name": "UserTable.tsx",
                     "path": "src/components/admin/UserTable.tsx",
                     "isDirectory": false,
-                    "size": 7971
+                    "size": 8159
                   },
                   {
                     "name": "VerificationsQueue.tsx",
@@ -2994,13 +3264,13 @@ jobs:
                 "name": "useIntencoes.ts",
                 "path": "src/hooks/useIntencoes.ts",
                 "isDirectory": false,
-                "size": 3388
+                "size": 3496
               },
               {
                 "name": "useMarcasModelos.ts",
                 "path": "src/hooks/useMarcasModelos.ts",
                 "isDirectory": false,
-                "size": 610
+                "size": 2445
               },
               {
                 "name": "useNetworkStatus.ts",
@@ -3091,7 +3361,7 @@ jobs:
                 "name": "constants.ts",
                 "path": "src/lib/constants.ts",
                 "isDirectory": false,
-                "size": 40494
+                "size": 40598
               },
               {
                 "name": "db.server.ts",
@@ -3103,7 +3373,7 @@ jobs:
                 "name": "db.ts",
                 "path": "src/lib/db.ts",
                 "isDirectory": false,
-                "size": 56365
+                "size": 63984
               },
               {
                 "name": "fcm.ts",
@@ -3201,7 +3471,7 @@ jobs:
                 "name": "DetalhesIntencao.tsx",
                 "path": "src/screens/DetalhesIntencao.tsx",
                 "isDirectory": false,
-                "size": 13237
+                "size": 13538
               },
               {
                 "name": "DetalhesOficina.tsx",
@@ -3304,7 +3574,7 @@ jobs:
                 "name": "notificacao.ts",
                 "path": "src/types/notificacao.ts",
                 "isDirectory": false,
-                "size": 318
+                "size": 332
               },
               {
                 "name": "oficina.ts",
@@ -3362,7 +3632,7 @@ jobs:
         "name": "AGENTS.md",
         "path": "AGENTS.md",
         "isDirectory": false,
-        "size": 8770
+        "size": 8921
       },
       {
         "name": "apphosting.yaml",
@@ -3392,7 +3662,7 @@ jobs:
         "name": "next-env.d.ts",
         "path": "next-env.d.ts",
         "isDirectory": false,
-        "size": 253
+        "size": 257
       },
       {
         "name": "next.config.ts",

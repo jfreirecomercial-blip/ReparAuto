@@ -18,10 +18,11 @@ import {
 } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
 import { db, storage } from './firebase';
-import { DB_VERSION, DB_VERSION_KEY } from './constants';
+import { DB_VERSION, DB_VERSION_KEY, MARCAS_MODELOS_COLLECTION, MARCAS_MODELOS_DOC } from './constants';
+import marcasModelosData from '@/data/marcas-modelos.json';
 import { contemProfanity } from './profanity';
 import type { Carro, CarroInput, StatusAnuncio } from '@/types/carro';
-import type { Peca, PecaInput } from '@/types/peca';
+import type { Peca, PecaInput, CompatibilityEntry } from '@/types/peca';
 import type { Usuario, Role } from '@/types/usuario';
 import type { Notificacao, TipoNotificacao } from '@/types/notificacao';
 import type { Review, ReviewInput, StatusReview } from '@/types/review';
@@ -282,6 +283,10 @@ const defaultPecas: PecaSeed[] = [
     categoria: 'Motor e Transmissão',
     marcaCarro: 'Seat',
     modeloCarro: 'Ibiza 6L',
+    compatibilidades: [
+      { marca: 'Seat', modelo: 'Ibiza', anoInicio: 2002, anoFim: 2008, motor: '1.9 TDI' },
+      { marca: 'Volkswagen', modelo: 'Golf IV', anoInicio: 1997, anoFim: 2004, motor: '1.9 TDI' },
+    ],
     preco: 450,
     estado: 'Usado',
     local: 'Braga',
@@ -303,6 +308,9 @@ const defaultPecas: PecaSeed[] = [
     categoria: 'Carro Completo p/ Desmonte',
     marcaCarro: 'Peugeot',
     modeloCarro: '206',
+    compatibilidades: [
+      { marca: 'Peugeot', modelo: '206', anoInicio: 1998, anoFim: 2012 },
+    ],
     preco: 300,
     estado: 'Usado',
     local: 'Porto',
@@ -324,6 +332,9 @@ const defaultPecas: PecaSeed[] = [
     categoria: 'Iluminação e Óticas',
     marcaCarro: 'Renault',
     modeloCarro: 'Clio III',
+    compatibilidades: [
+      { marca: 'Renault', modelo: 'Clio', anoInicio: 2005, anoFim: 2012 },
+    ],
     preco: 0,
     estado: 'Usado',
     local: 'Lisboa',
@@ -336,6 +347,130 @@ const defaultPecas: PecaSeed[] = [
     vendedorEmail: 'admin@reparauto.pt',
     descricao:
       'Procuro farol esquerdo (lado condutor) original e em bom estado para Renault Clio de 2007 (Fase 1).',
+    status: 'aprovado',
+    dataCriacao: Timestamp.now(),
+  },
+  {
+    tipo: 'venda',
+    titulo: 'Motor 1.7 CDTI 100cv',
+    categoria: 'Motor e Transmissão',
+    marcaCarro: 'Opel',
+    modeloCarro: 'Astra H',
+    compatibilidades: [
+      { marca: 'Opel', modelo: 'Astra', anoInicio: 2004, anoFim: 2010, motor: '1.7 CDTI' },
+      { marca: 'Opel', modelo: 'Corsa', anoInicio: 2006, anoFim: 2014, motor: '1.7 CDTI' },
+    ],
+    preco: 550,
+    estado: 'Usado',
+    local: 'Lisboa',
+    contacto: '912345678',
+    foto: '⚙️',
+    criador: 'admin@reparauto.pt',
+    vendedorNome: 'Admin ReparAuto',
+    vendedorTelefone: '912345678',
+    vendedorWhatsApp: '351912345678',
+    vendedorEmail: 'admin@reparauto.pt',
+    descricao:
+      'Motor 1.7 CDTI de 100cv em bom estado. Retirado de Opel Astra H com 180.000 km. Completo com turbo e injetores. Ideal para substituição em Astra H ou Corsa D.',
+    status: 'aprovado',
+    dataCriacao: Timestamp.now(),
+  },
+  {
+    tipo: 'venda',
+    titulo: 'Jogo Discos e Pastilhas Travão Dianteiros',
+    categoria: 'Suspensão e Travões',
+    marcaCarro: 'Opel',
+    modeloCarro: 'Astra H',
+    compatibilidades: [
+      { marca: 'Opel', modelo: 'Astra', anoInicio: 2004, anoFim: 2010 },
+      { marca: 'Volkswagen', modelo: 'Golf IV', anoInicio: 1997, anoFim: 2004 },
+    ],
+    preco: 85,
+    estado: 'Novo (Em caixa)',
+    local: 'Porto',
+    contacto: '912345678',
+    foto: '🛞',
+    criador: 'admin@reparauto.pt',
+    vendedorNome: 'Admin ReparAuto',
+    vendedorTelefone: '912345678',
+    vendedorWhatsApp: '351912345678',
+    vendedorEmail: 'admin@reparauto.pt',
+    descricao:
+      'Jogo completo de discos e pastilhas de travão dianteiros, novos em caixa. Compatíveis com Opel Astra H e VW Golf IV. Marca TRW, qualidade OEM.',
+    status: 'aprovado',
+    dataCriacao: Timestamp.now(),
+  },
+  {
+    tipo: 'venda',
+    titulo: 'Farol Esquerdo BMW Série 3 E90 Bi-Xénon',
+    categoria: 'Iluminação e Óticas',
+    marcaCarro: 'BMW',
+    modeloCarro: '320d E90',
+    compatibilidades: [
+      { marca: 'BMW', modelo: '320d', anoInicio: 2005, anoFim: 2012 },
+      { marca: 'BMW', modelo: 'Série 3 E90', anoInicio: 2005, anoFim: 2012 },
+    ],
+    preco: 120,
+    estado: 'Usado',
+    local: 'Lisboa',
+    contacto: '912345678',
+    foto: '💡',
+    criador: 'admin@reparauto.pt',
+    vendedorNome: 'Admin ReparAuto',
+    vendedorTelefone: '912345678',
+    vendedorWhatsApp: '351912345678',
+    vendedorEmail: 'admin@reparauto.pt',
+    descricao:
+      'Farol esquerdo (lado condutor) original BMW Bi-Xénon para Série 3 E90 (2005-2012). Inclui ballast e lâmpada. Em bom estado estético e funcional.',
+    status: 'aprovado',
+    dataCriacao: Timestamp.now(),
+  },
+  {
+    tipo: 'venda',
+    titulo: 'Centralina ECU Mercedes W204',
+    categoria: 'Eletrónica e Sensores',
+    marcaCarro: 'Mercedes',
+    modeloCarro: 'C220 CDI W204',
+    compatibilidades: [
+      { marca: 'Mercedes-Benz', modelo: 'C220 CDI', anoInicio: 2007, anoFim: 2014 },
+      { marca: 'Mercedes', modelo: 'Classe C W204', anoInicio: 2007, anoFim: 2014 },
+    ],
+    preco: 180,
+    estado: 'Reconstruído / Recondicionado',
+    local: 'Porto',
+    contacto: '912345678',
+    foto: '🔌',
+    criador: 'admin@reparauto.pt',
+    vendedorNome: 'Admin ReparAuto',
+    vendedorTelefone: '912345678',
+    vendedorWhatsApp: '351912345678',
+    vendedorEmail: 'admin@reparauto.pt',
+    descricao:
+      'Centralina ECU recondicionada para Mercedes Classe C W204 C220 CDI. Testada e programada. Solução económica para substituição da unidade original.',
+    status: 'aprovado',
+    dataCriacao: Timestamp.now(),
+  },
+  {
+    tipo: 'desmonte',
+    titulo: 'Seat Ibiza 1.4 para desmonte',
+    categoria: 'Carro Completo p/ Desmonte',
+    marcaCarro: 'Seat',
+    modeloCarro: 'Ibiza 1.4',
+    compatibilidades: [
+      { marca: 'Seat', modelo: 'Ibiza', anoInicio: 2002, anoFim: 2008 },
+    ],
+    preco: 250,
+    estado: 'Usado',
+    local: 'Faro',
+    contacto: '912345678',
+    foto: '🚗',
+    criador: 'admin@reparauto.pt',
+    vendedorNome: 'Admin ReparAuto',
+    vendedorTelefone: '912345678',
+    vendedorWhatsApp: '351912345678',
+    vendedorEmail: 'admin@reparauto.pt',
+    descricao:
+      'Seat Ibiza 1.4 completo para desmonte. Motor de arranque, alternador, radiador, bancos e painéis disponíveis. Carro acidentado na traseira, frente intacta.',
     status: 'aprovado',
     dataCriacao: Timestamp.now(),
   },
@@ -431,11 +566,35 @@ export async function initDatabase(): Promise<void> {
       console.log('[DB] Seed data imported to Firestore');
     }
     await migrarMensagens();
+    await migrarCompatibilidades();
+    await seedMarcasModelos();
   } catch (err) {
     console.error('[DB] Erro ao inicializar:', err);
   }
 }
 
+const MARCAS_MODELOS_MIGRATION_KEY = 'reparauto_migration_marcas_modelos_v1';
+
+async function seedMarcasModelos(): Promise<void> {
+  if (localStorage.getItem(MARCAS_MODELOS_MIGRATION_KEY)) return;
+  try {
+    const docRef = doc(db, MARCAS_MODELOS_COLLECTION, MARCAS_MODELOS_DOC);
+    const snap = await getDoc(docRef);
+    if (!snap.exists()) {
+      const dados = marcasModelosData as Array<{ marca: string; modelos: string[] }>;
+      await setDoc(docRef, {
+        dados,
+        ultimaAtualizacao: Timestamp.now(),
+      });
+      console.log('[DB] Marcas/modelos seeded to Firestore');
+    }
+    localStorage.setItem(MARCAS_MODELOS_MIGRATION_KEY, '1');
+  } catch (err) {
+    console.warn('[DB] Erro ao seed marcas/modelos (não crítico):', err);
+  }
+}
+
+const COMPAT_MIGRATION_KEY = 'reparauto_migration_compat_v1';
 const MENSAGENS_COLLECTION = 'messages';
 const MIGRATION_KEY = 'reparauto_migration_participants';
 
@@ -459,6 +618,51 @@ async function migrarMensagens(): Promise<void> {
     localStorage.setItem(MIGRATION_KEY, 'done');
   } catch {
     // migration is best-effort
+  }
+}
+
+async function migrarCompatibilidades(): Promise<void> {
+  if (localStorage.getItem(COMPAT_MIGRATION_KEY)) return;
+  try {
+    const snap = await getDocs(collection(db, PECAS_COLLECTION));
+    const batch = writeBatch(db);
+    let updated = 0;
+
+    for (const docSnap of snap.docs) {
+      const data = docSnap.data();
+      if (data.compatibilidades && data.compatibilidades.length > 0) continue;
+      const marca: string | undefined = data.marcaCarro;
+      if (!marca) continue;
+
+      const entry: CompatibilityEntry = { marca };
+      const modelo: string | undefined = data.modeloCarro;
+      if (modelo) entry.modelo = modelo;
+
+      batch.update(docSnap.ref, { compatibilidades: [entry] });
+      updated++;
+    }
+
+    if (updated > 0) {
+      await batch.commit();
+      console.log(`[DB] Migradas ${updated} peças com compatibilidades`);
+    }
+
+    const existingTitles = new Set(snap.docs.map((d) => d.data().titulo));
+    const newParts = defaultPecas.filter((p) => !existingTitles.has(p.titulo));
+    if (newParts.length > 0) {
+      const addBatch = writeBatch(db);
+      const now = Timestamp.now();
+      for (const part of newParts) {
+        const ref = doc(collection(db, PECAS_COLLECTION));
+        addBatch.set(ref, { ...part, dataCriacao: now });
+      }
+      await addBatch.commit();
+      console.log(`[DB] Adicionadas ${newParts.length} novas peças de seed com compatibilidades`);
+    }
+
+    localStorage.setItem(COMPAT_MIGRATION_KEY, 'done');
+  } catch (err) {
+    console.error('[DB] Erro na migração de compatibilidades:', err);
   }
 }
 
