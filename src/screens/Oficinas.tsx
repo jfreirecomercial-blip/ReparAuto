@@ -8,20 +8,21 @@ import {
   MagnifyingGlass, 
   MapPin, 
   Star,
+  Heart,
   CaretDown
 } from '@phosphor-icons/react';
-import { subscribeOficinas } from '@/lib/db';
+import { useApp } from '@/providers/AppProvider';
 import type { OficinaMecanico, EspecialidadeOficina } from '@/types/oficina';
 import { ESPECIALIDADES_LABELS } from '@/types/oficina';
 import { useDistritosConcelhos } from '@/hooks/useDistritosConcelhos';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
-import Input from '@/components/ui/Input';
 
 export default function Oficinas() {
   const router = useRouter();
-  const [oficinas, setOficinas] = useState<OficinaMecanico[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { oficinas, favoritos } = useApp();
+  const { toggleFavorito, isFavorito } = favoritos;
+  const { oficinas: listaOficinas, loading } = oficinas;
 
   // Filters
   const [busca, setBusca] = useState('');
@@ -30,21 +31,7 @@ export default function Oficinas() {
 
   const { distritos } = useDistritosConcelhos();
 
-  useEffect(() => {
-    const unsub = subscribeOficinas(
-      (data) => {
-        setOficinas(data);
-        setLoading(false);
-      },
-      (err) => {
-        console.error(err);
-        setLoading(false);
-      }
-    );
-    return unsub;
-  }, []);
-
-  const oficinasFiltradas = oficinas.filter((oficina) => {
+  const oficinasFiltradas = listaOficinas.filter((oficina) => {
     const correspondeBusca = 
       oficina.nome.toLowerCase().includes(busca.toLowerCase()) ||
       oficina.descricao.toLowerCase().includes(busca.toLowerCase()) ||
@@ -194,8 +181,22 @@ export default function Oficinas() {
                 <article
                   key={oficina.id}
                   onClick={() => router.push(`/oficinas/detalhes/${oficina.id}`)}
-                  className="group bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between"
+                  className="group bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between relative"
                 >
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorito(oficina.id, 'services');
+                    }}
+                    className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition shadow ${
+                      isFavorito(oficina.id)
+                        ? 'bg-red-500 text-white'
+                        : 'bg-white/80 text-fg-muted hover:bg-white'
+                    }`}
+                  >
+                    <Heart weight={isFavorito(oficina.id) ? 'fill' : 'regular'} className={isFavorito(oficina.id) ? '' : 'text-slate-400'} />
+                  </button>
+
                   <div>
                     {/* Header */}
                     <div className="flex items-start gap-4 mb-3">

@@ -6,6 +6,7 @@ import useAuth from '@/hooks/useAuth';
 import useCarros from '@/hooks/useCarros';
 import usePecas from '@/hooks/usePecas';
 import useFavoritos from '@/hooks/useFavoritos';
+import useOficinas from '@/hooks/useOficinas';
 import { useChat } from '@/hooks/useChat';
 import { useIntencoes } from '@/hooks/useIntencoes';
 import LoginModal from '@/components/auth/LoginModal';
@@ -54,9 +55,11 @@ export default function AppProvider({ children }: { children: ReactNode }) {
   // Other routes still get the action methods (publicarCarro/publicarPeca);
   // add the route here if a new screen starts reading carros/pecas data.
   const needsCarros = pathname === '/' || pathname.startsWith('/favoritos');
-  const needsPecas = pathname.startsWith('/pecas');
+  const needsPecas = pathname.startsWith('/pecas') || pathname.startsWith('/favoritos');
+  const needsOficinas = pathname.startsWith('/oficinas') || pathname.startsWith('/favoritos');
   const carros = useCarros(needsCarros);
   const pecas = usePecas(needsPecas);
+  const oficinas = useOficinas(needsOficinas);
   const favoritos = useFavoritos(auth.user, openLoginModal);
   const chat = useChat(auth.user?.uid || null, auth.user?.nome || '');
   const intencoes = useIntencoes(auth.user?.uid || null);
@@ -88,6 +91,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
     carros,
     pecas,
     favoritos,
+    oficinas,
     chat,
     intencoes,
     loginModal: {
@@ -96,7 +100,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
       closeLoginModal,
     },
     premiumConfig,
-  }), [auth, carros, pecas, favoritos, chat, intencoes, loginModalOpen, openLoginModal, closeLoginModal, premiumConfig]);
+  }), [auth, carros, pecas, favoritos, oficinas, chat, intencoes, loginModalOpen, openLoginModal, closeLoginModal, premiumConfig]);
 
   return (
     <AppContext.Provider value={value}>

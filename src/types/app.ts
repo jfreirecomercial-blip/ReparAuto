@@ -5,6 +5,7 @@ import type { Carro, FiltroAtivo, SortOrdem } from './carro';
 import type { Peca, FiltroTipoPeca } from './peca';
 import type { ChatContextValue } from './chat';
 import type { IntencaoContextValue } from './intencao';
+import type { OficinaMecanico } from './oficina';
 
 export interface CarrosContextValue {
   carros: Carro[];
@@ -58,6 +59,11 @@ export interface PecasContextValue {
   getPecaPorId: (id: string) => Peca | null;
 }
 
+export interface OficinasContextValue {
+  oficinas: OficinaMecanico[];
+  loading: boolean;
+}
+
 export interface LoginModalContextValue {
   isOpen: boolean;
   openLoginModal: (redirectTo?: string) => void;
@@ -69,6 +75,7 @@ export interface AppContextValue {
   carros: CarrosContextValue;
   pecas: PecasContextValue;
   favoritos: FavoritosContextValue;
+  oficinas: OficinasContextValue;
   chat: ChatContextValue;
   intencoes: IntencaoContextValue;
   loginModal: LoginModalContextValue;
