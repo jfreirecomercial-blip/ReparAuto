@@ -214,7 +214,7 @@ export default function MonetizationCarousel() {
       onMouseLeave={() => setIsHovered(false)}
       {...swipe}
       role="region"
-      aria-label="Campanhas de Monetização ReparAuto"
+      aria-label="Campanhas de Monetização Recar Garage"
     >
       {/* Slides Container */}
       <div

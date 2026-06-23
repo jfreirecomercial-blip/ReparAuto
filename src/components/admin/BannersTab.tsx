@@ -11,7 +11,7 @@ import Badge from '@/components/ui/Badge';
 import Modal from '@/components/ui/Modal';
 
 const BADGE_CORES = [
-  { value: 'brand', label: 'Marca (Azul ReparAuto)' },
+  { value: 'brand', label: 'Marca (Azul Recar Garage)' },
   { value: 'accent', label: 'Destaque (Laranja/Amarelo)' },
   { value: 'green', label: 'Verde (Sucesso)' },
   { value: 'blue', label: 'Azul (Info)' },
@@ -20,7 +20,7 @@ const BADGE_CORES = [
 ] as const;
 
 const GRADIENTES_PADRAO = [
-  { value: 'from-brand-600 via-brand-700 to-brand-900', label: 'Azul ReparAuto' },
+  { value: 'from-brand-600 via-brand-700 to-brand-900', label: 'Azul Recar Garage' },
   { value: 'from-amber-600 via-orange-700 to-orange-950', label: 'Laranja Quente' },
   { value: 'from-blue-600 via-blue-700 to-indigo-900', label: 'Índigo Profundo' },
   { value: 'from-emerald-600 via-teal-700 to-emerald-900', label: 'Verde Esmeralda' },
