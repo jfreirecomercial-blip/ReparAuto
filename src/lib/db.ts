@@ -1824,10 +1824,10 @@ export async function getBanners(): Promise<Banner[]> {
 
 export async function addBanner(banner: BannerInput): Promise<string> {
   try {
-    const docRef = await addDoc(collection(db, BANNERS_COLLECTION), {
+    const docRef = await addDoc(collection(db, BANNERS_COLLECTION), cleanUndefined({
       ...banner,
       dataCriacao: Timestamp.now(),
-    });
+    }));
     return docRef.id;
   } catch (err) {
     console.error('[DB] Erro ao adicionar banner:', err);
@@ -1837,7 +1837,7 @@ export async function addBanner(banner: BannerInput): Promise<string> {
 
 export async function updateBanner(id: string, updates: Partial<Banner>): Promise<void> {
   try {
-    await updateDoc(doc(db, BANNERS_COLLECTION, id), updates);
+    await updateDoc(doc(db, BANNERS_COLLECTION, id), cleanUndefined(updates));
   } catch (err) {
     console.error('[DB] Erro ao atualizar banner:', err);
     throw err;
