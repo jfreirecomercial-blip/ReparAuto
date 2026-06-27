@@ -112,6 +112,17 @@ export default function Admin() {
     return bTime - aTime;
   });
 
+  // KPIs operacionais da Visão Geral (substituem a antiga dashboard HTML standalone)
+  const contarPendentes = (lista: { status?: string }[]) => lista.filter((x) => x.status === 'pendente').length;
+  const resumoKpis: { label: string; valor: number; pendentes: number; cor: string }[] = [
+    { label: 'Utilizadores', valor: users.length, pendentes: 0, cor: 'text-pink-400' },
+    { label: 'Carros', valor: carros.length, pendentes: contarPendentes(carros), cor: 'text-amber-400' },
+    { label: 'Peças', valor: pecas.length, pendentes: contarPendentes(pecas), cor: 'text-emerald-400' },
+    { label: 'Oficinas', valor: oficinasAdmin.length, pendentes: contarPendentes(oficinasAdmin), cor: 'text-blue-400' },
+    { label: 'Intenções', valor: intencoesAdmin.length, pendentes: contarPendentes(intencoesAdmin), cor: 'text-purple-400' },
+    { label: 'Avaliações', valor: adminReviews.length, pendentes: contarPendentes(adminReviews), cor: 'text-rose-400' },
+  ];
+
   const carregarDados = async () => {
     setLoading(true);
     try {
@@ -736,23 +747,18 @@ export default function Admin() {
             <div className="space-y-6">
               
               {/* Summary Cards with real totals */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5">
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Utilizadores</span>
-                  <p className="text-xl font-black text-pink-400 mt-0.5">{users.length}</p>
-                </div>
-                <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5">
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Anúncios</span>
-                  <p className="text-xl font-black text-amber-400 mt-0.5">{carros.length + pecas.length}</p>
-                </div>
-                <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5">
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Oficinas</span>
-                  <p className="text-xl font-black text-blue-400 mt-0.5">{oficinasAdmin.length}</p>
-                </div>
-                <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5">
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Intenções</span>
-                  <p className="text-xl font-black text-purple-400 mt-0.5">{intencoesAdmin.length}</p>
-                </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                {resumoKpis.map((k) => (
+                  <div key={k.label} className="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">{k.label}</span>
+                    <p className={`text-xl font-black ${k.cor} mt-0.5`}>{k.valor}</p>
+                    {k.pendentes > 0 && (
+                      <p className="text-[10px] font-bold text-amber-500/90 mt-0.5">
+                        {k.pendentes} pendente{k.pendentes !== 1 ? 's' : ''}
+                      </p>
+                    )}
+                  </div>
+                ))}
               </div>
 
               {/* Charts & Map Grid */}
