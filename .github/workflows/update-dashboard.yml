@@ -27,6 +27,9 @@ jobs:
         with:
           node-version: 18
 
+      - name: Install dependencies
+        run: npm ci
+
       - name: Generate Dashboard
         run: node scripts/generate-dashboard.mjs
 
