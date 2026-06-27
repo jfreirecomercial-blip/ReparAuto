@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Linking,
+  Pressable,
   ScrollView,
   Text,
   View,
@@ -14,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/ui/Button';
 import { FavoriteButton } from '@/components/ui/FavoriteButton';
 import { OwnerStats } from '@/components/ui/OwnerStats';
+import { PhotoViewer } from '@/components/ui/PhotoViewer';
 import { getCarroById, registarVisualizacao } from '@/lib/db';
 import { formatKm, formatPreco } from '@/lib/format';
 import { useAuth } from '@/context/AuthContext';
@@ -29,6 +31,8 @@ export default function DetalhesCarroScreen() {
   const requireAuth = useRequireAuth();
   const [carro, setCarro] = useState<Carro | null>(null);
   const [loading, setLoading] = useState(true);
+  const [visorAberto, setVisorAberto] = useState(false);
+  const [indiceVisor, setIndiceVisor] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -97,25 +101,42 @@ export default function DetalhesCarroScreen() {
       />
       <ScrollView contentContainerClassName="pb-28">
         {/* Gallery */}
-        <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
-          {fotos.map((url, i) => (
-            <Image
-              key={i}
-              source={url}
-              style={{ width, height: width * 0.72 }}
-              contentFit="cover"
-              transition={200}
-            />
-          ))}
-          {fotos.length === 0 && (
-            <View
-              style={{ width, height: width * 0.72 }}
-              className="items-center justify-center bg-neutral-200"
-            >
-              <Ionicons name="image-outline" size={48} color={colors.neutral[400]} />
+        <View>
+          <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
+            {fotos.map((url, i) => (
+              <Pressable
+                key={i}
+                onPress={() => {
+                  setIndiceVisor(i);
+                  setVisorAberto(true);
+                }}
+                accessibilityRole="imagebutton"
+                accessibilityLabel={`Ampliar foto ${i + 1}`}
+              >
+                <Image
+                  source={url}
+                  style={{ width, height: width * 0.72 }}
+                  contentFit="cover"
+                  transition={200}
+                />
+              </Pressable>
+            ))}
+            {fotos.length === 0 && (
+              <View
+                style={{ width, height: width * 0.72 }}
+                className="items-center justify-center bg-neutral-200"
+              >
+                <Ionicons name="image-outline" size={48} color={colors.neutral[400]} />
+              </View>
+            )}
+          </ScrollView>
+          {fotos.length > 0 && (
+            <View className="absolute bottom-3 right-3 flex-row items-center gap-1 rounded-full bg-black/55 px-2.5 py-1">
+              <Ionicons name="expand-outline" size={13} color="#fff" />
+              <Text className="text-xs font-semibold text-white">{fotos.length}</Text>
             </View>
           )}
-        </ScrollView>
+        </View>
 
         <View className="p-4">
           <Text className="text-2xl font-extrabold text-fg-heading">
@@ -201,6 +222,13 @@ export default function DetalhesCarroScreen() {
           />
         ) : null}
       </View>
+
+      <PhotoViewer
+        visible={visorAberto}
+        fotos={fotos}
+        initialIndex={indiceVisor}
+        onClose={() => setVisorAberto(false)}
+      />
     </View>
   );
 }

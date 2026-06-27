@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Linking,
+  Pressable,
   ScrollView,
   Text,
   View,
@@ -13,6 +14,7 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/ui/Button';
 import { OwnerStats } from '@/components/ui/OwnerStats';
+import { PhotoViewer } from '@/components/ui/PhotoViewer';
 import { getPecaById, registarVisualizacao } from '@/lib/db';
 import { formatPrecoOpcional } from '@/lib/format';
 import { useAuth } from '@/context/AuthContext';
@@ -28,6 +30,7 @@ export default function DetalhesPecaScreen() {
   const requireAuth = useRequireAuth();
   const [peca, setPeca] = useState<Peca | null>(null);
   const [loading, setLoading] = useState(true);
+  const [visorAberto, setVisorAberto] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -89,12 +92,23 @@ export default function DetalhesPecaScreen() {
       />
       <ScrollView contentContainerClassName="pb-28">
         {peca.foto ? (
-          <Image
-            source={peca.foto}
-            style={{ width, height: width * 0.72 }}
-            contentFit="cover"
-            transition={200}
-          />
+          <View>
+            <Pressable
+              onPress={() => setVisorAberto(true)}
+              accessibilityRole="imagebutton"
+              accessibilityLabel="Ampliar foto"
+            >
+              <Image
+                source={peca.foto}
+                style={{ width, height: width * 0.72 }}
+                contentFit="cover"
+                transition={200}
+              />
+            </Pressable>
+            <View className="absolute bottom-3 right-3 rounded-full bg-black/55 p-1.5">
+              <Ionicons name="expand-outline" size={14} color="#fff" />
+            </View>
+          </View>
         ) : (
           <View
             style={{ width, height: width * 0.6 }}
@@ -189,6 +203,14 @@ export default function DetalhesPecaScreen() {
           />
         ) : null}
       </View>
+
+      {peca.foto && (
+        <PhotoViewer
+          visible={visorAberto}
+          fotos={[peca.foto]}
+          onClose={() => setVisorAberto(false)}
+        />
+      )}
     </View>
   );
 }
