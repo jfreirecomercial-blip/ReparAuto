@@ -170,10 +170,29 @@ export default function Oficinas() {
           ) : oficinasFiltradas.length === 0 ? (
             <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-12 text-center shadow-sm">
               <Wrench size={48} className="mx-auto text-neutral-300 dark:text-neutral-700 mb-3" />
-              <h3 className="text-base font-bold text-fg-strong">Nenhuma oficina encontrada</h3>
-              <p className="text-sm text-fg-subtle mt-1">
-                Tente ajustar os filtros de pesquisa ou especialidade.
-              </p>
+              {busca || especialidade || distrito ? (
+                <>
+                  <h3 className="text-base font-bold text-fg-strong">Nenhuma oficina encontrada</h3>
+                  <p className="text-sm text-fg-subtle mt-1">
+                    Tente ajustar os filtros de pesquisa ou especialidade.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-base font-bold text-fg-strong">Anuncie sua oficina gratuitamente</h3>
+                  <p className="text-sm text-fg-subtle mt-1">
+                    Seja a primeira oficina a aparecer aqui.
+                  </p>
+                  <Button
+                    tipo="primario"
+                    icone={<PlusCircle size={20} />}
+                    onClick={() => router.push('/oficinas/registar')}
+                    className="rounded-full mt-5"
+                  >
+                    Anunciar oficina
+                  </Button>
+                </>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

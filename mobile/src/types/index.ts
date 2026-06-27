@@ -139,6 +139,18 @@ export const ESPECIALIDADES_LABELS: Record<EspecialidadeOficina, string> = {
   outro: 'Outro Serviço',
 };
 
+// ---------- Marcas & modelos (source of truth: Firestore `marcas_modelos`) ----------
+export type TipoVeiculo = 'carro' | 'moto' | 'caminhao';
+
+/** Document in the `marcas_modelos` collection — `nome` is the document ID. */
+export interface MarcaModeloDoc {
+  nome: string;
+  tipos: TipoVeiculo[];
+  modelos: string[];
+  ativo: boolean;
+  ordem?: number;
+}
+
 // ---------- Intenções de compra ----------
 export type CategoriaIntencao = 'carro' | 'moto' | 'viatura_comercial' | 'pecas';
 export type StatusIntencao = 'pendente' | 'ativa' | 'pausada' | 'expirada' | 'deletada';
