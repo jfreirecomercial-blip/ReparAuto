@@ -117,15 +117,20 @@ export default function PecasScreen() {
             <PecaCard peca={item} onPress={(id) => router.push(`/pecas/${id}`)} />
           )}
           ListEmptyComponent={
-            <EmptyState
-              icon="construct-outline"
-              titulo="Sem peças"
-              texto={
-                busca || filtro !== 'todos' || filtersCount > 0
-                  ? 'Tente outros critérios.'
-                  : 'Ainda não há peças.'
-              }
-            />
+            busca || filtro !== 'todos' || filtersCount > 0 ? (
+              <EmptyState icon="construct-outline" titulo="Sem peças" texto="Tente outros critérios." />
+            ) : (
+              <EmptyState
+                icon="construct-outline"
+                titulo="Anuncie sua peça gratuitamente"
+                texto="Seja o primeiro a anunciar uma peça aqui."
+                action={{
+                  label: 'Anunciar peça',
+                  icon: 'add-circle-outline',
+                  onPress: () => router.push('/anunciar/peca'),
+                }}
+              />
+            )
           }
           showsVerticalScrollIndicator={false}
         />

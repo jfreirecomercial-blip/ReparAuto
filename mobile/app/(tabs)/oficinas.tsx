@@ -105,11 +105,20 @@ export default function OficinasScreen() {
           contentContainerClassName="px-4 pb-6 pt-2"
           renderItem={({ item }) => <OficinaCard oficina={item} onPress={abrir} />}
           ListEmptyComponent={
-            <EmptyState
-              icon="business-outline"
-              titulo="Sem oficinas"
-              texto={busca || filtersCount > 0 ? 'Tente outros critérios.' : 'Ainda não há oficinas.'}
-            />
+            busca || filtersCount > 0 ? (
+              <EmptyState icon="business-outline" titulo="Sem oficinas" texto="Tente outros critérios." />
+            ) : (
+              <EmptyState
+                icon="business-outline"
+                titulo="Anuncie sua oficina gratuitamente"
+                texto="Seja a primeira oficina a aparecer aqui."
+                action={{
+                  label: 'Anunciar oficina',
+                  icon: 'add-circle-outline',
+                  onPress: () => router.push('/anunciar/oficina'),
+                }}
+              />
+            )
           }
           showsVerticalScrollIndicator={false}
         />
