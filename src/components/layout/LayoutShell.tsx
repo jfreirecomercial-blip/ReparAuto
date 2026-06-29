@@ -26,6 +26,10 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
 
   // ---- Welcome onboarding (anonymous-first intent router) ----
   const [showTour, setShowTour] = useState(false);
+  // Whether the welcome flow is settled (shown-and-closed, or never needed).
+  // The cookie banner stays deferred until this is true, so the two first-visit
+  // overlays are sequenced instead of stacking on top of each other.
+  const [onboardingResolved, setOnboardingResolved] = useState(false);
 
   useEffect(() => {
     if (auth.loading) return;
@@ -33,10 +37,15 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
     // logout in the same session doesn't pop the first-launch tour at them.
     if (isLoggedIn) {
       markOnboardingSeen();
+      setOnboardingResolved(true);
       return;
     }
-    if (isAdminRoute || pathname !== '/') return; // home entry point only
-    if (hasSeenOnboarding()) return; // once per visitor
+    // Only the home entry point shows the tour; everywhere else (and repeat
+    // visitors) the onboarding is already resolved, so the cookie banner may show.
+    if (isAdminRoute || pathname !== '/' || hasSeenOnboarding()) {
+      setOnboardingResolved(true);
+      return;
+    }
     // Let the home paint first, then welcome them — graceful, not a gate.
     const t = setTimeout(() => setShowTour(true), 600);
     return () => clearTimeout(t);
@@ -45,6 +54,7 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
   const handleSelectIntent = (intent: OnboardingIntent) => {
     markOnboardingSeen();
     setShowTour(false);
+    setOnboardingResolved(true);
     loginModal.openLoginModal(undefined, {
       modoInicial: 'registar',
       contexto: intent.contexto,
@@ -55,6 +65,7 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
   const handleDismissTour = () => {
     markOnboardingSeen();
     setShowTour(false);
+    setOnboardingResolved(true);
   };
 
   const [resending, setResending] = useState(false);
@@ -158,7 +169,7 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
 
       <BottomNav />
       <ChatModal />
-      <CookieConsent />
+      <CookieConsent deferred={!onboardingResolved} />
       {showNotifPrompt && user && (
         <NotificationPrePrompt
           uid={user.uid}
