@@ -186,7 +186,7 @@ export default function Admin() {
       const target = users.find((u) => u.uid === uid);
       if (target) {
         await criarNotificacao(uid, 'info', 'Plano Premium Ativado!',
-          `Recebeu o plano "${nome}" cortesia da equipa ReparAuto. Válido por ${dias} dias.`,
+          `Recebeu o plano "${nome}" cortesia da equipa RecarGarage. Válido por ${dias} dias.`,
           '/admin');
       }
       toast?.sucesso(`Plano "${nome}" concedido com sucesso!`);
@@ -511,7 +511,7 @@ export default function Admin() {
       await atualizarStatusVerification(id, uid, status, auth.user?.email || 'admin', notasAdmin);
       const u = users.find((u) => u.uid === uid);
       if (u && status === 'aprovado') {
-        await criarNotificacao(uid, 'info', 'Conta Verificada!', 'A sua conta foi verificada com sucesso pela equipa ReparAuto.');
+        await criarNotificacao(uid, 'info', 'Conta Verificada!', 'A sua conta foi verificada com sucesso pela equipa RecarGarage.');
       } else if (u && status === 'rejeitado') {
         await criarNotificacao(uid, 'info', 'Verificação Rejeitada', 'O seu pedido de verificação foi rejeitado.' + (notasAdmin ? ` Motivo: ${notasAdmin}` : ''));
       }
@@ -664,7 +664,7 @@ export default function Admin() {
                 R
               </div>
               <div>
-                <h1 className="font-extrabold text-sm text-fg-heading tracking-tight">ReparAuto</h1>
+                <h1 className="font-extrabold text-sm text-fg-heading tracking-tight">RecarGarage</h1>
                 <p className="text-[9px] text-pink-700 font-extrabold uppercase tracking-wider">Painel Admin</p>
               </div>
             </div>

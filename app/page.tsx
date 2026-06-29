@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     'Marketplace português de carros usados low-cost e em estado de reparação. Encontre o seu próximo carro a partir de 350€ ou venda o seu.',
   alternates: { canonical: '/' },
   openGraph: {
-    title: 'ReparAuto — Carros usados, peças e desmonte em Portugal',
+    title: 'RecarGarage — Carros usados, peças e desmonte em Portugal',
     description:
       'Marketplace português de carros usados low-cost. Encontre o seu próximo carro a partir de 350€.',
     url: '/',

@@ -171,7 +171,7 @@ export default function DetalhesCarro() {
               {isFavorito(carro.id) ? 'Favorito' : 'Favoritar'}
             </button>
             <ShareButton
-              title={`${carro.marca} ${carro.modelo} - ReparAuto`}
+              title={`${carro.marca} ${carro.modelo} - RecarGarage`}
               text={`${carro.marca} ${carro.modelo} ${carro.anoFabricacao} - ${formatarPreco(carro.preco)}`}
             />
             {(carro.criador === user?.email || isAdmin) && (

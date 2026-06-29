@@ -4,7 +4,7 @@ import Anunciar from '@/screens/Anunciar';
 
 export const metadata: Metadata = {
   title: 'Anunciar carro ou peça',
-  description: 'Publique gratuitamente o seu carro usado, peça ou veículo para desmonte no ReparAuto.',
+  description: 'Publique gratuitamente o seu carro usado, peça ou veículo para desmonte no RecarGarage.',
   alternates: { canonical: '/anunciar' },
 };
 

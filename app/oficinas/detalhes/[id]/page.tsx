@@ -6,7 +6,7 @@ type PageProps = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   return {
-    title: 'Detalhes da Oficina · ReparAuto',
+    title: 'Detalhes da Oficina · RecarGarage',
     alternates: { canonical: `/oficinas/detalhes/${id}` },
   };
 }
