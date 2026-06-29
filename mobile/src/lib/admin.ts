@@ -220,7 +220,7 @@ export async function decidirVerificacao(
       v.uid,
       'aprovado',
       'Conta verificada!',
-      'A sua conta foi verificada com sucesso pela equipa ReparAuto.',
+      'A sua conta foi verificada com sucesso pela equipa RecarGarage.',
     );
   } else {
     await criarNotificacao(

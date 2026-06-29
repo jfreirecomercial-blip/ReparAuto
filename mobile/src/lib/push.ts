@@ -102,7 +102,7 @@ export function setupPushHandlers(onOpen: (data: RemoteMessage['data']) => void)
 
   // Foreground messages → show a local banner.
   const unsubForeground = messaging().onMessage(async (msg) => {
-    const title = msg.notification?.title ?? 'ReparAuto';
+    const title = msg.notification?.title ?? 'RecarGarage';
     const body = msg.notification?.body ?? '';
     await Notifications.scheduleNotificationAsync({
       content: { title, body, data: msg.data ?? {} },

@@ -115,7 +115,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         <div className="relative flex items-center justify-center px-5 py-5 border-b border-white/5">
           <Link href="/" onClick={onClose} className="flex items-center justify-center no-underline">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="ReparAuto" className="h-14 w-auto" />
+            <img src="/logo.svg" alt="RecarGarage" className="h-14 w-auto" />
           </Link>
           <button
             onClick={onClose}

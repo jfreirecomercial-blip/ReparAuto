@@ -117,7 +117,7 @@ export default function PremiumTogglePanel() {
             <div>
               <h3 className="font-extrabold text-base text-fg-heading">Chave Geral de Serviços Premium</h3>
               <p className="text-xs text-fg-subtle mt-1 leading-relaxed max-w-xl">
-                Ativa ou desativa completamente todos os serviços premium da plataforma ReparAuto. 
+                Ativa ou desativa completamente todos os serviços premium da plataforma RecarGarage. 
                 Quando desligado, todas as funcionalidades premium e tabelas de planos serão totalmente ocultadas para os utilizadores.
               </p>
               <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-2 ${

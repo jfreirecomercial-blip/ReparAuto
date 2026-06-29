@@ -12,8 +12,10 @@ import { FavoritosProvider } from '@/context/FavoritosContext';
 import { ChatProvider } from '@/context/ChatContext';
 import { NotificacoesProvider } from '@/context/NotificacoesContext';
 import { ToastProvider } from '@/context/ToastContext';
+import { OnboardingProvider } from '@/context/OnboardingContext';
 import { registerForPush, setupPushHandlers, unregisterPush } from '@/lib/push';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
+import { OnboardingGate } from '@/components/onboarding/OnboardingGate';
 import { UpdateBanner } from '@/components/ui/UpdateBanner';
 import type { Href } from 'expo-router';
 import { colors } from '@/theme/colors';
@@ -89,10 +91,13 @@ export default function RootLayout() {
             <ChatProvider>
               <NotificacoesProvider>
                 <ToastProvider>
-                  <StatusBar style="dark" />
-                  <UpdateBanner />
-                  <OfflineBanner />
-                  <RootNavigator />
+                  <OnboardingProvider>
+                    <StatusBar style="dark" />
+                    <UpdateBanner />
+                    <OfflineBanner />
+                    <RootNavigator />
+                    <OnboardingGate />
+                  </OnboardingProvider>
                 </ToastProvider>
               </NotificacoesProvider>
             </ChatProvider>
