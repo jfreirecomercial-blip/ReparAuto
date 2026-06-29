@@ -404,12 +404,14 @@ export default function LandingPage() {
                 <GooglePlayLogo size={22} weight="fill" />
                 Google Play
               </a>
-              <div className="inline-flex items-center gap-2.5 px-7 py-4 rounded-2xl bg-white/5 text-white/40 text-base font-bold border border-white/10 cursor-default">
+              <div
+                className="inline-flex items-center gap-2.5 px-7 py-4 rounded-2xl bg-white/5 text-white/50 text-base font-bold border border-white/10 cursor-default"
+                aria-disabled="true"
+                aria-label="App Store — em breve"
+              >
                 <AppleLogo size={22} weight="fill" />
-                <div>
-                  <span className="block text-sm leading-tight">App Store</span>
-                  <span className="block text-[10px] text-white/30 font-semibold">Em breve</span>
-                </div>
+                App Store
+                <span className="text-[10px] text-white/40 font-semibold bg-white/10 rounded-full px-2 py-0.5">Em breve</span>
               </div>
             </div>
 
@@ -622,7 +624,7 @@ export default function LandingPage() {
       <section className="py-20 sm:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <AnimatedSection>
-            <div className="relative bg-gradient-to-r from-accent via-secondary-500 to-secondary-400 rounded-3xl p-8 sm:p-14 overflow-hidden">
+            <div className="relative bg-gradient-to-r from-secondary-800 via-secondary-700 to-accent rounded-3xl p-8 sm:p-14 overflow-hidden">
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/10 blur-3xl" />
                 <div className="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-white/10 blur-3xl" />
@@ -636,7 +638,7 @@ export default function LandingPage() {
                   <h2 className="text-2xl sm:text-3xl text-white mb-3">
                     Gratuito para Stands e Oficinas
                   </h2>
-                  <p className="text-white/85 text-lg leading-relaxed max-w-xl">
+                  <p className="text-white text-lg leading-relaxed max-w-xl">
                     Registe o seu stand ou oficina agora e aproveite o acesso completo sem qualquer custo.
                     Posicione-se antes de toda a gente.
                   </p>
