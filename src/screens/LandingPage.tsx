@@ -516,17 +516,17 @@ export default function LandingPage() {
                 <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-accent/10 blur-3xl" />
                 <div className="absolute bottom-0 left-0 w-60 h-60 rounded-full bg-primary-400/10 blur-3xl" />
               </div>
-              <div className="relative text-center">
-                <Handshake size={48} weight="duotone" className="text-accent mx-auto mb-6" />
+              <div className="relative text-left">
+                <Handshake size={48} weight="duotone" className="text-accent mb-6" />
                 <h3 className="text-2xl sm:text-3xl text-white mb-4">
                   Um ecossistema que se conecta
                 </h3>
-                <p className="text-white/70 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+                <p className="text-white/70 text-lg max-w-2xl mb-10 leading-relaxed">
                   O João quer vender o carro mas falta-lhe um farol. Encontra a peça no
                   RecarGarage, o mecânico para montar e publica o anúncio — tudo sem sair
                   da plataforma.
                 </p>
-                <div className="flex flex-wrap justify-center gap-4">
+                <div className="flex flex-wrap justify-start gap-4">
                   {[
                     { icon: MagnifyingGlass, label: 'Procura a peça' },
                     { icon: Wrench, label: 'Encontra o mecânico' },
