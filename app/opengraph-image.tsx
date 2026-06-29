@@ -2,7 +2,8 @@ import { ImageResponse } from 'next/og';
 
 // Site-wide default share image (homepage + any route without its own).
 // Listing pages override this with the car/part/workshop photo.
-export const alt = 'RecarGarage — Carros usados, peças e oficinas em Portugal';
+export const alt =
+  'RecarGarage — o ecossistema automóvel que liga compradores, vendedores de peças, oficinas e mecânicos. Disponível na Web, Android e iOS.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -28,24 +29,37 @@ export default function Image() {
           fontFamily: 'sans-serif',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'baseline', fontSize: 132, fontWeight: 800, letterSpacing: '-0.04em', color: '#ffffff' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', fontSize: 118, fontWeight: 800, letterSpacing: '-0.04em', color: '#ffffff' }}>
           <span>Recar</span>
           <span style={{ color: ORANGE }}>Garage</span>
         </div>
-        <div style={{ marginTop: 24, fontSize: 42, fontWeight: 500, color: 'rgba(255,255,255,0.85)' }}>
-          Carros, peças e oficinas em Portugal
+        <div
+          style={{
+            marginTop: 22,
+            fontSize: 38,
+            fontWeight: 500,
+            color: 'rgba(255,255,255,0.85)',
+            textAlign: 'center',
+            maxWidth: 940,
+            lineHeight: 1.3,
+          }}
+        >
+          O ecossistema automóvel que liga compradores, vendedores de peças, oficinas e mecânicos
         </div>
         <div
           style={{
-            marginTop: 52,
-            fontSize: 28,
+            marginTop: 44,
+            fontSize: 30,
             fontWeight: 700,
             color: ORANGE,
             border: `2px solid ${ORANGE}`,
             borderRadius: 999,
-            padding: '12px 32px',
+            padding: '12px 36px',
           }}
         >
+          Disponível na Web · Android · iOS
+        </div>
+        <div style={{ marginTop: 22, fontSize: 24, fontWeight: 500, color: 'rgba(255,255,255,0.6)' }}>
           recargarage.com
         </div>
       </div>
