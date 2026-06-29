@@ -4,6 +4,8 @@ Portuguese marketplace for used cars, parts, workshops and purchase intents. Nex
 
 `CLAUDE.md` holds the day-to-day conventions and architecture summary; this file adds the source map, implementation notes and the feature workflow.
 
+> 🏷️ **Brand name: the product is called RecarGarage (one word).** It is the only name allowed in anything users see — UI copy, metadata, emails, chat, OpenGraph/JSON-LD. "ReparAuto" (this file's title, the repo, the `reparauto-site` Firebase project, the `favs_reparauto` key) is an **internal** historical name only — never show it to users, and never write variants like "Recar Garage" or "Repar Auto". Default to `RecarGarage`. Public domain: `recargarage.com`.
+
 > 🚫 **The `mobile/` folder is off-limits by default.** It holds the separate React Native / Expo app (see `docs/plans/19-app-react-native.html`). Do **not** read, search, analyze, or modify anything under `mobile/` unless the user's request is *explicitly* about the mobile app. For all web/marketplace work, ignore `mobile/` entirely — don't grep it, don't touch it. (Likewise treat `functions/` as a separate Cloud Functions surface — only enter it for explicit Functions work.)
 
 > ⚠️ **Never run `firebase deploy` (in any form) on your own.** Deploying — App Hosting, Firestore/Storage rules, Cloud Functions, indexes, anything — is **always** an explicit, user-initiated action. Do not run `npm run deploy:rules`, `npm run deploy:hosting`, `firebase deploy ...`, or any `firebase`/`gcloud` deploy command unless the user asks for that specific deploy in the current turn. Approval to deploy in one turn does **not** carry over to a later turn. When a change is ready to ship, build/type-check it and then **tell the user which command to run** — let them run it.
