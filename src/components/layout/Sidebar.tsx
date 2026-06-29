@@ -51,12 +51,12 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
   const isActive = (path: string) => {
     if (!pathname) return false;
-    if (path === '/') return pathname === '/' || pathname === '';
+    if (path === '/app') return pathname === '/app' || pathname === '';
     return pathname.startsWith(path);
   };
 
   const navItems: { href: string; Icon: Icon; label: string }[] = [
-    { href: '/', Icon: Car, label: 'Anúncios' },
+    { href: '/app', Icon: Car, label: 'Anúncios' },
     { href: '/anunciar', Icon: PlusCircle, label: 'Vender' },
     { href: '/comprar', Icon: MagnifyingGlass, label: 'Comprar' },
     { href: '/pecas', Icon: GearSix, label: 'Peças & Desmonte' },
