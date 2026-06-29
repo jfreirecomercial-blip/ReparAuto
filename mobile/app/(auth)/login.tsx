@@ -21,10 +21,11 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const { next, contexto } = useLocalSearchParams<{ next?: string; contexto?: string }>();
+  const { next, contexto, fromTour } = useLocalSearchParams<{ next?: string; contexto?: string; fromTour?: string }>();
   const authParams: Record<string, string> = {};
   if (next) authParams.next = next;
   if (contexto) authParams.contexto = contexto;
+  if (fromTour) authParams.fromTour = fromTour;
 
   // After authenticating (the auth flow is a modal): from the welcome, head
   // straight to the chosen flow (`next`); otherwise, if the profile is

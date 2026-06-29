@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/context/AuthContext';
+import { useOnboarding } from '@/context/OnboardingContext';
 import { hasSeenOnboarding, markOnboardingSeen } from '@/lib/onboarding';
 import { colors } from '@/theme/colors';
 
@@ -27,7 +28,7 @@ interface Intent {
 
 /**
  * Four doors, not a feature parade. Each states the job the visitor came to do
- * and, in one line, what ReparAuto does differently from generic classifieds —
+ * and, in one line, what RecarGarage does differently from generic classifieds —
  * so the welcome doubles as the showcase. "Quero comprar" leads to the Intenção
  * de Compra, the standout feature.
  */
@@ -71,7 +72,7 @@ const INTENTS: Intent[] = [
     titulo: 'Quero comprar',
     descricao: 'Diga o que procura e os vendedores vêm até si.',
     contexto: 'Crie a sua conta para criar o seu alerta de procura.',
-    destaque: 'Só na ReparAuto',
+    destaque: 'Só na RecarGarage',
   },
 ];
 
@@ -84,8 +85,8 @@ const GRADIENT = [colors.primary[700], colors.primary[800], colors.primary[950]]
  */
 export function OnboardingGate() {
   const { loading, isLoggedIn } = useAuth();
+  const { tourVisible, openTour, closeTour } = useOnboarding();
   const insets = useSafeAreaInsets();
-  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -97,38 +98,39 @@ export function OnboardingGate() {
     }
     let cancelled = false;
     hasSeenOnboarding().then((seen) => {
-      if (!cancelled && !seen) setVisible(true);
+      if (!cancelled && !seen) openTour();
     });
     return () => {
       cancelled = true;
     };
-  }, [loading, isLoggedIn]);
+  }, [loading, isLoggedIn, openTour]);
 
   function dismiss() {
     markOnboardingSeen();
-    setVisible(false);
+    closeTour();
   }
 
   function selectIntent(intent: Intent) {
     Haptics.selectionAsync().catch(() => {});
     markOnboardingSeen();
-    setVisible(false);
-    // Carry the chosen flow + context through the signup modal; the auth screen
-    // routes straight to `next` once the account is created.
+    closeTour();
+    // Carry the chosen flow + context through the signup modal, and flag that we
+    // came from the tour so its "Voltar" reopens the welcome instead of dropping
+    // the visitor onto the listings.
     router.push({
       pathname: '/registar',
-      params: { next: String(intent.route), contexto: intent.contexto },
+      params: { next: String(intent.route), contexto: intent.contexto, fromTour: '1' },
     });
   }
 
   return (
     <Modal
-      visible={visible}
+      visible={tourVisible}
       animationType="fade"
       statusBarTranslucent
       onRequestClose={dismiss}
     >
-      {visible && <StatusBar style="light" />}
+      {tourVisible && <StatusBar style="light" />}
       <LinearGradient colors={GRADIENT} style={{ flex: 1 }}>
         <View style={{ flex: 1, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 8 }}>
           <View className="flex-row justify-end px-4">
@@ -146,15 +148,15 @@ export function OnboardingGate() {
           <ScrollView contentContainerClassName="flex-grow justify-center px-5 py-4">
             {/* Header */}
             <View className="mb-7 items-center">
-              <View className="mb-3 flex-row items-center gap-1.5 rounded-full bg-white/10 px-3 py-1">
-                <Ionicons name="sparkles" size={13} color={colors.warning[500]} />
-                <Text className="text-xs font-bold text-white">Bem-vindo à ReparAuto</Text>
+              <View className="mb-3 flex-row items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5">
+                <Ionicons name="sparkles" size={14} color={colors.warning[500]} />
+                <Text className="text-sm font-bold text-white">Bem-vindo à RecarGarage</Text>
               </View>
-              <Text className="text-center text-3xl font-extrabold text-white">
-                O que o traz aqui hoje?
+              <Text className="text-center text-3xl font-extrabold leading-tight text-white">
+                O ecossistema que liga mecânicos, vendedores e compradores
               </Text>
-              <Text className="mt-2 text-center text-base text-white/80">
-                Escolha um caminho e nós tratamos do resto.
+              <Text className="mt-3 text-center text-base leading-relaxed text-white/85">
+                Tudo num só lugar. Diga-nos o que o traz aqui hoje — tratamos do resto.
               </Text>
             </View>
 
@@ -174,14 +176,14 @@ export function OnboardingGate() {
                   </View>
                   <View className="ml-3 flex-1">
                     <View className="flex-row flex-wrap items-center gap-2">
-                      <Text className="text-base font-bold text-fg-heading">{intent.titulo}</Text>
+                      <Text className="text-lg font-bold text-fg-heading">{intent.titulo}</Text>
                       {intent.destaque && (
                         <View className="rounded-full bg-accent px-2 py-0.5">
                           <Text className="text-xs font-bold text-white">{intent.destaque}</Text>
                         </View>
                       )}
                     </View>
-                    <Text className="mt-0.5 text-sm text-fg-muted">{intent.descricao}</Text>
+                    <Text className="mt-0.5 text-[15px] leading-snug text-fg-muted">{intent.descricao}</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
                 </Pressable>

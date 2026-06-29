@@ -8,19 +8,35 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { useOnboarding } from '@/context/OnboardingContext';
 import { colors } from '@/theme/colors';
 
 export default function RegistarScreen() {
   const { registar } = useAuth();
   const { showToast } = useToast();
+  const { openTour } = useOnboarding();
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { next, contexto } = useLocalSearchParams<{ next?: string; contexto?: string }>();
+  const { next, contexto, fromTour } = useLocalSearchParams<{ next?: string; contexto?: string; fromTour?: string }>();
   const authParams: Record<string, string> = {};
   if (next) authParams.next = next;
   if (contexto) authParams.contexto = contexto;
+  if (fromTour) authParams.fromTour = fromTour;
+
+  // Backing out of signup should return to the welcome tour it came from — not
+  // dismiss to the listings underneath.
+  function handleVoltar() {
+    if (fromTour) {
+      openTour();
+      if (router.canDismiss()) {
+        router.dismissAll();
+        return;
+      }
+    }
+    router.back();
+  }
 
   async function handleRegistar() {
     if (!nome.trim() || !email.trim() || !password) {
@@ -55,7 +71,7 @@ export default function RegistarScreen() {
           contentContainerClassName="flex-grow justify-center px-6 py-10"
           keyboardShouldPersistTaps="handled"
         >
-          <Pressable onPress={() => router.back()} className="mb-6 flex-row items-center">
+          <Pressable onPress={handleVoltar} className="mb-6 flex-row items-center">
             <Ionicons name="chevron-back" size={22} color={colors.primary[700]} />
             <Text className="font-semibold text-primary-700">Voltar</Text>
           </Pressable>
