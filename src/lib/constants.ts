@@ -10,6 +10,9 @@ export const MARCAS_MODELOS_COLLECTION = 'marcas_modelos';
 export const MAX_FOTOS_CARRO = 6;
 export const MAX_FOTO_SIZE_MB = 10;
 export const MAX_FOTO_SIZE_BYTES = MAX_FOTO_SIZE_MB * 1024 * 1024;
+// Every listing photo is cropped to this aspect ratio (width / height) so cards
+// and galleries render uniformly — 4:3 is the automotive-marketplace standard.
+export const LISTING_PHOTO_ASPECT = 4 / 3;
 export const DB_VERSION = '2.3';
 export const DB_VERSION_KEY = 'reparauto_db_version';
 export const STORAGE_KEY_CARROS = 'carros_reparauto';
