@@ -13,7 +13,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { incrementCampo } from '@/lib/db';
+import { incrementCampo, recordDailyMetric } from '@/lib/db';
 import type { Mensagem, ListingType } from '@/types/chat';
 
 const MENSAGENS_COLLECTION = 'messages';
@@ -173,6 +173,10 @@ export function useChat(uid: string | null, nome: string = '') {
             chatListingId,
             'contagemMensagens',
           );
+          // Count inbound messages to the seller (skip the seller's own replies).
+          if (uid !== chatVendedorUid) {
+            recordDailyMetric(chatVendedorUid, 'contact');
+          }
         }
       } catch (err) {
         console.error('[Chat] Erro ao enviar mensagem:', err);

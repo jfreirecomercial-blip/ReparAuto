@@ -175,6 +175,25 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    match /seller_daily/{docId} {
+      // Per-seller engagement buckets. Readable only by the seller; metric
+      // fields may be bumped by anyone (incl. anonymous viewers), mirroring the
+      // `visualizacoes` counter exception on /cars. No sensitive data lives here.
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.ownerUid;
+      allow create: if request.resource.data.keys()
+        .hasOnly(['ownerUid', 'date', 'views', 'contacts', 'updatedAt']);
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['views', 'contacts', 'updatedAt']);
+    }
+
+    match /clients/{clientId} {
+      // A professional's private client book — strictly owner-scoped. The owner
+      // controls their own records, so forging `matchedUserUid` only ever links
+      // to an already-public profile (no data leak); no field-level lock needed.
+      allow read, update, delete: if isAuthenticated() && request.auth.uid == resource.data.ownerUid;
+      allow create: if isAuthenticated() && request.resource.data.ownerUid == request.auth.uid;
+    }
+
     match /config/{document} {
       allow read: if true;
       allow write: if isAdmin();

@@ -32,6 +32,7 @@ import type { Proposta, PropostaInput, StatusProposta } from '@/types/proposal';
 import type { LeadParceria, LeadParceriaInput } from '@/types/lead';
 import type { OficinaMecanico } from '@/types/oficina';
 import type { Banner, BannerInput } from '@/types/banner';
+import type { Client, ClientInput } from '@/types/client';
 
 const CARROS_COLLECTION = 'cars';
 const PECAS_COLLECTION = 'parts';
@@ -594,6 +595,188 @@ export async function decrementCampo(colecao: string, id: string, campo: string)
     await updateDoc(doc(db, colecao, id), { [campo]: increment(-1) });
   } catch (err) {
     console.error(`[DB] Erro ao decrementar ${campo}:`, err);
+  }
+}
+
+// ============ MÉTRICAS DIÁRIAS (PAINEL PROFISSIONAL) ============
+
+const SELLER_DAILY_COLLECTION = 'seller_daily';
+
+/** 'YYYY-MM-DD' for a date in the Europe/Lisbon timezone (the bucket key). */
+export function lisbonDateKey(date: Date = new Date()): string {
+  // en-CA renders as ISO (YYYY-MM-DD); the timeZone option does the shift.
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Lisbon',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date);
+}
+
+/**
+ * Records one engagement event into the seller's daily bucket. Best-effort and
+ * silent: it must never break the view/contact flow it piggybacks on. The write
+ * mirrors the anonymous-counter exception already used for `visualizacoes`.
+ */
+export async function recordDailyMetric(
+  ownerUid: string | undefined | null,
+  kind: import('@/types/dashboard').MetricKind,
+): Promise<void> {
+  if (!ownerUid) return;
+  try {
+    const date = lisbonDateKey();
+    const field = kind === 'view' ? 'views' : 'contacts';
+    await setDoc(
+      doc(db, SELLER_DAILY_COLLECTION, `${ownerUid}_${date}`),
+      { ownerUid, date, [field]: increment(1), updatedAt: Timestamp.now() },
+      { merge: true },
+    );
+  } catch (err) {
+    console.warn('[DB] Falha ao registar métrica diária:', err);
+  }
+}
+
+/**
+ * Daily metric points for a seller over the last `days` days (inclusive of
+ * today), zero-filled. Reads all the seller's buckets and filters/sorts in
+ * memory to avoid a composite index, consistent with the project's approach.
+ */
+export async function getSellerDailyRange(
+  ownerUid: string,
+  days: number,
+): Promise<import('@/types/dashboard').MetricPoint[]> {
+  const points: import('@/types/dashboard').MetricPoint[] = [];
+  const byDate = new Map<string, { views: number; contacts: number }>();
+  try {
+    const q = query(collection(db, SELLER_DAILY_COLLECTION), where('ownerUid', '==', ownerUid));
+    const snap = await getDocs(q);
+    snap.docs.forEach((d) => {
+      const data = d.data() as { date?: string; views?: number; contacts?: number };
+      if (data.date) byDate.set(data.date, { views: data.views || 0, contacts: data.contacts || 0 });
+    });
+  } catch (err) {
+    console.error('[DB] Erro ao buscar métricas diárias:', err);
+  }
+  // Build a contiguous, zero-filled window ending today (Lisbon time).
+  const now = new Date();
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    const key = lisbonDateKey(d);
+    const hit = byDate.get(key);
+    points.push({ date: key, views: hit?.views || 0, contacts: hit?.contacts || 0 });
+  }
+  return points;
+}
+
+// ============ CRM DE CLIENTES (PAINEL PROFISSIONAL) ============
+
+const CLIENTS_COLLECTION = 'clients';
+
+export async function getClientsByOwner(ownerUid: string): Promise<Client[]> {
+  try {
+    const q = query(collection(db, CLIENTS_COLLECTION), where('ownerUid', '==', ownerUid));
+    const snap = await getDocs(q);
+    const results = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Client));
+    // Sort newest-updated first in memory (avoids a composite index).
+    results.sort((a, b) => (b.atualizadoEm?.toMillis?.() || 0) - (a.atualizadoEm?.toMillis?.() || 0));
+    return results;
+  } catch (err) {
+    console.error('[DB] Erro ao buscar clientes:', err);
+    return [];
+  }
+}
+
+export function subscribeClients(
+  ownerUid: string,
+  onData: (clients: Client[]) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  const q = query(collection(db, CLIENTS_COLLECTION), where('ownerUid', '==', ownerUid));
+  return onSnapshot(
+    q,
+    (snap) => {
+      const results = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Client));
+      results.sort((a, b) => (b.atualizadoEm?.toMillis?.() || 0) - (a.atualizadoEm?.toMillis?.() || 0));
+      onData(results);
+    },
+    (err) => {
+      console.error('[DB] Erro no snapshot de clientes:', err);
+      onError?.(err);
+    },
+  );
+}
+
+export async function createClient(ownerUid: string, data: ClientInput): Promise<string> {
+  try {
+    const ref = await addDoc(
+      collection(db, CLIENTS_COLLECTION),
+      cleanUndefined({
+        ...data,
+        ownerUid,
+        criadoEm: Timestamp.now(),
+        atualizadoEm: Timestamp.now(),
+      }),
+    );
+    return ref.id;
+  } catch (err) {
+    console.error('[DB] Erro ao criar cliente:', err);
+    throw err;
+  }
+}
+
+export async function createClientsBatch(ownerUid: string, list: ClientInput[]): Promise<number> {
+  if (list.length === 0) return 0;
+  try {
+    const batch = writeBatch(db);
+    list.forEach((data) => {
+      const ref = doc(collection(db, CLIENTS_COLLECTION));
+      batch.set(
+        ref,
+        cleanUndefined({
+          ...data,
+          ownerUid,
+          criadoEm: Timestamp.now(),
+          atualizadoEm: Timestamp.now(),
+        }),
+      );
+    });
+    await batch.commit();
+    return list.length;
+  } catch (err) {
+    console.error('[DB] Erro ao importar clientes:', err);
+    throw err;
+  }
+}
+
+export async function updateClient(id: string, data: Partial<Client>): Promise<void> {
+  try {
+    await updateDoc(doc(db, CLIENTS_COLLECTION, id), cleanUndefined({ ...data, atualizadoEm: Timestamp.now() }));
+  } catch (err) {
+    console.error('[DB] Erro ao atualizar cliente:', err);
+    throw err;
+  }
+}
+
+export async function deleteClient(id: string): Promise<void> {
+  try {
+    await deleteDoc(doc(db, CLIENTS_COLLECTION, id));
+  } catch (err) {
+    console.error('[DB] Erro ao apagar cliente:', err);
+    throw err;
+  }
+}
+
+/** Outbound purchase-intent contacts this professional has opened (lead pipeline). */
+export async function getContatosByVendedor(vendedorId: string): Promise<ContatoIntencao[]> {
+  try {
+    const q = query(collection(db, CONTATOS_INTENCAO_COLLECTION), where('vendedorId', '==', vendedorId));
+    const snap = await getDocs(q);
+    const results = snap.docs.map((d) => ({ id: d.id, ...d.data() } as ContatoIntencao));
+    results.sort((a, b) => (b.criadoEm?.toMillis?.() || 0) - (a.criadoEm?.toMillis?.() || 0));
+    return results;
+  } catch (err) {
+    console.error('[DB] Erro ao buscar contatos do vendedor:', err);
+    return [];
   }
 }
 

@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowsOut, CircleNotch, Heart, Lock, PencilSimpleLine, TextA
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useApp } from '@/providers/AppProvider';
-import { getCarroPorId as getCarroPorIdDb, incrementCampo, updateCarro, deleteCarro } from '@/lib/db';
+import { getCarroPorId as getCarroPorIdDb, incrementCampo, recordDailyMetric, updateCarro, deleteCarro } from '@/lib/db';
 import { formatarPreco, renderDescricao } from '@/lib/utils';
 import TechnicalSheet from '@/components/detalhes/TechnicalSheet';
 import ContactSection from '@/components/detalhes/ContactSection';
@@ -57,6 +57,7 @@ export default function DetalhesCarro() {
       if (!sessionStorage.getItem(key)) {
         sessionStorage.setItem(key, '1');
         incrementCampo('cars', id, 'visualizacoes');
+        recordDailyMetric(data.criadorUid, 'view');
       }
     }
     fetchCarro();
