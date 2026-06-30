@@ -2036,6 +2036,13 @@ const extraPlans = [
     impact: 'Novo mercado de lancamento (maior da America Latina)',
     summary: 'Localizacao PT-BR, moeda BRL e PIX, base de veiculos FIPE e arquitetura multi-pais (chave country) que isola Brasil e Portugal numa unica base.',
     evidence: 'Em fila — plano recem-criado; sem implementacao no codigo.'
+  },
+  {
+    id: '21', title: 'Recorte de Fotos nos Anuncios (Web + Mobile)', priority: 'MEDIA', effort: '~3-4 dias',
+    implemented: true, file: '21-recorte-fotos-anuncios.md',
+    impact: 'Fotos uniformes (4:3) em cards e galerias, com girar/zoom/recortar no upload',
+    summary: 'Editor de imagem (girar 90, zoom, arrastar e recortar para 4:3) acionado ao carregar ou editar fotos, tanto no site (canvas) como na app mobile (gesture-handler + reanimated + expo-image-manipulator).',
+    evidence: 'Entregue — ImageCropper partilhado no FotosEditor/PecaForm (web) e no PhotoPicker (mobile).'
   }
 ];
 
