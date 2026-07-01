@@ -67,10 +67,10 @@ export const Carros: React.FC = () => {
             }}
           >
             <ListingCard
-              image="brand/car-1.png"
-              title="BMW Série 3"
-              subtitle="2011 · 145.000 km · Gasolina"
-              price="9.750 €"
+              image="images/clio-low-cost.jpg"
+              title="Renault Clio"
+              subtitle="2005 · 198.000 km · Gasolina"
+              price="900 €"
               tag="Low-cost"
               tagColor={colors.secondary}
               width={560}
