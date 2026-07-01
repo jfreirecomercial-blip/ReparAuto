@@ -5,6 +5,7 @@ import {
   formatarCodigoPostal,
   validarNif,
   obterWhatsApp,
+  gerarTituloIntencao,
   getYoutubeId,
   getYoutubeEmbedUrl,
   isValidYoutubeUrl,
@@ -112,6 +113,20 @@ describe('obterWhatsApp', () => {
   it('returns null for numbers that cannot receive WhatsApp links', () => {
     expect(obterWhatsApp(null, '1133334444', 'BR')).toBeNull();
     expect(obterWhatsApp(null, null, 'BR')).toBeNull();
+  });
+});
+
+describe('gerarTituloIntencao', () => {
+  it('formats the budget in euros for the Portuguese market', () => {
+    expect(
+      gerarTituloIntencao({ categoria: 'carro', criterios: { marca: 'Fiat', modelo: 'Uno', precoMaximo: 5000 } })
+    ).toBe('Procuro carro: Fiat Uno até 5000€');
+  });
+
+  it('formats the budget in reais for the Brazilian market', () => {
+    expect(
+      gerarTituloIntencao({ categoria: 'carro', criterios: { marca: 'Fiat', modelo: 'Uno', precoMaximo: 5000 } }, 'BR')
+    ).toBe('Procuro carro: Fiat Uno até R$ 5000');
   });
 });
 

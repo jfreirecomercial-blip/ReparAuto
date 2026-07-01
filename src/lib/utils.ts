@@ -265,7 +265,7 @@ export function gerarTituloIntencao(dados: {
   categoria?: string;
   criterios?: { marca?: string; modelo?: string; precoMaximo?: number };
   descricao?: string;
-}): string {
+}, country: Country = 'PT'): string {
   const cat = dados.categoria || 'carro';
   const prefixos: Record<string, string> = {
     carro: 'Procuro carro',
@@ -280,7 +280,8 @@ export function gerarTituloIntencao(dados: {
   }
   const m = dados.criterios?.marca || '';
   const mo = dados.criterios?.modelo || '';
-  const p = dados.criterios?.precoMaximo ? ` até ${dados.criterios.precoMaximo}€` : '';
+  const preco = dados.criterios?.precoMaximo;
+  const p = preco ? ` até ${country === 'BR' ? `R$ ${preco}` : `${preco}€`}` : '';
   return `${prefixo}: ${m} ${mo}${p}`;
 }
 

@@ -105,7 +105,9 @@ export default function CarGrid() {
     if (tipo === 'intencoes') {
       setLoadingIntencoes(true);
       if (searchQuery) {
-        const carroExemplo = { marca: searchQuery, preco: advPriceMax || undefined, local: advDistrito || undefined };
+        // country rides along so the match logic compares intents against the
+        // active market, not the PT default of a country-less object.
+        const carroExemplo = { marca: searchQuery, preco: advPriceMax || undefined, local: advDistrito || undefined, country };
         buscarIntencoesMatch(carroExemplo, auth.user?.uid || '')
           .then((list) => setIntencoesMatch(doMercado(list)))
           .catch(() => setIntencoesMatch([]))

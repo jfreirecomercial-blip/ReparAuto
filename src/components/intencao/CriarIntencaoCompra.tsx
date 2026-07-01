@@ -4,6 +4,7 @@ import { Check, CheckCircle } from '@phosphor-icons/react';
 import { Fragment, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/providers/AppProvider';
+import { useCountry } from '@/providers/CountryProvider';
 import { useToast } from '@/components/ui/Toast';
 import Button from '@/components/ui/Button';
 import { gerarTituloIntencao, validarIntencaoCompra } from '@/lib/utils';
@@ -76,6 +77,7 @@ export default function CriarIntencaoCompra() {
   const [publicando, setPublicando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
   const { intencoes, auth } = useApp();
+  const { country } = useCountry();
   const router = useRouter();
   const toast = useToast();
 
@@ -135,7 +137,7 @@ export default function CriarIntencaoCompra() {
         categoria: form.categoria || undefined,
         criterios: form.criterios,
         descricao: form.descricao,
-      });
+      }, country);
       const dados: Record<string, any> = {
         userId: auth.user.uid,
         categoria: form.categoria,
