@@ -3,7 +3,15 @@
 import { useState, useRef } from 'react';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
-import { TIPOS_COMBUSTIVEL, TIPOS_CAMBIO, MAX_FOTOS_CARRO } from '@/lib/constants';
+import {
+  TIPOS_COMBUSTIVEL,
+  TIPOS_CAMBIO,
+  TIPOS_CARROCERIA,
+  CONDICOES_VEICULO,
+  TIPOS_TRACAO,
+  EQUIPAMENTOS_CARRO,
+  MAX_FOTOS_CARRO,
+} from '@/lib/constants';
 import { getDistritoForConcelho, getCoordenadas } from '@/lib/geo';
 import { useApp } from '@/providers/AppProvider';
 import SeletorLocalizacao from '@/components/ui/SeletorLocalizacao';
@@ -33,13 +41,26 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
     cambio: carro.cambio,
     cor: carro.cor,
     portas: String(carro.portas),
+    bodyType: carro.bodyType ?? '',
+    seats: carro.seats != null ? String(carro.seats) : '',
+    condition: carro.condition ?? '',
+    power: carro.power != null ? String(carro.power) : '',
+    displacement: carro.displacement != null ? String(carro.displacement) : '',
+    traction: carro.traction ?? '',
     local: carro.local,
     distrito: carro.distrito ?? getDistritoForConcelho(carro.local) ?? '',
     descricao: carro.descricao,
     videoUrl: carro.videoUrl ?? '',
     estadoVeiculo: carro.estadoVeiculo,
   });
+  const [features, setFeatures] = useState<string[]>(carro.features ?? []);
   const [fotos, setFotos] = useState<string[]>(carro.fotos || []);
+
+  const toggleFeature = (feature: string) => {
+    setFeatures((prev) =>
+      prev.includes(feature) ? prev.filter((f) => f !== feature) : [...prev, feature],
+    );
+  };
   const [saving, setSaving] = useState(false);
 
   const atualizar = (campo: string, valor: string) => {
@@ -78,6 +99,13 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
         cambio: form.cambio,
         cor: form.cor,
         portas: Number(form.portas),
+        bodyType: form.bodyType || null,
+        seats: form.seats ? Number(form.seats) : null,
+        condition: form.condition || null,
+        power: form.power ? Number(form.power) : null,
+        displacement: form.displacement ? Number(form.displacement) : null,
+        traction: form.traction || null,
+        features: features.length ? features : null,
         local: form.local,
         distrito: form.distrito || undefined,
         coordenadas: form.local ? getCoordenadas(form.local) : undefined,
@@ -98,7 +126,8 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
     label: string,
     campoId: string,
     type = 'text',
-    options: string[] | null = null
+    options: readonly string[] | null = null,
+    permitirVazio = false,
   ) => (
     <div>
       <label className="block text-xs font-semibold text-fg-subtle mb-1">{label}</label>
@@ -108,6 +137,7 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
           onChange={(e) => atualizar(campoId, e.target.value)}
           className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:border-accent"
         >
+          {permitirVazio && <option value="">—</option>}
           {options.map((opt) => (
             <option key={opt} value={opt}>{opt}</option>
           ))}
@@ -136,12 +166,42 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
         {campo('Câmbio', 'cambio', 'text', TIPOS_CAMBIO)}
         {campo('Cor', 'cor')}
         {campo('Nº Portas', 'portas', 'number')}
+        {campo('Categoria', 'bodyType', 'text', TIPOS_CARROCERIA, true)}
+        {campo('Condição', 'condition', 'text', CONDICOES_VEICULO, true)}
+        {campo('Lugares', 'seats', 'number')}
+        {campo('Potência (cv)', 'power', 'number')}
+        {campo('Cilindrada (cc)', 'displacement', 'number')}
+        {campo('Tração', 'traction', 'text', TIPOS_TRACAO, true)}
         <div className="col-span-2">
           <SeletorLocalizacao
             distrito={form.distrito}
             concelho={form.local}
             onChange={(d, c) => setForm((prev) => ({ ...prev, distrito: d, local: c }))}
           />
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-xs font-semibold text-fg-subtle mb-2">Equipamento / Extras</label>
+        <div className="flex flex-wrap gap-2">
+          {EQUIPAMENTOS_CARRO.map((feature) => {
+            const ativo = features.includes(feature);
+            return (
+              <button
+                key={feature}
+                type="button"
+                onClick={() => toggleFeature(feature)}
+                aria-pressed={ativo}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                  ativo
+                    ? 'bg-accent text-white border-accent'
+                    : 'bg-slate-50 text-fg-muted border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                {feature}
+              </button>
+            );
+          })}
         </div>
       </div>
 

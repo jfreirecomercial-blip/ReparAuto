@@ -47,6 +47,8 @@ Todos opcionais; `condition` assume `Usado` por defeito.
   cilindrada, tração e equipamento numa secção "Adicionar mais detalhes (opcional)"
   colapsada por defeito.
 - Mobile: `app/anunciar/carro.tsx` — mesmos campos, com secção "Mais detalhes".
+- Edição: `EditarCarroModal` (admin + perfil, web) e o modo de edição do
+  `app/anunciar/carro.tsx` (mobile) também editam todos os novos campos.
 
 ### Filtros (com avançados escondidos por defeito)
 - Web (`useCarros` + `CarGrid`): **Categoria** e **Condição** sempre visíveis;
