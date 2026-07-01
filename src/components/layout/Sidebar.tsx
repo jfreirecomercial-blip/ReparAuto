@@ -22,6 +22,8 @@ import {
   type Icon,
 } from '@phosphor-icons/react';
 import { useApp } from '@/providers/AppProvider';
+import { useCountry } from '@/providers/CountryProvider';
+import { COUNTRIES, COUNTRY_INFO } from '@/lib/country';
 import NotificationInbox from './NotificationInbox';
 import ChatInbox from '@/components/chat/ChatInbox';
 import PlanosPremiumModal from '@/components/premium/PlanosPremiumModal';
@@ -38,6 +40,7 @@ interface SidebarProps {
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const { auth, chat } = useApp();
+  const { country, setCountry, locked } = useCountry();
   const premiumConfig = usePremiumConfig();
   const isPremiumActive = premiumConfig.impulsionamento || premiumConfig.oficinas || premiumConfig.leads;
   const pathname = usePathname();
@@ -180,6 +183,45 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 </button>
               )}
             </div>
+          </div>
+
+          <div>
+            <SectionLabel>Mercado</SectionLabel>
+            <div
+              role="radiogroup"
+              aria-label="Escolher mercado"
+              className="flex gap-1 rounded-xl bg-white/5 border border-white/5 p-1"
+            >
+              {COUNTRIES.map((code) => {
+                const info = COUNTRY_INFO[code];
+                const active = country === code;
+                return (
+                  <button
+                    key={code}
+                    role="radio"
+                    aria-checked={active}
+                    disabled={locked}
+                    onClick={() => setCountry(code)}
+                    title={locked ? 'O mercado é definido pela sua conta.' : undefined}
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${
+                      active
+                        ? 'bg-accent text-white shadow-lg shadow-accent/30'
+                        : locked
+                          ? 'text-white/30 cursor-not-allowed'
+                          : 'text-white/65 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    <span aria-hidden="true">{info.flag}</span>
+                    {info.name}
+                  </button>
+                );
+              })}
+            </div>
+            {locked && (
+              <p className="px-3 mt-1.5 text-[10px] text-white/35">
+                Definido pela sua conta
+              </p>
+            )}
           </div>
         </nav>
 

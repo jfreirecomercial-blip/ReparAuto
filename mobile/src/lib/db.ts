@@ -10,6 +10,7 @@ import firestore, {
 } from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db, storage } from './firebase';
+import { getActiveCountry, getBindingCountry } from './country';
 import type { Carro, Peca, Oficina, Usuario } from '@/types';
 
 /** Firestore rejects `undefined`; drop those keys before writing. */
@@ -108,6 +109,8 @@ export async function uploadFotoIfLocal(
 export async function addCarro(dados: Record<string, unknown>): Promise<string> {
   const docRef = await db.collection(CARROS).add(
     cleanUndefined({
+      // Stamp the active market; callers may override via `dados`.
+      country: getActiveCountry(),
       ...dados,
       status: 'pendente',
       dataCriacao: firestore.FieldValue.serverTimestamp(),
@@ -168,6 +171,8 @@ export async function getOficinaById(id: string): Promise<Oficina | null> {
 export async function addPeca(dados: Record<string, unknown>): Promise<string> {
   const docRef = await db.collection(PECAS).add(
     cleanUndefined({
+      // Stamp the active market; callers may override via `dados`.
+      country: getActiveCountry(),
       ...dados,
       status: 'pendente',
       dataCriacao: firestore.FieldValue.serverTimestamp(),
@@ -180,6 +185,8 @@ export async function addPeca(dados: Record<string, unknown>): Promise<string> {
 export async function addOficina(dados: Record<string, unknown>): Promise<string> {
   const docRef = await db.collection(OFICINAS).add(
     cleanUndefined({
+      // Stamp the active market; callers may override via `dados`.
+      country: getActiveCountry(),
       ...dados,
       status: 'pendente',
       dataCriacao: firestore.FieldValue.serverTimestamp(),
@@ -244,11 +251,19 @@ export async function createUserProfile(
   uid: string,
   data: Record<string, unknown>,
 ): Promise<void> {
+  // Accounts belong to one market, bound at signup. Await the first-launch
+  // resolution so a signup racing the AsyncStorage/GeoIP detection can't
+  // stamp the wrong market; an explicit caller value always wins.
+  const country = (data.country as string) ?? (await getBindingCountry());
   await db
     .collection(USERS)
     .doc(uid)
     .set(
-      { ...data, dataCriacao: firestore.FieldValue.serverTimestamp() },
+      {
+        ...data,
+        country,
+        dataCriacao: firestore.FieldValue.serverTimestamp(),
+      },
       { merge: true },
     );
 }
