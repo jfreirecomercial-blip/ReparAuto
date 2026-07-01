@@ -43,3 +43,17 @@ export function docCountry(doc: { country?: string | null }): Country {
 export function parseCountry(raw: string | null): Country | null {
   return raw === 'PT' || raw === 'BR' ? raw : null;
 }
+
+/**
+ * Boundary helper for non-React code (db.ts create functions): the active
+ * market as persisted by CountryProvider. Server-side it is always the
+ * default — SSR never creates listings.
+ */
+export function getActiveCountry(): Country {
+  if (typeof window === 'undefined') return DEFAULT_COUNTRY;
+  try {
+    return parseCountry(window.localStorage.getItem(COUNTRY_STORAGE_KEY)) ?? DEFAULT_COUNTRY;
+  } catch {
+    return DEFAULT_COUNTRY;
+  }
+}
