@@ -192,17 +192,22 @@ sempre que possível. Renderiza um frame de cada cena para eu comparar.
 
 ### 🎵 Música e narração
 
-O promo já traz música: `public/audio/rockit.mp3`, a **entrar aos 7 segundos**
-(as primeiras cenas passam em silêncio), com *fade-in* no início e *fade-out* no
-fim. A lógica está em `src/RecarGaragePromo.tsx` (componente `<Audio>` dentro de
-um `<Sequence from={7 * fps}>`, com o volume controlado por `interpolate()`).
+O promo já traz música: `public/audio/rockit.mp3`. A faixa **toca desde o início
+do vídeo**, mas como tem uma introdução longa (~7 s), essa introdução é cortada
+com `trimBefore` para a batida entrar logo no frame 0 — com *fade-in* no início e
+*fade-out* no fim. A lógica está em `src/RecarGaragePromo.tsx` (componente
+`<Audio trimBefore={7 * fps}>`, com o volume controlado por `interpolate()`).
 
-Para **trocar a música ou mudar o momento em que entra**:
+> ℹ️ `trimBefore` corta o **início da faixa** (salta a intro); não atrasa a
+> música. Para em vez disso a música **começar mais tarde no vídeo** (silêncio no
+> arranque), envolve o `<Audio>` num `<Sequence from={…}>`.
+
+Para **trocar a música ou ajustar o corte da intro**:
 
 ```
-No RecarGaragePromo, substitui a música por public/audio/nova.mp3 e faz a música
-entrar aos 5 segundos em vez dos 7. Mantém o fade-in no início e o fade-out nos
-últimos 1,5 segundos.
+No RecarGaragePromo, substitui a música por public/audio/nova.mp3 e ajusta o
+trimBefore para saltar os primeiros 3 segundos de intro. Mantém o fade-in no
+início e o fade-out nos últimos 1,5 segundos.
 ```
 
 Para **narração (voice-over)** em português:

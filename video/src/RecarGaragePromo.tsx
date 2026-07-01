@@ -2,7 +2,6 @@ import React from "react";
 import {
   AbsoluteFill,
   Audio,
-  Sequence,
   interpolate,
   staticFile,
   useVideoConfig,
@@ -31,34 +30,33 @@ const transition = () => (
 export const RecarGaragePromo: React.FC = () => {
   const { fps, durationInFrames } = useVideoConfig();
 
-  // Music kicks in at the 7s mark; the first scenes play in silence.
-  const musicStart = 7 * fps;
-  const musicLength = durationInFrames - musicStart;
+  // The track has a long ~7s intro, so skip it (trimBefore) and let the beat
+  // play from the very start of the video. Fade in at the start, out at the end.
+  const introTrim = 7 * fps;
   const fadeIn = 0.6 * fps;
   const fadeOut = 1.5 * fps;
 
   return (
     <AbsoluteFill style={{ backgroundColor: colors.primaryNight }}>
-      <Sequence from={musicStart}>
-        <Audio
-          src={staticFile("audio/rockit.mp3")}
-          // Frame is relative to this Audio's start (frame 0 = the 7s mark).
-          volume={(f) =>
-            Math.min(
-              interpolate(f, [0, fadeIn], [0, 0.7], {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-              }),
-              interpolate(
-                f,
-                [musicLength - fadeOut, musicLength],
-                [0.7, 0],
-                { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-              ),
-            )
-          }
-        />
-      </Sequence>
+      <Audio
+        src={staticFile("audio/rockit.mp3")}
+        trimBefore={introTrim}
+        // Frame is relative to the video start (frame 0 = start of the promo).
+        volume={(f) =>
+          Math.min(
+            interpolate(f, [0, fadeIn], [0, 0.7], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            }),
+            interpolate(
+              f,
+              [durationInFrames - fadeOut, durationInFrames],
+              [0.7, 0],
+              { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+            ),
+          )
+        }
+      />
       <TransitionSeries>
         <TransitionSeries.Sequence durationInFrames={scenes.hook}>
           <Hook />
