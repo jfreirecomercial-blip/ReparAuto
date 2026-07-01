@@ -1,4 +1,6 @@
 import dados from '@/data/distritos-concelhos.json';
+import dadosBr from '@/data/estados-cidades-br.json';
+import type { Country } from '@/lib/country';
 
 export interface ConcelhoDado {
   nome: string;
@@ -6,34 +8,57 @@ export interface ConcelhoDado {
   lng: number;
 }
 
+// The Brazilian dataset (states/cities) reuses this shape so every lookup
+// below works for both markets: distrito = estado, concelho = cidade.
 export interface DistritoDado {
   distrito: string;
   concelhos: ConcelhoDado[];
 }
 
 const distritosDados = dados as DistritoDado[];
+const estadosBrDados = dadosBr as DistritoDado[];
+
+const DATASETS: Record<Country, DistritoDado[]> = {
+  PT: distritosDados,
+  BR: estadosBrDados,
+};
 
 export const DISTRITOS = distritosDados.map((d) => d.distrito).sort((a, b) =>
   a.localeCompare(b, 'pt')
 );
 
+/** Region names (PT distritos / BR estados) for the given market. */
+export function getDistritos(country: Country = 'PT'): string[] {
+  return DATASETS[country].map((d) => d.distrito).sort((a, b) => a.localeCompare(b, 'pt'));
+}
+
+// Region/place names don't collide between the two datasets, so the lookups
+// search both — callers with only a stored name never need to know the market.
 export function getConcelhos(distrito: string): ConcelhoDado[] {
-  return distritosDados.find((d) => d.distrito === distrito)?.concelhos ?? [];
+  for (const dataset of Object.values(DATASETS)) {
+    const match = dataset.find((d) => d.distrito === distrito);
+    if (match) return match.concelhos;
+  }
+  return [];
 }
 
 export function getDistritoForConcelho(nome: string): string | undefined {
   const lower = nome.toLowerCase();
-  for (const d of distritosDados) {
-    if (d.concelhos.some((c) => c.nome.toLowerCase() === lower)) return d.distrito;
+  for (const dataset of Object.values(DATASETS)) {
+    for (const d of dataset) {
+      if (d.concelhos.some((c) => c.nome.toLowerCase() === lower)) return d.distrito;
+    }
   }
   return undefined;
 }
 
 export function getCoordenadas(nome: string): { lat: number; lng: number } | undefined {
   const lower = nome.toLowerCase();
-  for (const d of distritosDados) {
-    const c = d.concelhos.find((c) => c.nome.toLowerCase() === lower);
-    if (c) return { lat: c.lat, lng: c.lng };
+  for (const dataset of Object.values(DATASETS)) {
+    for (const d of dataset) {
+      const c = d.concelhos.find((c) => c.nome.toLowerCase() === lower);
+      if (c) return { lat: c.lat, lng: c.lng };
+    }
   }
   return undefined;
 }

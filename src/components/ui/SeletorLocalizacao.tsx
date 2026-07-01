@@ -2,6 +2,8 @@
 
 import { CaretDown } from '@phosphor-icons/react';
 import { useDistritosConcelhos } from '@/hooks/useDistritosConcelhos';
+import { useCountry } from '@/providers/CountryProvider';
+import { term } from '@/lib/terms';
 
 interface SeletorLocalizacaoProps {
   distrito: string;
@@ -22,6 +24,10 @@ export default function SeletorLocalizacao({
 }: SeletorLocalizacaoProps) {
   const { distritos, getConcelhos } = useDistritosConcelhos();
   const concelhos = getConcelhos(distrito);
+  const { country } = useCountry();
+  // PT: Distrito/Concelho · BR: Estado/Cidade
+  const regiaoLabel = term('districtLabel', country);
+  const cidadeLabel = term('municipalityLabel', country);
 
   // appearance-none removes the cramped native arrow so we can render our own
   // chevron with comfortable padding (pr-10 keeps the text clear of it).
@@ -35,7 +41,7 @@ export default function SeletorLocalizacao({
     <div className={`grid grid-cols-2 gap-3 ${className}`}>
       <div>
         <label className={labelCls}>
-          Distrito {obrigatorio && <span className="text-danger-500">*</span>}
+          {regiaoLabel} {obrigatorio && <span className="text-danger-500">*</span>}
         </label>
         <div className="relative">
           <select
@@ -43,7 +49,7 @@ export default function SeletorLocalizacao({
             onChange={(e) => onChange(e.target.value, '')}
             className={`${baseSelect} ${erro && !distrito ? 'border-danger-500' : 'border-neutral-300'}`}
           >
-            <option value="">Selecionar distrito</option>
+            <option value="">Selecionar {regiaoLabel.toLowerCase()}</option>
             {distritos.map((d) => (
               <option key={d} value={d}>{d}</option>
             ))}
@@ -58,7 +64,7 @@ export default function SeletorLocalizacao({
 
       <div>
         <label className={labelCls}>
-          Concelho {obrigatorio && <span className="text-danger-500">*</span>}
+          {cidadeLabel} {obrigatorio && <span className="text-danger-500">*</span>}
         </label>
         <div className="relative">
           <select
@@ -68,7 +74,9 @@ export default function SeletorLocalizacao({
             className={`${baseSelect} ${erro && !concelho ? 'border-danger-500' : 'border-neutral-300'}`}
           >
             <option value="">
-              {distrito ? 'Selecionar concelho' : 'Selecione um distrito'}
+              {distrito
+                ? `Selecionar ${cidadeLabel.toLowerCase()}`
+                : `Selecione um ${regiaoLabel.toLowerCase()}`}
             </option>
             {concelhos.map((c) => (
               <option key={c.nome} value={c.nome}>{c.nome}</option>

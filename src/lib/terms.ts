@@ -23,7 +23,10 @@ const TERMS = {
   },
   addressLabel: { PT: 'Morada', BR: 'Endereço' },
   districtLabel: { PT: 'Distrito', BR: 'Estado' },
+  districtAllOption: { PT: 'Todos os distritos', BR: 'Todos os estados' },
+  districtSelectOption: { PT: 'Selecione um distrito', BR: 'Selecione um estado' },
   municipalityLabel: { PT: 'Concelho', BR: 'Cidade' },
+  municipalityAllOption: { PT: 'Todos os concelhos', BR: 'Todas as cidades' },
   plateLabel: { PT: 'Matrícula', BR: 'Placa' },
 } satisfies Record<string, Record<Country, string>>;
 

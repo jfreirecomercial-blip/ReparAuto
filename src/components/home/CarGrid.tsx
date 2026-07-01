@@ -11,6 +11,7 @@ import { CarCardSkeleton } from '@/components/ui/Skeleton';
 import { formatarPreco, obterWhatsApp } from '@/lib/utils';
 import { buscarIntencoesMatch, getIntencoesAtivas, subscribeOficinas } from '@/lib/db';
 import { docCountry } from '@/lib/country';
+import { term } from '@/lib/terms';
 import { useCountry } from '@/providers/CountryProvider';
 import type { IntencaoCompra } from '@/types/intencao';
 import type { OficinaMecanico } from '@/types/oficina';
@@ -261,13 +262,13 @@ export default function CarGrid() {
                 <div className="space-y-2">
                   <select value={advDistrito} onChange={(e) => handleDistritoChange(e.target.value)}
                     className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-fg focus:outline-none focus:border-accent">
-                    <option value="">Todos os distritos</option>
+                    <option value="">{term('districtAllOption', country)}</option>
                     {distritos.map((d) => <option key={d} value={d}>{d}</option>)}
                   </select>
                   <select value={advConcelho} onChange={(e) => setAdvConcelho(e.target.value)}
                     disabled={!advDistrito}
                     className={`w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-accent ${!advDistrito ? 'bg-slate-100 text-fg-subtle cursor-not-allowed' : 'text-fg'}`}>
-                    <option value="">{advDistrito ? 'Todos os concelhos' : 'Selecione um distrito'}</option>
+                    <option value="">{advDistrito ? term('municipalityAllOption', country) : term('districtSelectOption', country)}</option>
                     {getConcelhos(advDistrito).map((c) => <option key={c.nome} value={c.nome}>{c.nome}</option>)}
                   </select>
                 </div>
@@ -275,13 +276,13 @@ export default function CarGrid() {
                 <div className="space-y-2">
                   <select value={raioDist} onChange={(e) => handleRaioDistChange(e.target.value)}
                     className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-fg focus:outline-none focus:border-accent">
-                    <option value="">Selecionar distrito</option>
+                    <option value="">{term('districtSelectOption', country)}</option>
                     {distritos.map((d) => <option key={d} value={d}>{d}</option>)}
                   </select>
                   <select value={advRaioCentro} onChange={(e) => setAdvRaioCentro(e.target.value)}
                     disabled={!raioDist}
                     className={`w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-accent ${!raioDist ? 'bg-slate-100 text-fg-subtle cursor-not-allowed' : 'text-fg'}`}>
-                    <option value="">{raioDist ? 'Selecionar centro' : 'Selecione um distrito'}</option>
+                    <option value="">{raioDist ? 'Selecionar centro' : term('districtSelectOption', country)}</option>
                     {getConcelhos(raioDist).map((c) => <option key={c.nome} value={c.nome}>{c.nome}</option>)}
                   </select>
                   <div className="flex items-center gap-2">

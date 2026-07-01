@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import dados from '@/data/marcas-modelos.json';
 import { MARCAS_MODELOS_COLLECTION } from '@/lib/constants';
+import { fetchFipeBrands, fetchFipeModels, type FipeBrand } from '@/lib/fipe';
+import { useCountry } from '@/providers/CountryProvider';
 import type { MarcaModeloDoc, MarcasModelosCache, TipoVeiculo } from '@/types/marcas-modelos';
 
 export interface MarcaModelos {
@@ -63,6 +65,7 @@ interface UseMarcasModelosResult {
 
 export function useMarcasModelos(options?: UseMarcasModelosOptions): UseMarcasModelosResult {
   const { tipo } = options ?? {};
+  const { country } = useCountry();
   const [docs, setDocs] = useState<MarcaModeloDoc[]>(() => {
     // Try cache first
     const cached = getCache();
@@ -121,14 +124,63 @@ export function useMarcasModelos(options?: UseMarcasModelosOptions): UseMarcasMo
       }
     }
 
-    fetchMarcas();
+    if (country === 'PT') fetchMarcas();
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [country]);
+
+  // Brazilian market: brands come from the official FIPE table instead of the
+  // European catalog. Models load lazily per brand (FIPE is one request per
+  // brand) and land in a map that getModelos reads synchronously.
+  const [fipeBrands, setFipeBrands] = useState<FipeBrand[]>([]);
+  const [fipeModelos, setFipeModelos] = useState<Record<string, string[]>>({});
+  const fipePending = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (country !== 'BR') return;
+    let cancelled = false;
+    setLoading(true);
+    fetchFipeBrands(tipo)
+      .then((brands) => {
+        if (cancelled) return;
+        setFipeBrands(brands);
+        setError(null);
+      })
+      .catch((err) => {
+        console.warn('[useMarcasModelos] Erro ao buscar marcas FIPE:', err);
+        if (!cancelled) setError('Não foi possível carregar as marcas.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [country, tipo]);
+
+  const requestFipeModelos = useCallback(
+    (marca: string) => {
+      const brand = fipeBrands.find((b) => b.nome.toLowerCase() === marca.toLowerCase());
+      if (!brand || fipePending.current.has(marca)) return;
+      fipePending.current.add(marca);
+      fetchFipeModels(brand.codigo, tipo)
+        .then((modelos) => {
+          setFipeModelos((prev) => ({ ...prev, [marca]: modelos }));
+        })
+        .catch((err) => {
+          console.warn('[useMarcasModelos] Erro ao buscar modelos FIPE:', err);
+          fipePending.current.delete(marca);
+        });
+    },
+    [fipeBrands, tipo]
+  );
 
   const marcas = useMemo(() => {
+    if (country === 'BR') {
+      return fipeBrands.map((b) => b.nome).sort((a, b) => a.localeCompare(b, 'pt'));
+    }
     let filtered = docs;
     if (tipo) {
       filtered = docs.filter((d) => d.tipos.includes(tipo));
@@ -137,14 +189,21 @@ export function useMarcasModelos(options?: UseMarcasModelosOptions): UseMarcasMo
       .filter((d) => d.ativo)
       .map((d) => d.nome)
       .sort((a, b) => a.localeCompare(b));
-  }, [docs, tipo]);
+  }, [country, fipeBrands, docs, tipo]);
 
   const getModelos = useCallback(
     (marca: string): string[] => {
+      if (country === 'BR') {
+        const cached = fipeModelos[marca];
+        if (cached) return cached;
+        // Called during render — defer the fetch (and its setState) to a microtask.
+        queueMicrotask(() => requestFipeModelos(marca));
+        return [];
+      }
       const entry = docs.find((d) => d.nome.toLowerCase() === marca.toLowerCase());
       return entry?.modelos ?? [];
     },
-    [docs]
+    [country, fipeModelos, requestFipeModelos, docs]
   );
 
   return { marcas, getModelos, loading, error, docs };
