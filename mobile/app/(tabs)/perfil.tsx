@@ -7,6 +7,7 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { useNotificacoes } from '@/context/NotificacoesContext';
 import { useAdminPendencias } from '@/hooks/useAdminPendencias';
 import { REQUIRES_RECENT_LOGIN } from '@/lib/auth';
 import { colors } from '@/theme/colors';
@@ -15,6 +16,7 @@ export default function PerfilScreen() {
   const { user, isAdmin, logout, eliminarConta } = useAuth();
   const { showToast } = useToast();
   const { total: pendenciasAdmin } = useAdminPendencias(isAdmin);
+  const { naoLidas } = useNotificacoes();
 
   function confirmarLogout() {
     Alert.alert('Terminar sessão', 'Tem a certeza que quer sair?', [
@@ -133,6 +135,7 @@ export default function PerfilScreen() {
           <Row
             icon="notifications-outline"
             label="Notificações"
+            badge={naoLidas}
             onPress={() => router.push('/notificacoes')}
           />
           <Row

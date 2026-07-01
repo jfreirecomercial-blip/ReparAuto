@@ -11,6 +11,7 @@
  */
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging, {
   FirebaseMessagingTypes,
 } from '@react-native-firebase/messaging';
@@ -27,6 +28,17 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// Background/quit handler. Messages that carry a `notification` block are shown
+// automatically by the OS, so there's nothing to render here — but registering
+// the handler is required by @react-native-firebase/messaging to avoid the
+// Android "No task registered for ...HeadlessTask" warning and to give
+// data-only messages somewhere to run. Registered at module scope (this file is
+// imported by the root layout) so it's set before the JS bundle finishes
+// evaluating, as the SDK requires.
+messaging().setBackgroundMessageHandler(async () => {
+  // No-op: delivery/display is handled by the OS for notification messages.
+});
+
 /** Android channel ID used for both foreground display and FCM delivery. */
 const ANDROID_CHANNEL_ID = 'default';
 
@@ -41,7 +53,11 @@ async function ensureAndroidChannel(): Promise<void> {
   await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
     name: 'Notificações',
     importance: Notifications.AndroidImportance.HIGH,
-    sound: 'default',
+    // Omit `sound` so the channel uses the system default notification sound.
+    // Passing `'default'` (or any string) makes expo-notifications look for a
+    // bundled raw resource with that name and log "Custom sound 'default' not
+    // found in native app". Bundle a custom sound via the config plugin's
+    // `sounds` array if a custom tone is ever wanted.
     vibrationPattern: [0, 250, 250, 250],
   });
 }
@@ -52,6 +68,38 @@ async function temPermissao(): Promise<boolean> {
     status === messaging.AuthorizationStatus.AUTHORIZED ||
     status === messaging.AuthorizationStatus.PROVISIONAL
   );
+}
+
+/**
+ * Requests the OS notification permission (and ensures the Android channel).
+ * Safe to call without a signed-in user — used by the first-launch prompt and
+ * the settings toggle. Returns whether permission ended up granted.
+ */
+export async function requestNotificationPermission(): Promise<boolean> {
+  try {
+    await ensureAndroidChannel();
+    return await temPermissao();
+  } catch {
+    return false;
+  }
+}
+
+const PERMISSION_ASKED_KEY = 'push_permission_asked_v1';
+
+/**
+ * On the very first app launch, proactively ask for notification permission so
+ * the user can opt in before any push is ever sent. Prompts only once (tracked
+ * in AsyncStorage); the OS itself won't re-show its dialog after the first
+ * answer anyway. Best-effort — swallows storage/permission errors.
+ */
+export async function requestPermissionOnFirstLaunch(): Promise<void> {
+  try {
+    if (await AsyncStorage.getItem(PERMISSION_ASKED_KEY)) return;
+    await AsyncStorage.setItem(PERMISSION_ASKED_KEY, '1');
+    await requestNotificationPermission();
+  } catch {
+    // best-effort
+  }
 }
 
 /** Requests permission, fetches the FCM token and stores it on the user doc. */

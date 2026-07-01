@@ -1001,10 +1001,16 @@
         <div class="header-sub">Planos de Implementacao</div>
       </div>
     </div>
-    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema claro/escuro">
-      <span id="theme-icon">&#9790;</span>
-      <span id="theme-label">Escuro</span>
-    </button>
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <a class="theme-toggle" href="competitive-analysis.html" aria-label="Abrir a Analise Competitiva" style="text-decoration:none;">
+        <span aria-hidden="true">&#128202;</span>
+        <span>Analise Competitiva</span>
+      </a>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema claro/escuro">
+        <span id="theme-icon">&#9790;</span>
+        <span id="theme-label">Escuro</span>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -1248,7 +1254,7 @@
 <!-- Footer -->
 <footer class="footer">
   <p>Gerado em 27 de maio de 2026 &middot; ReparAuto &mdash; Planos de Implementacao</p>
-  <p style="margin-top:0.3rem;"><a href="../competitive-analysis.html">Voltar para Analise Competitiva</a></p>
+  <p style="margin-top:0.3rem;"><a href="competitive-analysis.html">Voltar para Analise Competitiva</a></p>
 </footer>
 
 <script>
@@ -1468,6 +1474,7 @@ const planMeta = [
   { id:'10', title:'Comunidade e Conteudo', shortName:'Comunidade', priority:'BAIXA', effort:'10-14 dias', value:'Medio', quadrant:'Projeto Grande Baixa Prioridade', impact:'SEO organico, engajamento, fidelidade' },
   { id:'11', title:'Logistica e Servicos', shortName:'Logistica', priority:'BAIXA', effort:'12-16 dias', value:'Alto', quadrant:'Espalhado (Quick Wins + Projetos)', impact:'Ciclo completo da transacao' },
   { id:'12', title:'Internacionalizacao e SEO', shortName:'SEO', priority:'MEDIA', effort:'8-11 dias', value:'Alto/Muito Alto', quadrant:'Quick Wins + Estrategico', impact:'Trafego organico, visibilidade, compartilhamento' },
+  { id:'20', title:'Testes Automatizados e TDD', shortName:'Testes/TDD', priority:'ALTA', implemented:false, effort:'8-12 dias', value:'Alto', quadrant:'Fundacao Tecnica', impact:'Prevencao de regressoes, refactors seguros, qualidade de codigo' },
 ];
 
 // ============================================================
@@ -2037,8 +2044,15 @@ const extraPlans = [
     evidence: 'Em fila — plano recem-criado; sem implementacao no codigo.'
   },
   {
-    id: '21', title: 'Dashboard Profissional & CRM de Clientes', priority: 'ALTA', effort: '~18-26 dias',
-    implemented: true, file: '21-dashboard-profissional-crm-clientes.md',
+    id: '21', title: 'Recorte de Fotos nos Anuncios (Web + Mobile)', priority: 'MEDIA', effort: '~3-4 dias',
+    implemented: true, file: '21-recorte-fotos-anuncios.md',
+    impact: 'Fotos uniformes (4:3) em cards e galerias, com girar/zoom/recortar no upload',
+    summary: 'Editor de imagem (girar 90, zoom, arrastar e recortar para 4:3) acionado ao carregar ou editar fotos, tanto no site (canvas) como na app mobile (gesture-handler + reanimated + expo-image-manipulator).',
+    evidence: 'Entregue — ImageCropper partilhado no FotosEditor/PecaForm (web) e no PhotoPicker (mobile).'
+  },
+  {
+    id: '22', title: 'Dashboard Profissional & CRM de Clientes', priority: 'ALTA', effort: '~18-26 dias',
+    implemented: true, file: '22-dashboard-profissional-crm-clientes.md',
     impact: 'Prova de valor para profissionais (lock-in) e nova camada de CRM',
     summary: 'Painel /painel gated por tipoConta: KPIs agregados, graficos temporais (camada de buckets diarios por vendedor), tabela de desempenho por anuncio e caixa de leads. CRM de clientes (manual + import CSV). A correspondencia por email a perfis RecarGarage foi removida por privacidade — as empresas nao veem se um cliente tem conta.',
     evidence: 'Entregue — rota /painel, screens/PainelProfissional, components/painel/*, hooks usePainel/useClients, seller_daily + clients (db.ts, firestore.rules). Gráficos em SVG nativo. Removido por privacidade: match por email (rota, badge, discoverableByPros). Diferido: série temporal de favoritos.'

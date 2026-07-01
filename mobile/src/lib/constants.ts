@@ -19,6 +19,13 @@ export const ESTADOS_VEICULO: { value: EstadoVeiculo; label: string }[] = [
 /** Hard limits mirrored from the web app. */
 export const MAX_FOTOS_CARRO = 7;
 
+/**
+ * Every listing photo is cropped to this aspect ratio (width / height) so cards
+ * and galleries render uniformly — 4:3 is the automotive-marketplace standard.
+ * Mirrors the web `LISTING_PHOTO_ASPECT`.
+ */
+export const LISTING_PHOTO_ASPECT = 4 / 3;
+
 /** Firestore collection that is the source of truth for brands/models. */
 export const MARCAS_MODELOS_COLLECTION = 'marcas_modelos';
 

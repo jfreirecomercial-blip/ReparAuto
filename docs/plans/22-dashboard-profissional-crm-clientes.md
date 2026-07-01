@@ -1,4 +1,4 @@
-# 21. Dashboard Profissional & CRM de Clientes
+# 22. Dashboard Profissional & CRM de Clientes
 
 **Prioridade:** ALTA | **Esforço estimado:** ~18–26 dias | **Status:** Proposta para análise
 
@@ -455,7 +455,7 @@ respetivo flag em `PremiumConfig`. Decisão final de pricing → coordenar com p
 9. `feat: privacidade do match` — toggle em `EditarPerfilModal`, notificação e limpeza on
    delete/opt-out.
 10. `feat: navegação` — link "Painel" no Header/Sidebar/Perfil para profissionais.
-11. `docs: marcar plano 21 como shipped` — flip `implemented` em `index.html` (no fim).
+11. `docs: marcar plano 22 como shipped` — flip `implemented` em `index.html` (no fim).
 
 ---
 
@@ -535,4 +535,4 @@ respetivo flag em `PremiumConfig`. Decisão final de pricing → coordenar com p
 
 ---
 
-*Fim do plano 21 — pronto para análise.*
+*Fim do plano 22 — pronto para análise.*

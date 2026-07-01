@@ -13,10 +13,17 @@ import { ChatProvider } from '@/context/ChatContext';
 import { NotificacoesProvider } from '@/context/NotificacoesContext';
 import { ToastProvider } from '@/context/ToastContext';
 import { OnboardingProvider } from '@/context/OnboardingContext';
-import { registerForPush, setupPushHandlers, unregisterPush } from '@/lib/push';
+import {
+  registerForPush,
+  requestPermissionOnFirstLaunch,
+  setupPushHandlers,
+  unregisterPush,
+} from '@/lib/push';
+import { useOTAUpdates } from '@/hooks/useOTAUpdates';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { OnboardingGate } from '@/components/onboarding/OnboardingGate';
 import { UpdateBanner } from '@/components/ui/UpdateBanner';
+import { EmailVerificationBanner } from '@/components/auth/EmailVerificationBanner';
 import type { Href } from 'expo-router';
 import { colors } from '@/theme/colors';
 
@@ -25,14 +32,27 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 function RootNavigator() {
   const { loading, user } = useAuth();
   const uid = user?.uid ?? null;
+  // Preference lives on the user doc (defaults to true). When the user turns
+  // notifications off in Definições, we skip registration and drop the token.
+  const pushEnabled = user?.notificacoes !== false;
+
+  // Silently check for and download OTA updates (applied on next launch).
+  useOTAUpdates();
 
   useEffect(() => {
     if (!loading) SplashScreen.hideAsync().catch(() => {});
   }, [loading]);
 
-  // Register for push when signed in; clean up the token on sign-out.
+  // Ask for notification permission on the first launch (once), even before the
+  // user signs in, so they opt in up front rather than only at login time.
   useEffect(() => {
-    if (!uid) return;
+    requestPermissionOnFirstLaunch().catch(() => {});
+  }, []);
+
+  // Register for push when signed in and notifications are enabled; clean up the
+  // token on sign-out or when the user disables notifications.
+  useEffect(() => {
+    if (!uid || !pushEnabled) return;
     registerForPush(uid).catch(() => {});
     const unsub = setupPushHandlers((data) => {
       const link = data?.link;
@@ -46,7 +66,7 @@ function RootNavigator() {
       unsub();
       unregisterPush(uid).catch(() => {});
     };
-  }, [uid]);
+  }, [uid, pushEnabled]);
 
   if (loading) {
     return (
@@ -95,6 +115,7 @@ export default function RootLayout() {
                     <StatusBar style="dark" />
                     <UpdateBanner />
                     <OfflineBanner />
+                    <EmailVerificationBanner />
                     <RootNavigator />
                     <OnboardingGate />
                   </OnboardingProvider>
