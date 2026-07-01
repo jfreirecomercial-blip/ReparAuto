@@ -16,6 +16,7 @@ import {
   updateUserProfile,
 } from '@/lib/db';
 import { auth } from '@/lib/firebase';
+import { reportConversion, CONVERSION_LABELS } from '@/lib/gtag';
 import type { Usuario, Role, TipoConta } from '@/types/usuario';
 
 const DEFAULT_ROLE: Role = 'user';
@@ -109,6 +110,8 @@ export default function useAuth() {
 
   const registar = useCallback(async (nome: string, email: string, password: string): Promise<Usuario> => {
     const fbUser = await criarConta(email, password, nome);
+    // Google Ads: account creation (email/password) conversion.
+    reportConversion(CONVERSION_LABELS.signUp);
     const base = criarUsuarioBase(fbUser);
     base.nome = nome;
     try {
@@ -126,7 +129,9 @@ export default function useAuth() {
   }, []);
 
   const loginGoogle = useCallback(async (): Promise<Usuario> => {
-    const fbUser = await loginComGoogle();
+    const { user: fbUser, isNewUser } = await loginComGoogle();
+    // Google Ads: only a first-time Google sign-in counts as account creation.
+    if (isNewUser) reportConversion(CONVERSION_LABELS.signUp);
     const base = criarUsuarioBase(fbUser);
     try {
       const profile = await getUserProfile(fbUser.uid);

@@ -5,6 +5,7 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
+  getAdditionalUserInfo,
   updateProfile,
   sendPasswordResetEmail,
   sendEmailVerification,
@@ -32,10 +33,10 @@ export async function enviarVerificacaoEmail(): Promise<void> {
   }
 }
 
-export async function loginComGoogle(): Promise<User> {
+export async function loginComGoogle(): Promise<{ user: User; isNewUser: boolean }> {
   const provider = new GoogleAuthProvider();
   const result = await signInWithPopup(auth, provider);
-  return result.user;
+  return { user: result.user, isNewUser: getAdditionalUserInfo(result)?.isNewUser ?? false };
 }
 
 export async function logoutFirebase(): Promise<void> {
