@@ -8,6 +8,7 @@ import { useToast } from '@/components/ui/Toast';
 import { getAdminUsers, criarNotificacao } from '@/lib/db';
 import { uploadFileToStorage } from '@/lib/upload';
 import { parsePositiveInt } from '@/lib/utils';
+import { toPhotoAngles, type SpinAngle } from '@/lib/spin360';
 import { getCoordenadas } from '@/lib/geo';
 import StepIndicator from '@/components/anunciar/StepIndicator';
 import StepCategoria from '@/components/anunciar/StepCategoria';
@@ -73,6 +74,7 @@ export default function Anunciar() {
   const [publicado, setPublicado] = useState(false);
 
   const [fotos, setFotos] = useState<string[]>([]);
+  const [angleByPhoto, setAngleByPhoto] = useState<Record<string, SpinAngle>>({});
   const pendingFilesRef = useRef<Map<string, File>>(new Map());
   const [uploading, setUploading] = useState(false);
   const [dados, setDados] = useState<CarroFormData>(() => ({
@@ -91,8 +93,9 @@ export default function Anunciar() {
     setUploading(true);
 
     try {
-      // Upload pending photos to Firebase Storage
-      const fotosFinais: string[] = (
+      // Upload pending photos to Firebase Storage, keeping the original →
+      // uploaded pairing so angle tags (keyed by photo string) can follow.
+      const fotosProcessadas = (
         await Promise.all(
           fotos.map(async (foto, index) => {
             if (foto.startsWith('blob:')) {
@@ -104,15 +107,23 @@ export default function Anunciar() {
                 const downloadUrl = await uploadFileToStorage(file, folder, fileName);
                 URL.revokeObjectURL(foto);
                 pendingFilesRef.current.delete(foto);
-                return downloadUrl;
+                return { original: foto, final: downloadUrl };
               }
               // blob sem ficheiro no Map → skip (não incluir no array)
               return null;
             }
-            return foto; // keep emoji or existing URL as-is
+            return { original: foto, final: foto }; // keep emoji or existing URL as-is
           }),
         )
-      ).filter((f): f is string => f !== null);
+      ).filter((f): f is { original: string; final: string } => f !== null);
+
+      const fotosFinais = fotosProcessadas.map((f) => f.final);
+      const uploadedAngleByPhoto: Record<string, SpinAngle> = {};
+      for (const { original, final } of fotosProcessadas) {
+        const angle = angleByPhoto[original];
+        if (angle) uploadedAngleByPhoto[final] = angle;
+      }
+      const photoAngles = toPhotoAngles(fotosFinais, uploadedAngleByPhoto);
 
       const { localizacao, localizacaoDistrito, ...dadosLimpos } = dados;
       const carro = await publicarCarro({
@@ -122,6 +133,7 @@ export default function Anunciar() {
         coordenadas: localizacao ? getCoordenadas(localizacao) : undefined,
         videoUrl: dados.videoUrl?.trim() || undefined,
         fotos: fotosFinais,
+        photoAngles: Object.keys(photoAngles).length > 0 ? photoAngles : undefined,
         preco: Number(dados.preco),
         km: Number(dados.km),
         portas: Number(dados.portas),
@@ -177,6 +189,7 @@ export default function Anunciar() {
     setCategoria(null);
     setPasso(0);
     setFotos([]);
+    setAngleByPhoto({});
     setDados((prev) => ({ ...prev, preco: '', descricao: '', videoUrl: '', tiposManutencao: [], features: [] }));
   };
 
@@ -245,6 +258,8 @@ export default function Anunciar() {
                 fotos={fotos}
                 setFotos={setFotos}
                 filesRef={pendingFilesRef}
+                angleByPhoto={angleByPhoto}
+                onAngleByPhotoChange={setAngleByPhoto}
                 onNext={() => setPasso(2)}
                 onBack={() => { setCategoria(null); setPasso(0); }}
               />

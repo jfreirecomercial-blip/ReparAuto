@@ -15,6 +15,7 @@ import { useToast } from '@/context/ToastContext';
 import { useMarcasModelos } from '@/hooks/useMarcasModelos';
 import { addCarro, getCarroById, updateCarro, uploadFotoIfLocal } from '@/lib/db';
 import { isValidYoutubeUrl } from '@/lib/youtube';
+import { toAngleByPhoto, toPhotoAngles, type SpinAngle } from '@/lib/spin360';
 import {
   CAMBIOS,
   COMBUSTIVEIS,
@@ -38,6 +39,7 @@ export default function AnunciarCarroScreen() {
   const { marcas, getModelos, loading: marcasLoading } = useMarcasModelos('carro');
 
   const [fotos, setFotos] = useState<string[]>([]);
+  const [angleByPhoto, setAngleByPhoto] = useState<Record<string, SpinAngle>>({});
   const [marca, setMarca] = useState('');
   const [modelo, setModelo] = useState('');
   const [ano, setAno] = useState('');
@@ -72,6 +74,7 @@ export default function AnunciarCarroScreen() {
       .then((c) => {
         if (cancelled || !c) return;
         setFotos(c.fotos ?? []);
+        setAngleByPhoto(toAngleByPhoto(c.fotos ?? [], c.photoAngles));
         setMarca(c.marca ?? '');
         setModelo(c.modelo ?? '');
         setAno(c.anoFabricacao ? String(c.anoFabricacao) : '');
@@ -135,6 +138,15 @@ export default function AnunciarCarroScreen() {
       // Keep already-uploaded photos (https URLs); upload only new local files.
       const urls = await Promise.all(fotos.map((uri, i) => uploadFotoIfLocal(user.uid, uri, i)));
 
+      // Angle tags are keyed by the local URI — follow each photo to its
+      // uploaded URL (same index) before freezing them into indices.
+      const uploadedAngleByPhoto: Record<string, SpinAngle> = {};
+      fotos.forEach((uri, i) => {
+        const angle = angleByPhoto[uri];
+        if (angle) uploadedAngleByPhoto[urls[i]] = angle;
+      });
+      const photoAngles = toPhotoAngles(urls, uploadedAngleByPhoto);
+
       const dados = {
         marca: marca.trim(),
         modelo: modelo.trim(),
@@ -157,6 +169,8 @@ export default function AnunciarCarroScreen() {
         descricao: descricao.trim(),
         videoUrl: videoUrl.trim() || undefined,
         fotos: urls,
+        // null (not undefined) so an edit that untags all angles clears the field.
+        photoAngles: Object.keys(photoAngles).length > 0 ? photoAngles : null,
         vendedorNome: user.nome,
         vendedorTelefone: telefone.trim() || undefined,
         vendedorWhatsApp: whatsapp.trim() || undefined,
@@ -203,7 +217,13 @@ export default function AnunciarCarroScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
         keyboardShouldPersistTaps="handled"
       >
-        <PhotoPicker fotos={fotos} onChange={setFotos} max={MAX_FOTOS_CARRO} />
+        <PhotoPicker
+          fotos={fotos}
+          onChange={setFotos}
+          max={MAX_FOTOS_CARRO}
+          angleByPhoto={angleByPhoto}
+          onAngleByPhotoChange={setAngleByPhoto}
+        />
 
         <SelectField
           label="Marca *"

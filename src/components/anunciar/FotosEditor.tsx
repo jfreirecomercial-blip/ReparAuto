@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { CaretLeft, CaretRight, LinkSimple, PencilSimple, UploadSimple, X } from '@phosphor-icons/react';
 import { EMOJIS_CARRO, LISTING_PHOTO_ASPECT, MAX_FOTO_SIZE_BYTES, MAX_FOTO_SIZE_MB } from '@/lib/constants';
 import { parseExternalImageUrl } from '@/lib/utils';
+import { REQUIRED_SPIN_ANGLES, SPIN_ANGLE_LABELS, SPIN_ANGLE_ORDER, type SpinAngle } from '@/lib/spin360';
 import Button from '@/components/ui/Button';
 import ImageCropper from '@/components/ui/ImageCropper';
 
@@ -18,6 +19,13 @@ interface FotosEditorProps {
   aspect?: number;
   /** Ref to collect pending File objects keyed by blob URL (for deferred upload). */
   filesRef?: React.MutableRefObject<Map<string, File>>;
+  /**
+   * Photo string → tagged vehicle angle. Providing both props turns on the
+   * 360-mode tagging UI (an angle selector per photo). Keys follow the photo
+   * strings so tags survive reorder; convert with toPhotoAngles on save.
+   */
+  angleByPhoto?: Record<string, SpinAngle>;
+  onAngleByPhotoChange?: (angleByPhoto: Record<string, SpinAngle>) => void;
 }
 
 const reordenar = (fotos: string[], from: number, to: number): string[] => {
@@ -38,6 +46,8 @@ export default function FotosEditor({
   mostrarCapa,
   aspect = LISTING_PHOTO_ASPECT,
   filesRef,
+  angleByPhoto,
+  onAngleByPhotoChange,
 }: FotosEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [erro, setErro] = useState<string | null>(null);
@@ -55,6 +65,37 @@ export default function FotosEditor({
 
   const exibirCapa = mostrarCapa ?? max > 1;
   const podeReordenar = max > 1 && fotos.length > 1;
+  const tagAngles = !!(angleByPhoto && onAngleByPhotoChange);
+  const taggedAngles = new Set(Object.values(angleByPhoto ?? {}));
+  const missingRequired = REQUIRED_SPIN_ANGLES.filter((a) => !taggedAngles.has(a));
+
+  const setPhotoAngle = (foto: string, angle: SpinAngle | '') => {
+    if (!angleByPhoto || !onAngleByPhotoChange) return;
+    const next = { ...angleByPhoto };
+    // Each angle belongs to a single photo — retagging steals it.
+    for (const [f, a] of Object.entries(next)) {
+      if (a === angle || f === foto) delete next[f];
+    }
+    if (angle) next[foto] = angle;
+    onAngleByPhotoChange(next);
+  };
+
+  const dropPhotoAngle = (foto: string) => {
+    if (!angleByPhoto || !onAngleByPhotoChange || !(foto in angleByPhoto)) return;
+    const next = { ...angleByPhoto };
+    delete next[foto];
+    onAngleByPhotoChange(next);
+  };
+
+  const movePhotoAngle = (from: string, to: string) => {
+    if (!angleByPhoto || !onAngleByPhotoChange) return;
+    const angle = angleByPhoto[from];
+    if (!angle) return;
+    const next = { ...angleByPhoto };
+    delete next[from];
+    next[to] = angle;
+    onAngleByPhotoChange(next);
+  };
 
   // Revoke transient crop-source URLs if the flow is abandoned (component unmounts
   // mid-queue). Cropped photo blobs live in `filesRef` and intentionally outlive
@@ -132,6 +173,7 @@ export default function FotosEditor({
       filesRef?.current.delete(antiga);
     }
     const { url } = blobToFile(blob);
+    if (antiga) movePhotoAngle(antiga, url);
     setFotos(fotos.map((f, i) => (i === editIndex ? url : f)));
     setEditIndex(null);
   };
@@ -191,6 +233,7 @@ export default function FotosEditor({
       URL.revokeObjectURL(removed);
       filesRef?.current.delete(removed);
     }
+    if (removed) dropPhotoAngle(removed);
     setFotos(fotos.filter((_, i) => i !== index));
     setErro(null);
   };
@@ -308,6 +351,30 @@ export default function FotosEditor({
         </p>
       )}
 
+      {tagAngles && fotos.length > 0 && (
+        <div
+          className={`mb-3 rounded-xl border px-3 py-2 text-[11px] ${
+            missingRequired.length === 0
+              ? 'bg-success-50 border-success-200 text-success-700'
+              : 'bg-neutral-50 border-neutral-200 text-fg-muted'
+          }`}
+        >
+          {missingRequired.length === 0 ? (
+            <span className="font-semibold">
+              ✓ Vista 360° ativa — os compradores vão poder rodar o veículo no anúncio.
+            </span>
+          ) : (
+            <>
+              <span className="font-semibold text-fg">
+                Vista 360° ({REQUIRED_SPIN_ANGLES.length - missingRequired.length}/{REQUIRED_SPIN_ANGLES.length})
+              </span>{' '}
+              — indique o ângulo de cada foto. Falta marcar:{' '}
+              {missingRequired.map((a) => SPIN_ANGLE_LABELS[a]).join(', ')}.
+            </>
+          )}
+        </div>
+      )}
+
       <div className={`grid gap-3 ${max === 1 ? 'grid-cols-1' : 'grid-cols-3 sm:grid-cols-6'}`}>
         {fotos.map((foto, i) => {
           const isImg = foto.startsWith('data:') || foto.startsWith('blob:') || foto.startsWith('http');
@@ -388,6 +455,24 @@ export default function FotosEditor({
               >
                 <X size={12} weight="bold" />
               </button>
+
+              {tagAngles && isImg && (
+                <select
+                  value={angleByPhoto?.[foto] ?? ''}
+                  onChange={(e) => setPhotoAngle(foto, e.target.value as SpinAngle | '')}
+                  aria-label={`Ângulo da foto ${i + 1}`}
+                  className={`mt-1 w-full rounded-lg border px-1 py-1 text-[10px] focus:border-accent focus:ring-2 focus:ring-accent/30 focus:outline-none ${
+                    angleByPhoto?.[foto] ? 'border-success-300 bg-success-50 text-success-700 font-semibold' : 'border-slate-300 text-fg-muted'
+                  }`}
+                >
+                  <option value="">Ângulo…</option>
+                  {SPIN_ANGLE_ORDER.map((angle) => (
+                    <option key={angle} value={angle}>
+                      {SPIN_ANGLE_LABELS[angle]}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           );
         })}

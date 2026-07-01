@@ -14,6 +14,7 @@ import {
 } from '@/lib/constants';
 import { getDistritoForConcelho, getCoordenadas } from '@/lib/geo';
 import { toggleInList, parsePositiveInt } from '@/lib/utils';
+import { toAngleByPhoto, toPhotoAngles, type SpinAngle } from '@/lib/spin360';
 import { useApp } from '@/providers/AppProvider';
 import { useToast } from '@/components/ui/Toast';
 import SeletorLocalizacao from '@/components/ui/SeletorLocalizacao';
@@ -61,6 +62,9 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
   });
   const [features, setFeatures] = useState<string[]>(carro.features ?? []);
   const [fotos, setFotos] = useState<string[]>(carro.fotos || []);
+  const [angleByPhoto, setAngleByPhoto] = useState<Record<string, SpinAngle>>(() =>
+    toAngleByPhoto(carro.fotos || [], carro.photoAngles),
+  );
 
   const toggleFeature = (feature: string) => {
     setFeatures((prev) => toggleInList(prev, feature));
@@ -74,6 +78,7 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
   const handleSave = async () => {
     setSaving(true);
     try {
+      const finalAngleByPhoto: Record<string, SpinAngle> = { ...angleByPhoto };
       const fotosFinais: string[] = await Promise.all(
         fotos.map(async (foto, index) => {
           if (foto.startsWith('blob:')) {
@@ -85,12 +90,19 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
               const downloadUrl = await uploadFileToStorage(file, folder, fileName);
               URL.revokeObjectURL(foto);
               pendingFilesRef.current.delete(foto);
+              // Angle tags follow the photo from its blob URL to the uploaded URL.
+              const angle = finalAngleByPhoto[foto];
+              if (angle) {
+                delete finalAngleByPhoto[foto];
+                finalAngleByPhoto[downloadUrl] = angle;
+              }
               return downloadUrl;
             }
           }
           return foto;
         }),
       );
+      const photoAngles = toPhotoAngles(fotosFinais, finalAngleByPhoto);
 
       await onSave(carro.id, {
         marca: form.marca,
@@ -119,6 +131,7 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
         videoUrl: form.videoUrl.trim() || null,
         estadoVeiculo: form.estadoVeiculo,
         fotos: fotosFinais,
+        photoAngles: Object.keys(photoAngles).length > 0 ? photoAngles : null,
       });
       onClose();
     } catch (err) {
@@ -205,7 +218,14 @@ export default function EditarCarroModal({ show, onClose, carro, onSave }: Edita
 
       <div className="mb-4">
         <label className="block text-xs font-semibold text-fg-subtle mb-2">Fotos</label>
-        <FotosEditor fotos={fotos} setFotos={setFotos} max={MAX_FOTOS_CARRO} filesRef={pendingFilesRef} />
+        <FotosEditor
+          fotos={fotos}
+          setFotos={setFotos}
+          max={MAX_FOTOS_CARRO}
+          filesRef={pendingFilesRef}
+          angleByPhoto={angleByPhoto}
+          onAngleByPhotoChange={setAngleByPhoto}
+        />
         {fotos.length === 0 && (
           <p className="text-xs text-red-700 mt-2">Adicione pelo menos 1 foto do veículo.</p>
         )}
