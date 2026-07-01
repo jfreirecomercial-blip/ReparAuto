@@ -2249,6 +2249,13 @@ const extraPlans = [
     impact: 'Fotos uniformes (4:3) em cards e galerias, com girar/zoom/recortar no upload',
     summary: 'Editor de imagem (girar 90, zoom, arrastar e recortar para 4:3) acionado ao carregar ou editar fotos, tanto no site (canvas) como na app mobile (gesture-handler + reanimated + expo-image-manipulator).',
     evidence: 'Entregue — ImageCropper partilhado no FotosEditor/PecaForm (web) e no PhotoPicker (mobile).'
+  },
+  {
+    id: '22', title: 'Dashboard Profissional & CRM de Clientes', priority: 'ALTA', effort: '~18-26 dias',
+    implemented: true, file: '22-dashboard-profissional-crm-clientes.md',
+    impact: 'Prova de valor para profissionais (lock-in) e nova camada de CRM',
+    summary: 'Painel /painel gated por tipoConta: KPIs agregados, graficos temporais (camada de buckets diarios por vendedor), tabela de desempenho por anuncio e caixa de leads. CRM de clientes (manual + import CSV). A correspondencia por email a perfis RecarGarage foi removida por privacidade — as empresas nao veem se um cliente tem conta.',
+    evidence: 'Entregue — rota /painel, screens/PainelProfissional, components/painel/*, hooks usePainel/useClients, seller_daily + clients (db.ts, firestore.rules). Gráficos em SVG nativo. Removido por privacidade: match por email (rota, badge, discoverableByPros). Diferido: série temporal de favoritos.'
   }
 ];
 

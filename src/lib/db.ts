@@ -14,11 +14,13 @@ import {
   Timestamp,
   onSnapshot,
   increment,
+  deleteField,
   type DocumentData,
 } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
 import { db, storage } from './firebase';
 import { DB_VERSION, DB_VERSION_KEY } from './constants';
+import { lisbonDateKey, lisbonDateWindow } from './dates';
 import { contemProfanity } from './profanity';
 import type { Carro, CarroInput, StatusAnuncio } from '@/types/carro';
 import type { Peca, PecaInput, CompatibilityEntry } from '@/types/peca';
@@ -32,6 +34,7 @@ import type { Proposta, PropostaInput, StatusProposta } from '@/types/proposal';
 import type { LeadParceria, LeadParceriaInput } from '@/types/lead';
 import type { OficinaMecanico } from '@/types/oficina';
 import type { Banner, BannerInput } from '@/types/banner';
+import type { Client, ClientInput } from '@/types/client';
 
 const CARROS_COLLECTION = 'cars';
 const PECAS_COLLECTION = 'parts';
@@ -41,8 +44,14 @@ const BANNERS_COLLECTION = 'banners';
 // Public listings filter on status server-side so clients never download
 // pending/rejected documents. Sorting stays client-side to avoid requiring
 // a composite (status, dataCriacao) index.
+type MaybeTimestamp = { toMillis?: () => number } | undefined;
+
+function sortByTimestampDesc<T>(items: T[], pick: (item: T) => MaybeTimestamp): T[] {
+  return items.sort((a, b) => (pick(b)?.toMillis?.() || 0) - (pick(a)?.toMillis?.() || 0));
+}
+
 function sortByDataCriacaoDesc<T extends { dataCriacao?: { toMillis?: () => number } }>(items: T[]): T[] {
-  return items.sort((a, b) => (b.dataCriacao?.toMillis?.() || 0) - (a.dataCriacao?.toMillis?.() || 0));
+  return sortByTimestampDesc(items, (i) => i.dataCriacao);
 }
 
 
@@ -594,6 +603,187 @@ export async function decrementCampo(colecao: string, id: string, campo: string)
     await updateDoc(doc(db, colecao, id), { [campo]: increment(-1) });
   } catch (err) {
     console.error(`[DB] Erro ao decrementar ${campo}:`, err);
+  }
+}
+
+// ============ MÉTRICAS DIÁRIAS (PAINEL PROFISSIONAL) ============
+
+const SELLER_DAILY_COLLECTION = 'seller_daily';
+
+/**
+ * Records one engagement event into the seller's daily bucket. Best-effort and
+ * silent: it must never break the view/contact flow it piggybacks on. The write
+ * mirrors the anonymous-counter exception already used for `visualizacoes`.
+ */
+export async function recordDailyMetric(
+  ownerUid: string | undefined | null,
+  kind: import('@/types/dashboard').MetricKind,
+): Promise<void> {
+  if (!ownerUid) return;
+  try {
+    const date = lisbonDateKey();
+    const field = kind === 'view' ? 'views' : 'contacts';
+    await setDoc(
+      doc(db, SELLER_DAILY_COLLECTION, `${ownerUid}_${date}`),
+      { ownerUid, date, [field]: increment(1), updatedAt: Timestamp.now() },
+      { merge: true },
+    );
+  } catch (err) {
+    console.warn('[DB] Falha ao registar métrica diária:', err);
+  }
+}
+
+/**
+ * Daily metric points for a seller over the last `days` days (inclusive of
+ * today), zero-filled. Reads all the seller's buckets and filters/sorts in
+ * memory to avoid a composite index, consistent with the project's approach.
+ */
+export async function getSellerDailyRange(
+  ownerUid: string,
+  days: number,
+): Promise<import('@/types/dashboard').MetricPoint[]> {
+  const byDate = new Map<string, { views: number; contacts: number }>();
+  try {
+    const q = query(collection(db, SELLER_DAILY_COLLECTION), where('ownerUid', '==', ownerUid));
+    const snap = await getDocs(q);
+    snap.docs.forEach((d) => {
+      const data = d.data() as { date?: string; views?: number; contacts?: number };
+      if (data.date) byDate.set(data.date, { views: data.views || 0, contacts: data.contacts || 0 });
+    });
+  } catch (err) {
+    console.error('[DB] Erro ao buscar métricas diárias:', err);
+  }
+  // Contiguous, zero-filled calendar window ending today (Lisbon time).
+  return lisbonDateWindow(days).map((key) => {
+    const hit = byDate.get(key);
+    return { date: key, views: hit?.views || 0, contacts: hit?.contacts || 0 };
+  });
+}
+
+// ============ CRM DE CLIENTES (PAINEL PROFISSIONAL) ============
+
+const CLIENTS_COLLECTION = 'clients';
+
+export async function getClientsByOwner(ownerUid: string): Promise<Client[]> {
+  try {
+    const q = query(collection(db, CLIENTS_COLLECTION), where('ownerUid', '==', ownerUid));
+    const snap = await getDocs(q);
+    const results = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Client));
+    // Sort newest-updated first in memory (avoids a composite index).
+    return sortByTimestampDesc(results, (c) => c.atualizadoEm);
+  } catch (err) {
+    console.error('[DB] Erro ao buscar clientes:', err);
+    return [];
+  }
+}
+
+export function subscribeClients(
+  ownerUid: string,
+  onData: (clients: Client[]) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  const q = query(collection(db, CLIENTS_COLLECTION), where('ownerUid', '==', ownerUid));
+  return onSnapshot(
+    q,
+    (snap) => {
+      const results = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Client));
+      onData(sortByTimestampDesc(results, (c) => c.atualizadoEm));
+    },
+    (err) => {
+      console.error('[DB] Erro no snapshot de clientes:', err);
+      onError?.(err);
+    },
+  );
+}
+
+export async function createClient(ownerUid: string, data: ClientInput): Promise<string> {
+  try {
+    const ref = await addDoc(
+      collection(db, CLIENTS_COLLECTION),
+      cleanUndefined({
+        ...data,
+        ownerUid,
+        criadoEm: Timestamp.now(),
+        atualizadoEm: Timestamp.now(),
+      }),
+    );
+    return ref.id;
+  } catch (err) {
+    console.error('[DB] Erro ao criar cliente:', err);
+    throw err;
+  }
+}
+
+// Firestore hard-caps a WriteBatch at 500 operations.
+const MAX_BATCH_WRITES = 450;
+
+export async function createClientsBatch(ownerUid: string, list: ClientInput[]): Promise<number> {
+  if (list.length === 0) return 0;
+  let written = 0;
+  try {
+    for (let start = 0; start < list.length; start += MAX_BATCH_WRITES) {
+      const chunk = list.slice(start, start + MAX_BATCH_WRITES);
+      const batch = writeBatch(db);
+      chunk.forEach((data) => {
+        const ref = doc(collection(db, CLIENTS_COLLECTION));
+        batch.set(
+          ref,
+          cleanUndefined({
+            ...data,
+            ownerUid,
+            criadoEm: Timestamp.now(),
+            atualizadoEm: Timestamp.now(),
+          }),
+        );
+      });
+      await batch.commit();
+      written += chunk.length;
+    }
+    return written;
+  } catch (err) {
+    console.error(`[DB] Erro ao importar clientes (importados: ${written}):`, err);
+    throw err;
+  }
+}
+
+export async function updateClient(id: string, data: Partial<Client>): Promise<void> {
+  try {
+    // Top-level `undefined` means "clear this field" → deleteField(), so
+    // erasing e.g. the phone in the edit form actually removes it (dropping
+    // the key would silently keep the old value). Nested values still go
+    // through cleanUndefined, which strips undefined inside objects/arrays
+    // (Firestore rejects undefined anywhere in the payload).
+    const cleaned = cleanUndefined(data as Record<string, unknown>);
+    const payload: Record<string, unknown> = { atualizadoEm: Timestamp.now() };
+    for (const key of Object.keys(data)) {
+      payload[key] = key in cleaned ? cleaned[key] : deleteField();
+    }
+    await updateDoc(doc(db, CLIENTS_COLLECTION, id), payload);
+  } catch (err) {
+    console.error('[DB] Erro ao atualizar cliente:', err);
+    throw err;
+  }
+}
+
+export async function deleteClient(id: string): Promise<void> {
+  try {
+    await deleteDoc(doc(db, CLIENTS_COLLECTION, id));
+  } catch (err) {
+    console.error('[DB] Erro ao apagar cliente:', err);
+    throw err;
+  }
+}
+
+/** Outbound purchase-intent contacts this professional has opened (lead pipeline). */
+export async function getContatosByVendedor(vendedorId: string): Promise<ContatoIntencao[]> {
+  try {
+    const q = query(collection(db, CONTATOS_INTENCAO_COLLECTION), where('vendedorId', '==', vendedorId));
+    const snap = await getDocs(q);
+    const results = snap.docs.map((d) => ({ id: d.id, ...d.data() } as ContatoIntencao));
+    return sortByTimestampDesc(results, (c) => c.criadoEm);
+  } catch (err) {
+    console.error('[DB] Erro ao buscar contatos do vendedor:', err);
+    return [];
   }
 }
 
