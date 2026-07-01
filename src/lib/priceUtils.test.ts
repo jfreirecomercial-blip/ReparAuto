@@ -312,6 +312,58 @@ describe('calculatePriceEstimate', () => {
   });
 });
 
+describe('calculatePriceEstimate — fuel-aware km adjustment', () => {
+  // Two cars, same everything except fuel: the km delta should hit them
+  // differently. Petrol depreciates faster per km than diesel per the
+  // KM_DEPRECIATION table in priceUtils.
+  const marca = 'VW';
+  const modelo = 'Golf IV';
+  const baseKm = 200_000;
+  const sample = (fuel: 'Diesel' | 'Gasolina') =>
+    [4700, 4800, 4900, 5000, 5100, 5200, 5300].map((preco, i) =>
+      carro({
+        id: `${fuel}-${i}`,
+        marca,
+        modelo,
+        preco,
+        km: baseKm,
+        anoFabricacao: 2003,
+        combustivel: fuel,
+      }),
+    );
+
+  it('penalizes gasolina more than diesel for the same extra km', () => {
+    const dieselDelta =
+      calculatePriceEstimate({ marca, modelo, ano: 2003, km: 300_000, combustivel: 'Diesel' }, sample('Diesel'))
+        .estimate;
+    const gasolinaDelta =
+      calculatePriceEstimate({ marca, modelo, ano: 2003, km: 300_000, combustivel: 'Gasolina' }, sample('Gasolina'))
+        .estimate;
+    expect(gasolinaDelta).toBeLessThan(dieselDelta);
+  });
+
+  it('is bounded above by 120% of the sample max even when km is very low', () => {
+    // Very low km should raise the estimate, but not blow past the ceiling
+    const r = calculatePriceEstimate(
+      { marca, modelo, ano: 2003, km: 1, combustivel: 'Diesel' },
+      sample('Diesel'),
+    );
+    expect(r.estimate).toBeLessThanOrEqual(Math.ceil(5300 * 1.2));
+  });
+});
+
+// Regression guard for a common trap: the old filter used the leading token
+// of the model, so "A Class" would match anything starting with "a".
+describe('isSameModel — regression: single-letter model names', () => {
+  it('does not match A-Class with A4', () => {
+    expect(isSameModel('A Class', 'A4')).toBe(false);
+  });
+
+  it('matches Class A with itself', () => {
+    expect(isSameModel('Class A', 'Class A 180')).toBe(true);
+  });
+});
+
 describe('priceDistributionBuckets', () => {
   it('returns [] for empty input', () => {
     expect(priceDistributionBuckets([])).toEqual([]);

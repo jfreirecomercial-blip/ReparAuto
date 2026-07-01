@@ -52,7 +52,7 @@ export default function BrandModelSelect({
             onMarcaChange(e.target.value);
             onModeloChange('');
           }}
-          className="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
+          className="w-full px-3 py-2 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
         >
           <option value="">{marcaPlaceholder}</option>
           {marcas.map((m) => (
@@ -73,7 +73,7 @@ export default function BrandModelSelect({
           disabled={!marca}
           required={required}
           onChange={(e) => onModeloChange(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 disabled:bg-slate-100 disabled:text-fg-subtle disabled:cursor-not-allowed"
+          className="w-full px-3 py-2 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 disabled:bg-neutral-50 disabled:text-fg-subtle disabled:cursor-not-allowed"
         >
           <option value="">{modeloPlaceholder}</option>
           {modelos.map((m) => (

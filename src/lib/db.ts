@@ -1867,6 +1867,10 @@ export async function deleteBanner(id: string): Promise<void> {
 const PRICE_SNAPSHOTS_COLLECTION = 'priceSnapshots';
 const SAVED_SEARCHES_COLLECTION = 'savedSearches';
 
+// Server-side counterpart to `filtrarCarrosSimilares`. Client screens use the
+// in-memory version against the useCarros stream; this is here for the
+// eventual snapshot cron (Cloud Function) that needs to query Firestore
+// directly instead of holding the whole collection in memory.
 export async function getCarrosSimilares(
   marca: string,
   modelo: string,

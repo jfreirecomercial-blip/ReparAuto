@@ -66,4 +66,49 @@ describe('usePriceIndicator', () => {
     rerender();
     expect(result.current).toBe(first);
   });
+
+  it('returns "indisponivel" when the target price is 0 or NaN', () => {
+    const bad = carro({ id: 'bad', marca: 'VW', modelo: 'Golf IV', preco: 0, anoFabricacao: 2003 });
+    mockCarrosRef.list = [4700, 4800, 4900, 5000, 5100, 5200].map((p, i) =>
+      carro({ id: `c${i}`, marca: 'VW', modelo: 'Golf IV', preco: p, anoFabricacao: 2003 }),
+    );
+    const { result } = renderHook(() => usePriceIndicator(bad));
+    expect(result.current.indicator).toBe('indisponivel');
+  });
+
+  it('returns "indisponivel" when the similar-car sample is too small', () => {
+    const target = carro({ id: 'me', marca: 'VW', modelo: 'Golf IV', preco: 5000, anoFabricacao: 2003 });
+    // only 3 comps → below minSampleSize (5)
+    mockCarrosRef.list = [4800, 5000, 5200].map((p, i) =>
+      carro({ id: `c${i}`, marca: 'VW', modelo: 'Golf IV', preco: p, anoFabricacao: 2003 }),
+    );
+    const { result } = renderHook(() => usePriceIndicator(target));
+    expect(result.current.indicator).toBe('indisponivel');
+    expect(result.current.sampleSize).toBeLessThan(5);
+  });
+
+  it('classifies a heavily-underpriced listing as "excelente"', () => {
+    const target = carro({ id: 'me', marca: 'VW', modelo: 'Golf IV', preco: 3500, anoFabricacao: 2003 });
+    mockCarrosRef.list = [4700, 4800, 4900, 5000, 5100, 5200, 5300].map((p, i) =>
+      carro({ id: `c${i}`, marca: 'VW', modelo: 'Golf IV', preco: p, anoFabricacao: 2003 }),
+    );
+    const { result } = renderHook(() => usePriceIndicator(target));
+    expect(result.current.indicator).toBe('excelente');
+  });
+
+  it('recomputes when the carros list reference changes (WeakMap invalidation)', () => {
+    const target = carro({ id: 'me', marca: 'VW', modelo: 'Golf IV', preco: 5000, anoFabricacao: 2003 });
+    const listA = [4700, 4800, 4900, 5000, 5100, 5200].map((p, i) =>
+      carro({ id: `a${i}`, marca: 'VW', modelo: 'Golf IV', preco: p, anoFabricacao: 2003 }),
+    );
+    const listB = [8000, 8100, 8200, 8300, 8400, 8500].map((p, i) =>
+      carro({ id: `b${i}`, marca: 'VW', modelo: 'Golf IV', preco: p, anoFabricacao: 2003 }),
+    );
+    mockCarrosRef.list = listA;
+    const { result, rerender } = renderHook(() => usePriceIndicator(target));
+    const initial = result.current.indicator;
+    mockCarrosRef.list = listB;
+    rerender();
+    expect(result.current.indicator).not.toBe(initial);
+  });
 });

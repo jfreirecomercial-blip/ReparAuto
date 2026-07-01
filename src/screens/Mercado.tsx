@@ -1,9 +1,12 @@
 'use client';
 
-import { ChartLineUp } from '@phosphor-icons/react';
+import { ChartLineUp, CircleNotch } from '@phosphor-icons/react';
+import { useApp } from '@/providers/AppProvider';
 import MarketDashboard from '@/components/preco/MarketDashboard';
 
 export default function Mercado() {
+  const { carros } = useApp();
+
   return (
     <div className="page-enter max-w-5xl mx-auto">
       <div className="mb-6">
@@ -15,7 +18,14 @@ export default function Mercado() {
         </p>
       </div>
 
-      <MarketDashboard />
+      {carros.loading && carros.carros.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-fg-muted">
+          <CircleNotch size={32} className="animate-spin text-accent mb-3" />
+          <p className="text-sm">A carregar dados de mercado…</p>
+        </div>
+      ) : (
+        <MarketDashboard />
+      )}
     </div>
   );
 }

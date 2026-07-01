@@ -18,10 +18,21 @@ export default function usePriceEstimate(input: PriceEstimateInput | null, debou
   const { carros } = useApp();
   const [debounced, setDebounced] = useState<PriceEstimateInput | null>(input);
 
+  // Every field that reaches calculatePriceEstimate must be in the dep list,
+  // otherwise the debounced snapshot goes stale and the UI shows the wrong
+  // estimate when the user only changes fuel or gearbox.
   useEffect(() => {
     const t = setTimeout(() => setDebounced(input), debounceMs);
     return () => clearTimeout(t);
-  }, [input?.marca, input?.modelo, input?.ano, input?.km, debounceMs]);
+  }, [
+    input?.marca,
+    input?.modelo,
+    input?.ano,
+    input?.km,
+    input?.combustivel,
+    input?.cambio,
+    debounceMs,
+  ]);
 
   return useMemo(() => {
     if (!debounced?.marca || !debounced?.modelo || !debounced?.ano) {

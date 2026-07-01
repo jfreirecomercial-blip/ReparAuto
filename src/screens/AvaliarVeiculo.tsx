@@ -1,9 +1,12 @@
 'use client';
 
-import { Calculator, Lightbulb } from '@phosphor-icons/react';
+import { Calculator, CircleNotch, Lightbulb } from '@phosphor-icons/react';
+import { useApp } from '@/providers/AppProvider';
 import PriceEstimator from '@/components/preco/PriceEstimator';
 
 export default function AvaliarVeiculo() {
+  const { carros } = useApp();
+
   return (
     <div className="page-enter max-w-3xl mx-auto">
       <div className="text-center mb-6">
@@ -15,7 +18,14 @@ export default function AvaliarVeiculo() {
         </p>
       </div>
 
-      <PriceEstimator />
+      {carros.loading && carros.carros.length === 0 ? (
+        <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-8 flex flex-col items-center justify-center text-fg-muted">
+          <CircleNotch size={32} className="animate-spin text-accent mb-3" />
+          <p className="text-sm">A carregar dados de mercado…</p>
+        </div>
+      ) : (
+        <PriceEstimator />
+      )}
 
       <div className="mt-6 bg-primary-50 border border-primary-100 rounded-2xl p-5 text-sm text-fg-strong">
         <h2 className="font-bold text-fg-heading mb-2 flex items-center gap-2">

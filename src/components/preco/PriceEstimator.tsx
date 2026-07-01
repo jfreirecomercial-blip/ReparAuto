@@ -41,7 +41,7 @@ export default function PriceEstimator() {
     estimate.sampleSize > 0 && estimate.sampleSize < PRICE_THRESHOLDS.lowConfidenceSampleSize;
 
   const fieldClass =
-    'w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30';
+    'w-full px-3 py-2 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30';
   const labelClass = 'block text-xs font-bold text-fg mb-1';
 
   return (
