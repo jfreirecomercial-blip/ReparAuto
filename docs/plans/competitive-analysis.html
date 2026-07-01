@@ -1083,6 +1083,57 @@
       vertical-align: middle;
     }
     [data-theme="dark"] .shipped-tag { background: #052e16; color: #86efac; }
+
+    /* Gap -> plan links & copy-prompt */
+    .plan-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .plan-link:hover { background: var(--accent-hover); }
+
+    .falta-plano-badge {
+      display: inline-block;
+      background: var(--gap-alto-bg);
+      color: var(--gap-alto);
+      border: 1px solid var(--gap-alto);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 3px 9px;
+      border-radius: 5px;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    .copy-prompt-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      vertical-align: middle;
+    }
+    .copy-prompt-btn:hover { background: var(--border-light); border-color: var(--accent); }
+    .copy-prompt-btn.copied { background: #f0fdf4; border-color: #16a34a; color: #16a34a; }
+    [data-theme="dark"] .copy-prompt-btn.copied { background: #052e16; color: #4ade80; border-color: #166534; }
   </style>
 </head>
 <body>
@@ -2337,6 +2388,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Muito Alto</strong> &mdash; A falta de referencia de preco e a principal barreira de confianca em marketplaces de veiculos usados.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-critico">P0 (Critica)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Integrar com bases de dados de preco do mercado portugues (ex: Eurotax, dados do Standvirtual via scraping etico, ou construir base propria). Exibir indicador visual de "bom preco" / "preco justo" / "acima do mercado".</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div><a class="plan-link" href="index.html#plan-02">&#128203; Abrir Plano 02 &mdash; Inteligencia de Precos &#8599;</a></div></div>
       </div>
     </div>
 
@@ -2354,6 +2406,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Alto</strong> &mdash; Funcionalidade fundamental para retencao. Sem ela, utilizadores migram para plataformas que oferecem alertas.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-critico">P0 (Critica)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Implementar sistema de pesquisas guardadas com notificacoes push via Firebase Cloud Messaging e email.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div><a class="plan-link" href="index.html#plan-03">&#128203; Abrir Plano 03 &mdash; Busca e Descoberta &#8599;</a></div></div>
       </div>
     </div>
 
@@ -2371,6 +2424,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Alto</strong> &mdash; Em Portugal, mais de 70% do trafego de classificados e movel.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-alto">P1 (Alta)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Implementar PWA como passo intermedio. A medio prazo, considerar React Native ou Flutter para app nativa.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div><a class="plan-link" href="index.html#plan-19">&#128203; Abrir Plano 19 &mdash; App React Native &#8599;</a></div></div>
       </div>
       <div class="resolution-note"><strong>&#10004; Resolvido (plano 19):</strong> app nativa em React Native + Expo publicada na App Store e Google Play, com atualizacoes OTA (EAS Update), notificacoes push (FCM) e paridade de funcionalidades com a web. A web e adicionalmente instalavel/PWA.</div>
     </div>
@@ -2389,6 +2443,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Alto</strong> &mdash; SEO e o principal canal de aquisicao organica para marketplaces de classificados.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-alto">P1 (Alta)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Migrar de HashRouter para BrowserRouter, configurar Firebase Hosting rewrites, implementar pre-rendering ou migrar para SSR (Next.js/Remix). Adicionar Open Graph, Twitter Cards e JSON-LD.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div>Concretizado na migracao para Next.js (sem plano numerado dedicado). Trabalho relacionado em <a href="index.html#plan-12" style="color:var(--accent);font-weight:600;">Plano 12 &mdash; i18n e SEO</a>.</div></div>
       </div>
       <div class="resolution-note"><strong>&#10004; Resolvido:</strong> plataforma reconstruida em <strong>Next.js 15 (App Router)</strong> com Server Components, SSR/ISR nas rotas SEO-criticas, <code>generateMetadata</code> por rota, OpenGraph/Twitter, JSON-LD (Organization + Vehicle) e sitemap/robots dinamicos.</div>
     </div>
@@ -2408,6 +2463,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Medio-Alto</strong> &mdash; Limita o mercado enderecavel a ~60% da populacao portuguesa.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-alto">P1 (Alta)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Expandir para todos os 18 distritos + Acores e Madeira. Implementar selecao hierarquica e pesquisa por raio.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div>Concretizado sem plano numerado dedicado.</div></div>
       </div>
       <div class="resolution-note"><strong>&#10004; Resolvido:</strong> cobertura nacional com 20 distritos e 308 concelhos (com coordenadas), selecao hierarquica e mapa de Portugal interativo no admin. Falta apenas a pesquisa por raio de distancia.</div>
     </div>
@@ -2425,6 +2481,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Medio-Alto</strong> &mdash; Reduz confianca, especialmente no segmento de veiculos com avarias.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-medio">P2 (Media)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Implementar avaliacao pos-transacao, selo de "vendedor verificado" e metricas de resposta.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div><a class="plan-link" href="index.html#plan-01">&#128203; Abrir Plano 01 &mdash; Confianca e Seguranca &#8599;</a></div></div>
       </div>
       <div class="resolution-note"><strong>&#10004; Resolvido (plano 01):</strong> sistema de avaliacoes/reviews (colecao <code>reviews</code>) em producao. Complementa a verificacao de vendedor (GAP-07), que esta parcialmente entregue.</div>
     </div>
@@ -2442,6 +2499,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Medio</strong> &mdash; Aumenta risco de fraude e anuncios falsos.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-medio">P2 (Media)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Implementar verificacao por NIF, selo visual no perfil, e prioridade nos resultados para verificados.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div><a class="plan-link" href="index.html#plan-01">&#128203; Abrir Plano 01 &mdash; Confianca e Seguranca &#8599;</a></div></div>
       </div>
       <div class="resolution-note" style="background:rgba(37,99,235,0.06); border-color:rgba(37,99,235,0.25);"><strong>&#9679; Em progresso:</strong> existe um fluxo de verificacao (colecao <code>verifications</code>) para vendedores/profissionais. Falta consolidar a verificacao por NIF, o selo visual e a priorizacao nos resultados. Ver tambem o plano de <em>lojas/vendedores verificados</em>.</div>
     </div>
@@ -2459,6 +2517,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Medio</strong> &mdash; Sem compatibilidade granular, aumentam as devolucoes e a frustracao.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-medio">P2 (Media)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Construir base de dados de compatibilidade (marca &rarr; modelo &rarr; geracao &rarr; motorizacao).</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div><a class="plan-link" href="index.html#plan-08">&#128203; Abrir Plano 08 &mdash; Ecossistema de Pecas &#8599;</a></div></div>
       </div>
     </div>
 
@@ -2475,6 +2534,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Medio</strong> &mdash; Muitos compradores dependem de financiamento.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-medio">P2 (Media)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Integrar simulador de credito via parceria financeira ou calculadora generica com TAN/TAEG.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div><a class="plan-link" href="index.html#plan-06">&#128203; Abrir Plano 06 &mdash; Servicos Financeiros &#8599;</a></div></div>
       </div>
     </div>
 
@@ -2491,6 +2551,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Medio</strong> &mdash; Funcionalidade que aumenta engagement e conversao.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-medio">P2 (Media)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Implementar tracking de preco em favoritos com notificacao automatica.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div><a class="plan-link" href="index.html#plan-03">&#128203; Abrir Plano 03 &mdash; Busca e Descoberta (alertas) &#8599;</a></div></div>
       </div>
     </div>
 
@@ -2509,6 +2570,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Medio-Baixo</strong> &mdash; Para pecas de menor valor, um sistema seguro aumentaria conversao.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-baixo">P3 (Baixa)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Avaliar integracao com Stripe ou MB Way para pecas &lt; 500 EUR.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div><a class="plan-link" href="index.html#plan-06">&#128203; Abrir Plano 06 &mdash; Servicos Financeiros (escrow) &#8599;</a></div></div>
       </div>
     </div>
 
@@ -2525,6 +2587,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Medio-Baixo</strong> &mdash; A qualidade da descricao impacta a conversao.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-baixo">P3 (Baixa)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Integrar API de LLM para gerar descricao otimizada a partir dos dados estruturados.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div><a class="plan-link" href="index.html#plan-04">&#128203; Abrir Plano 04 &mdash; Funcionalidades de IA &#8599;</a></div></div>
       </div>
     </div>
 
@@ -2541,6 +2604,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Baixo-Medio</strong> &mdash; Conteudo e um canal de aquisicao organica poderoso.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-baixo">P3 (Baixa)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Criar blog/guias integrados ao site com topicos alinhados a proposta de valor.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div><a class="plan-link" href="index.html#plan-10">&#128203; Abrir Plano 10 &mdash; Comunidade e Conteudo &#8599;</a></div></div>
       </div>
     </div>
 
@@ -2557,6 +2621,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Baixo</strong> &mdash; Relevante para o segmento mas complexo de implementar.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-baixo">P3 (Baixa)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Explorar parceria com seguradora portuguesa para garantia opcional.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div><span class="falta-plano-badge">Falta plano</span><button type="button" class="copy-prompt-btn" onclick="copyPrompt(this)" data-prompt="Cria um plano de implementacao detalhado para o RecarGarage (marketplace de carros usados e pecas; stack Next.js 15 App Router, React 19, React Native/Expo e Firebase; mercados Portugal e Brasil). Tema: Garantia Mecanica Pos-Venda - permitir ao comprador contratar uma garantia mecanica opcional para veiculos adquiridos na plataforma, atraves de parceria com seguradora ou empresa de garantias. Antes de escrever, investiga online concorrentes (Portugal: Standvirtual, OLX, CustoJusto; Brasil: Webmotors, OLX Brasil, Mercado Livre, Kavak) e boas praticas de UX, conversao e conformidade legal. Segue o formato dos planos em docs/plans/: contexto e problema, benchmark competitivo, user stories, escopo (tipos TypeScript, colecoes Firestore, componentes de UI, regras de seguranca Firestore), sequencia de commits, casos extremos e passos de verificacao (npm test, npx tsc --noEmit, npm run build). Numera o plano sequencialmente e regista-o no array de planos em docs/plans/index.html.">&#128203; Copiar prompt para gerar o plano</button></div></div>
       </div>
     </div>
 
@@ -2573,6 +2638,7 @@
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Medio</strong> a longo prazo &mdash; Sem receita, a plataforma nao e sustentavel.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-medio">P2 (Media)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Implementar modelo freemium com planos pagos de destaque. Integrar Stripe para pagamentos.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Plano</div><div><a class="plan-link" href="index.html#plan-17">&#128203; Abrir Plano 17 &mdash; Monetizacao &#8599;</a></div></div>
       </div>
       <div class="resolution-note" style="background:rgba(37,99,235,0.06); border-color:rgba(37,99,235,0.25);"><strong>&#9679; Em progresso (plano 17):</strong> desenhada a monetizacao B2B (assinaturas de profissionais, pay-per-lead na intencao de compra, anuncios/parcerias) com modal de planos ja construido. Falta a ligacao final ao Stripe (Price IDs de producao e endpoint de pagamento) para ativar receita.</div>
     </div>
@@ -2860,6 +2926,37 @@
       var toggle = header.querySelector('.card-toggle');
       body.classList.toggle('open');
       toggle.classList.toggle('open');
+    }
+
+    // ===== COPY PROMPT (gaps without a plan) =====
+    function copyPrompt(btn) {
+      var prompt = btn.getAttribute('data-prompt') || '';
+      var original = btn.innerHTML;
+      var done = function() {
+        btn.classList.add('copied');
+        btn.innerHTML = '✅ Prompt copiado!';
+        setTimeout(function() {
+          btn.classList.remove('copied');
+          btn.innerHTML = original;
+        }, 2000);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(prompt).then(done).catch(function() { fallbackCopy(prompt, done); });
+      } else {
+        fallbackCopy(prompt, done);
+      }
+    }
+
+    function fallbackCopy(text, done) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'absolute';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) { /* no-op */ }
+      document.body.removeChild(ta);
     }
 
     // ===== BACK TO TOP =====
