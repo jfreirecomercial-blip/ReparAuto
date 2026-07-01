@@ -14,7 +14,7 @@ disponibilidade para **iOS e Android**.
 
 ```sh
 npm install      # uma vez
-npm run dev      # Remotion Studio (pré-visualização) → http://localhost:3000
+npm run studio   # Remotion Studio (pré-visualização) → http://localhost:3000
 npm run render   # exporta out/RecarGarage-promo.mp4
 ```
 

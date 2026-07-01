@@ -25,7 +25,7 @@
     "typescript": "5.9.3"
   },
   "scripts": {
-    "dev": "remotion studio",
+    "studio": "remotion studio",
     "build": "remotion bundle",
     "render": "remotion render RecarGaragePromo out/RecarGarage-promo.mp4",
     "upgrade": "remotion upgrade",

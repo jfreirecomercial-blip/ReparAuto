@@ -66,7 +66,7 @@ e mexes nos valores.
 
 ```sh
 cd video
-npm run dev        # abre o Remotion Studio em http://localhost:3000
+npm run studio     # abre o Remotion Studio em http://localhost:3000
 ```
 
 - Escolhe a composição **`RecarGaragePromo`** na barra lateral.
@@ -190,15 +190,27 @@ sempre que possível. Renderiza um frame de cada cena para eu comparar.
 > outros formatos, o mais robusto é ler `useVideoConfig()` (largura/altura) e
 > adaptar o layout, em vez de reaproveitar tal e qual.
 
-### 🎵 Adicionar música ou narração (mais tarde)
+### 🎵 Música e narração
 
-O promo está **sem som de propósito**. Quando quiseres áudio:
+O promo já traz música: `public/audio/rockit.mp3`, a **entrar aos 7 segundos**
+(as primeiras cenas passam em silêncio), com *fade-in* no início e *fade-out* no
+fim. A lógica está em `src/RecarGaragePromo.tsx` (componente `<Audio>` dentro de
+um `<Sequence from={7 * fps}>`, com o volume controlado por `interpolate()`).
+
+Para **trocar a música ou mudar o momento em que entra**:
 
 ```
-Adiciona uma faixa de música ao RecarGaragePromo. Coloca o ficheiro em
-video/public/audio/musica.mp3 e usa o componente <Audio> de @remotion/media,
-com fade-in no início e fade-out nos últimos 2 segundos. Mantém o volume baixo
-(uns 20%) para não abafar uma futura narração.
+No RecarGaragePromo, substitui a música por public/audio/nova.mp3 e faz a música
+entrar aos 5 segundos em vez dos 7. Mantém o fade-in no início e o fade-out nos
+últimos 1,5 segundos.
+```
+
+Para **narração (voice-over)** em português:
+
+```
+Adiciona uma narração em português de Portugal ao promo. Coloco o ficheiro em
+public/audio/voz.mp3. Sincroniza cada frase com a cena correspondente usando
+<Sequence from={…}> e baixa o volume da música de fundo enquanto a voz fala.
 ```
 
 Para **narração (voice-over)** em português:
