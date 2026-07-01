@@ -40,6 +40,7 @@ const initialDados: CarroFormData = {
   localizacaoDistrito: '',
   preco: '',
   descricao: '',
+  descricaoGeradaIA: false,
   videoUrl: '',
   estadoVeiculo: 'pronto',
   rodando: 'sim',
@@ -177,7 +178,7 @@ export default function Anunciar() {
     setCategoria(null);
     setPasso(0);
     setFotos([]);
-    setDados((prev) => ({ ...prev, preco: '', descricao: '', videoUrl: '', tiposManutencao: [], features: [] }));
+    setDados((prev) => ({ ...prev, preco: '', descricao: '', descricaoGeradaIA: false, videoUrl: '', tiposManutencao: [], features: [] }));
   };
 
   if (publicado) {
@@ -264,6 +265,7 @@ export default function Anunciar() {
                 onBack={() => setPasso(2)}
                 onPublicar={handlePublicar}
                 carregando={uploading}
+                uid={user?.uid}
               />
             )}
           </>

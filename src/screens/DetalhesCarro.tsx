@@ -9,6 +9,7 @@ import { formatarPreco, renderDescricao } from '@/lib/utils';
 import TechnicalSheet from '@/components/detalhes/TechnicalSheet';
 import ContactSection from '@/components/detalhes/ContactSection';
 import GalleryModal from '@/components/detalhes/GalleryModal';
+import DamageAnalysisButton from '@/components/detalhes/DamageAnalysisButton';
 import CompatibleParts from '@/components/pecas/CompatibleParts';
 import VinCheckPanel from '@/components/trust/VinCheckPanel';
 import FinanciamentoSeguroWidget from '@/components/detalhes/FinanciamentoSeguroWidget';
@@ -230,9 +231,14 @@ export default function DetalhesCarro() {
 
         <div className="mb-6">
           {carro.estadoVeiculo === 'manutencao' && (
-            <Alert tipo="aviso" icone={<Wrench size={18} />} className="!p-3 !rounded-lg !items-center font-semibold">
-              Este veículo precisa de manutenção/reparações
-            </Alert>
+            <>
+              <Alert tipo="aviso" icone={<Wrench size={18} />} className="!p-3 !rounded-lg !items-center font-semibold">
+                Este veículo precisa de manutenção/reparações
+              </Alert>
+              <div className="mt-3">
+                <DamageAnalysisButton carro={carro} isAuthenticated={!!user} />
+              </div>
+            </>
           )}
         </div>
 
