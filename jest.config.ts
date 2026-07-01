@@ -9,7 +9,15 @@ const config: Config = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   // Only run our own tests — never the separate mobile/ app or node_modules.
-  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/mobile/', '<rootDir>/functions/', '<rootDir>/.next/'],
+  // functions/src pure-logic tests (sanitize/validate/week) DO run here; the
+  // functions build output and deps stay excluded.
+  testPathIgnorePatterns: [
+    '<rootDir>/node_modules/',
+    '<rootDir>/mobile/',
+    '<rootDir>/functions/lib/',
+    '<rootDir>/functions/node_modules/',
+    '<rootDir>/.next/',
+  ],
   testMatch: ['**/*.test.ts', '**/*.test.tsx'],
   collectCoverageFrom: [
     'src/lib/**/*.ts',

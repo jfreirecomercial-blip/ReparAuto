@@ -41,3 +41,9 @@ export type {
   IntencaoCompra, IntencaoCompraInput, StatusIntencao, ContatoPreferido, ContatoIntencao, ContatoIntencaoInput,
   NotificacaoIntencao, DenunciaIntencao, IntencaoContextValue, StatusContato, StatusDenunciaIntencao, AcaoDenuncia,
 } from './intencao';
+
+export type {
+  AIVehicleFacts, AIDescriptionRequest, AIDescriptionResponse,
+  AIPriceSuggestionRequest, AIPriceSuggestion, AIPriceSuggestionResponse,
+  DamageSeverity, DamageArea, DamageDetectionResult, DamageDetectionRequest, DamageDetectionResponse,
+} from './ia';
