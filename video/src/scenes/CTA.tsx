@@ -60,11 +60,10 @@ export const CTA: React.FC = () => {
             color: colors.white,
           }}
         >
-          Já disponível na
-          <br />
-          <span style={{ color: colors.mist }}>Web</span>,{" "}
-          <span style={{ color: colors.secondary }}>iOS</span> e{" "}
+          <span style={{ color: colors.secondary }}>iOS</span>,{" "}
           <span style={{ color: colors.success }}>Android</span>
+          <br />
+          também na <span style={{ color: colors.mist }}>Web</span>
         </div>
 
         <div
@@ -77,9 +76,9 @@ export const CTA: React.FC = () => {
             gap: 20,
           }}
         >
-          <StoreBadge platform="web" />
           <StoreBadge platform="ios" />
           <StoreBadge platform="android" />
+          <StoreBadge platform="web" />
         </div>
 
         <div
