@@ -26,6 +26,7 @@ import {
   getUserProfile,
   updateUserProfile,
 } from '@/lib/db';
+import { getActiveCountry } from '@/lib/country';
 import type { Usuario, Role, TipoConta } from '@/types';
 
 const DEFAULT_ROLE: Role = 'user';
@@ -98,7 +99,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         let profile = await getUserProfile(fb.uid);
         if (!profile) {
           await createUserProfile(fb.uid, base as unknown as Record<string, unknown>);
-          profile = base;
+          // Mirror the `country` createUserProfile stamps on the new doc so
+          // the account-market lock binds correctly right after signup.
+          profile = { ...base, country: getActiveCountry() };
         }
         // emailVerified is an auth property — always trust the live Firebase
         // value over whatever happens to be stored on the profile document.

@@ -22,6 +22,7 @@ import {
 } from '@/lib/push';
 import { useOTAUpdates } from '@/hooks/useOTAUpdates';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
+import { AccountCountrySync } from '@/components/AccountCountrySync';
 import { OnboardingGate } from '@/components/onboarding/OnboardingGate';
 import { UpdateBanner } from '@/components/ui/UpdateBanner';
 import { EmailVerificationBanner } from '@/components/auth/EmailVerificationBanner';
@@ -115,6 +116,7 @@ export default function RootLayout() {
                   <ToastProvider>
                     <OnboardingProvider>
                       <StatusBar style="dark" />
+                      <AccountCountrySync />
                       <UpdateBanner />
                       <OfflineBanner />
                       <EmailVerificationBanner />

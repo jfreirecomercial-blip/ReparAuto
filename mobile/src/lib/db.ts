@@ -255,7 +255,13 @@ export async function createUserProfile(
     .collection(USERS)
     .doc(uid)
     .set(
-      { ...data, dataCriacao: firestore.FieldValue.serverTimestamp() },
+      {
+        // Accounts belong to one market, bound at signup; callers may
+        // override via `data`.
+        country: getActiveCountry(),
+        ...data,
+        dataCriacao: firestore.FieldValue.serverTimestamp(),
+      },
       { merge: true },
     );
 }

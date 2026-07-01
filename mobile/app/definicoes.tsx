@@ -23,7 +23,7 @@ const LINKS: { label: string; path: string; icon: keyof typeof Ionicons.glyphMap
 export default function DefinicoesScreen() {
   const versao = Constants.expoConfig?.version ?? '1.0.0';
   const { user, updateProfile } = useAuth();
-  const { country, setCountry } = useCountry();
+  const { country, setCountry, locked } = useCountry();
 
   // Defaults to on: the user doc seeds `notificacoes: true`.
   const notificacoesOn = user?.notificacoes !== false;
@@ -104,11 +104,12 @@ export default function DefinicoesScreen() {
                 <Pressable
                   key={c}
                   onPress={() => setCountry(c)}
+                  disabled={locked}
                   accessibilityRole="button"
-                  accessibilityState={{ selected: active }}
+                  accessibilityState={{ selected: active, disabled: locked }}
                   className={`flex-1 flex-row items-center justify-center rounded-full border px-4 py-2 ${
                     active ? 'border-primary-600 bg-primary-50' : 'border-neutral-200 bg-white'
-                  }`}
+                  } ${locked ? 'opacity-50' : ''}`}
                 >
                   <Text className="text-base">{COUNTRY_INFO[c].flag}</Text>
                   <Text
@@ -122,6 +123,9 @@ export default function DefinicoesScreen() {
               );
             })}
           </View>
+          {locked && (
+            <Text className="mt-2 text-xs text-fg-subtle">Definido pela sua conta</Text>
+          )}
         </View>
       </View>
 

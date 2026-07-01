@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -23,12 +24,23 @@ interface CountryContextValue {
   /** The active market: drives listing filters, vocabulary and location pickers. */
   country: Country;
   setCountry: (country: Country) => void;
+  /** True while the market is bound to the signed-in account (selector disabled). */
+  locked: boolean;
+  /** Bound by AccountCountrySync: accounts belong to one market, so signing in locks it. */
+  setLocked: (locked: boolean) => void;
 }
 
 const CountryContext = createContext<CountryContextValue | null>(null);
 
 export function CountryProvider({ children }: { children: React.ReactNode }) {
   const [country, setCountryState] = useState<Country>(DEFAULT_COUNTRY);
+  const [locked, setLocked] = useState(false);
+  // The async first-launch resolution (AsyncStorage read / GeoIP fetch) must
+  // never override a market that was meanwhile bound to the signed-in account.
+  const lockedRef = useRef(false);
+  useEffect(() => {
+    lockedRef.current = locked;
+  }, [locked]);
 
   const setCountry = useCallback((next: Country) => {
     setCountryState(next);
@@ -48,7 +60,7 @@ export function CountryProvider({ children }: { children: React.ReactNode }) {
       } catch {
         stored = null;
       }
-      if (cancelled) return;
+      if (cancelled || lockedRef.current) return;
       if (stored) {
         setCountryState(stored);
         setActiveCountry(stored);
@@ -61,7 +73,7 @@ export function CountryProvider({ children }: { children: React.ReactNode }) {
         const res = await fetch(GEOIP_ENDPOINT);
         const data: { country?: string } | null = res.ok ? await res.json() : null;
         const detected: Country = data?.country === 'BR' ? 'BR' : DEFAULT_COUNTRY;
-        if (cancelled) return;
+        if (cancelled || lockedRef.current) return;
         setCountryState(detected);
         setActiveCountry(detected);
         await AsyncStorage.setItem(COUNTRY_STORAGE_KEY, detected);
@@ -76,7 +88,10 @@ export function CountryProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const value = useMemo<CountryContextValue>(() => ({ country, setCountry }), [country, setCountry]);
+  const value = useMemo<CountryContextValue>(
+    () => ({ country, setCountry, locked, setLocked }),
+    [country, setCountry, locked],
+  );
 
   return <CountryContext.Provider value={value}>{children}</CountryContext.Provider>;
 }
