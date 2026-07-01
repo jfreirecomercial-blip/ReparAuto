@@ -1,6 +1,6 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { Background } from "../components/Background";
+import { useCurrentFrame } from "remotion";
+import { SceneShell } from "../components/SceneShell";
 import { SceneHeading } from "../components/SceneHeading";
 import { ListingCard } from "../components/ListingCard";
 import { colors } from "../theme";
@@ -14,16 +14,9 @@ export const Carros: React.FC = () => {
   const card2 = fadeUp(frame, 48, 70);
 
   return (
-    <AbsoluteFill>
-      <Background tint="blue" />
-      <AbsoluteFill
-        style={{
-          flexDirection: "column",
-          alignItems: "center",
-          paddingTop: 190,
-          gap: 90,
-        }}
-      >
+    <SceneShell
+      tint="blue"
+      heading={
         <SceneHeading
           eyebrow="Carros usados"
           headline={
@@ -34,6 +27,8 @@ export const Carros: React.FC = () => {
             </>
           }
         />
+      }
+      visual={
         <div style={{ position: "relative", width: 720, height: 660 }}>
           {/* Back card, peeking from the top-right for a stacked-deck feel */}
           <div
@@ -77,7 +72,7 @@ export const Carros: React.FC = () => {
             />
           </div>
         </div>
-      </AbsoluteFill>
-    </AbsoluteFill>
+      }
+    />
   );
 };

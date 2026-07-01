@@ -24,9 +24,10 @@ Já traz um vídeo pronto — o *promo* de ~30 segundos do RecarGarage.
 ```
 video/
 ├── src/
-│   ├── Root.tsx              # Regista as composições (os "vídeos") e as suas dimensões
-│   ├── RecarGaragePromo.tsx  # O vídeo promo: junta as 6 cenas com transições
-│   ├── theme.ts              # Cores da marca, formato (1080×1920), durações das cenas
+│   ├── Root.tsx              # Regista TODAS as composições (os "vídeos") e as suas dimensões
+│   ├── RecarGaragePromo.tsx  # O vídeo promo: junta as 7 cenas com transições
+│   ├── theme.ts              # Cores da marca, fps, durações das cenas
+│   ├── format.ts             # useFormat() — deteta 9:16 / 1:1 / 16:9 (layout responsivo)
 │   ├── fonts.ts              # Tipografia da marca (Libre Franklin)
 │   ├── anim.ts               # Animações reutilizáveis (fadeUp, popIn)
 │   ├── scenes/               # Uma cena por ficheiro
@@ -36,8 +37,8 @@ video/
 │   │   ├── Oficinas.tsx      #  Oficinas & mecânicos — o ecossistema ligado
 │   │   ├── Seguranca.tsx     #  Anúncios verificados, avaliações, confiança
 │   │   ├── Chat.tsx          #  Mensagens diretas com o vendedor
-│   │   └── CTA.tsx           #  Disponível na Web, iOS e Android + lojas
-│   └── components/           # Peças reutilizáveis (Logo, Fundo, Cartão, Selos…)
+│   │   └── CTA.tsx           #  Disponível em iOS, Android e Web + lojas
+│   └── components/           # Peças REUTILIZÁVEIS (ver tabela abaixo)
 ├── public/brand/            # Ícone da app, logótipo e fotos de carros
 ├── public/images/           # Fotos de anúncios (ex.: Clio low-cost)
 ├── public/audio/            # Música de fundo (rockit.mp3)
@@ -45,11 +46,76 @@ video/
 └── package.json             # Comandos (studio, render, …)
 ```
 
-O vídeo final tem **1080×1920 (vertical 9:16), 30 fps, ~30 s** — o formato ideal
-para Instagram Reels/Stories, YouTube Shorts e TikTok, e também aceite pelo
-Google Ads. Apresenta o **ecossistema automóvel** do RecarGarage (carros, peças,
-oficinas e mecânicos ligados) e termina com a disponibilidade na **Web, iOS e
-Android**.
+O mesmo promo é gerado em **três formatos** a partir do mesmo código (ver
+"[Cada vídeo é uma Composition](#-cada-vídeo-é-uma-composition)"):
+
+| Composition | Dimensões | Uso |
+|---|---|---|
+| `RecarGaragePromo` | 1080×1920 (9:16) | Reels/Stories, Shorts, TikTok |
+| `RecarGaragePromoSquare` | 1080×1080 (1:1) | Feed Instagram/Facebook |
+| `RecarGaragePromoWide` | 1920×1080 (16:9) | YouTube, Google Ads |
+
+Todos a **30 fps, ~30 s**. Apresentam o **ecossistema automóvel** do RecarGarage
+(carros, peças, oficinas e mecânicos ligados) e terminam com a disponibilidade
+em **iOS, Android e Web**.
+
+---
+
+## 🧩 Cada vídeo é uma Composition
+
+> 📌 **Regra de ouro deste repositório: cada vídeo é sempre uma _Composition_.**
+
+No Remotion, um vídeo é uma **`<Composition>`** registada em `src/Root.tsx`. É aí
+que se define o `id` (o nome do vídeo), o `component` (o React que o desenha), as
+dimensões (`width`/`height`), os `fps` e a duração (`durationInFrames`).
+
+**Esta pasta vai ter muitos vídeos diferentes.** Cada um deve ser uma composition
+nova em `Root.tsx` — nunca "por cima" de outro. Para criar um vídeo:
+
+1. Cria o componente do vídeo (ex.: `src/PromoPecas.tsx`).
+2. **Reutiliza** os componentes partilhados (ver tabela abaixo) — não recries do zero.
+3. Regista-o como uma nova `<Composition>` em `Root.tsx`.
+
+**Vários formatos do mesmo vídeo = várias compositions com o MESMO componente**,
+só a mudar `width`/`height`. É exatamente o que o promo faz: as três compositions
+(`RecarGaragePromo`, `…Square`, `…Wide`) apontam todas para `RecarGaragePromo` e
+as cenas adaptam-se sozinhas via **`useFormat()`** (`src/format.ts`), que deteta
+se está em 9:16, 1:1 ou 16:9. Não há código de cena duplicado por formato.
+
+```tsx
+// src/Root.tsx — o mesmo componente em três formatos
+const FORMATS = [
+  { id: "RecarGaragePromo", width: 1080, height: 1920 },       // 9:16
+  { id: "RecarGaragePromoSquare", width: 1080, height: 1080 }, // 1:1
+  { id: "RecarGaragePromoWide", width: 1920, height: 1080 },   // 16:9
+];
+// …um <Composition> por formato, todos com component={RecarGaragePromo}
+```
+
+---
+
+## ♻️ Componentes reutilizáveis (usa-os antes de criar markup novo)
+
+Antes de escrever markup para um vídeo novo, **verifica se já existe uma peça
+reutilizável**. Estas foram feitas para servir qualquer composition futura:
+
+| Peça | Onde | Para que serve |
+|---|---|---|
+| `Background` | `components/Background.tsx` | Fundo da marca (gradiente + brilho + hexágono) |
+| `SceneShell` | `components/SceneShell.tsx` | **Layout responsivo** título+visual (coluna em 9:16/1:1, 2 colunas em 16:9) |
+| `SceneHeading` | `components/SceneHeading.tsx` | Bloco "eyebrow + título" consistente |
+| `Logo` | `components/Logo.tsx` | Lockup da marca (ícone + "RecarGarage") |
+| `ListingCard` | `components/ListingCard.tsx` | Cartão de anúncio (carro/peça) com imagem, preço e selo |
+| `StoreBadge` | `components/StoreBadge.tsx` | Selos App Store / Google Play / Web App |
+| `useFormat()` | `format.ts` | Deteta o formato para adaptar o layout |
+| `fadeUp` / `popIn` | `anim.ts` | Animações de entrada (fade+subida / pop) |
+| `colors` | `theme.ts` | Cores da marca |
+| `brandFont` | `fonts.ts` | Tipografia da marca |
+
+> ✅ Se criares algo que serve mais do que uma cena/vídeo, **coloca-o em
+> `components/`** (não dentro da cena). Se for só daquela cena, mantém-no local.
+> Os ficheiros em `scenes/` são um **bom ponto de partida** para copiar quando
+> crias cenas novas.
 
 ---
 
@@ -84,7 +150,10 @@ npm run studio     # abre o Remotion Studio em http://localhost:3000
 
 ```sh
 cd video
-npm run render     # gera video/out/RecarGarage-promo.mp4
+npm run render          # 9:16  → out/RecarGarage-promo.mp4
+npm run render:square   # 1:1   → out/RecarGarage-promo-1x1.mp4
+npm run render:wide     # 16:9  → out/RecarGarage-promo-16x9.mp4
+npm run render:all      # os três de uma vez
 ```
 
 O ficheiro sai para `video/out/` (esta pasta está no `.gitignore` — o vídeo é
@@ -177,23 +246,27 @@ aparecerem mais devagar. Confirma que a duração total da composição em Root.
 continua correta.
 ```
 
-### 📐 Criar outro formato (quadrado ou horizontal)
+### 📐 Formatos (9:16, 1:1, 16:9)
 
-O promo atual é **vertical (9:16)**. Para o **feed do Instagram/Facebook** costuma
-usar-se **quadrado (1:1, 1080×1080)** e para **YouTube/Google Ads** **horizontal
-(16:9, 1920×1080)**. Pede assim:
+O promo **já vem nos três formatos** — `RecarGaragePromo` (9:16),
+`RecarGaragePromoSquare` (1:1) e `RecarGaragePromoWide` (16:9) — todos a partir do
+mesmo componente, graças ao `useFormat()`. Não precisas de criar nada para os ter;
+basta `npm run render:all`.
+
+Para um **vídeo novo teu** também ter vários formatos, o padrão é o mesmo: usa
+`SceneShell` (que já faz coluna vs. duas colunas) e `useFormat()` nas cenas, e
+regista uma composition por formato. Pede assim:
 
 ```
-Cria uma variante horizontal (16:9, 1920×1080) do RecarGaragePromo para o YouTube
-e Google Ads. Adapta as cenas para o formato largo (títulos e cartões lado a
-lado em vez de empilhados), sem cortar texto fora da área segura. Regista-a como
-uma nova composição "RecarGaragePromoWide" em Root.tsx, reutilizando as cenas
-sempre que possível. Renderiza um frame de cada cena para eu comparar.
+Cria um vídeo novo "PromoOficinas" e regista-o em Root.tsx em três formatos
+(9:16 1080×1920, 1:1 1080×1080 e 16:9 1920×1080) usando o MESMO componente.
+Reutiliza SceneShell, SceneHeading, Background e useFormat para o layout se
+adaptar a cada formato. Renderiza um frame de cada formato para eu comparar.
 ```
 
-> 💡 Dica: as cenas atuais têm posições pensadas para o formato vertical. Para
-> outros formatos, o mais robusto é ler `useVideoConfig()` (largura/altura) e
-> adaptar o layout, em vez de reaproveitar tal e qual.
+> 💡 Como funciona: em vez de posições fixas, as cenas usam `SceneShell` +
+> `useFormat()`. Em 9:16/1:1 o título fica em cima e o visual em baixo; em 16:9
+> ficam lado a lado. Assim o mesmo código serve os três formatos.
 
 ### 🎵 Música e narração
 
@@ -271,16 +344,14 @@ Se pedires ao LLM para respeitar isto, evitas quase todos os erros:
 
 ## 🚀 Para onde vai cada formato
 
-| Plataforma | Formato recomendado | Composição |
-|---|---|---|
-| Instagram Reels / Stories | 9:16 (1080×1920) | `RecarGaragePromo` ✅ |
-| YouTube Shorts / TikTok | 9:16 (1080×1920) | `RecarGaragePromo` ✅ |
-| Feed Instagram / Facebook | 1:1 (1080×1080) | *a criar (ver prompt acima)* |
-| YouTube / Google Ads (vídeo) | 16:9 (1920×1080) | *a criar (ver prompt acima)* |
+| Plataforma | Formato | Composição | Comando |
+|---|---|---|---|
+| Instagram Reels / Stories | 9:16 (1080×1920) | `RecarGaragePromo` ✅ | `npm run render` |
+| YouTube Shorts / TikTok | 9:16 (1080×1920) | `RecarGaragePromo` ✅ | `npm run render` |
+| Feed Instagram / Facebook | 1:1 (1080×1080) | `RecarGaragePromoSquare` ✅ | `npm run render:square` |
+| YouTube / Google Ads (vídeo) | 16:9 (1920×1080) | `RecarGaragePromoWide` ✅ | `npm run render:wide` |
 
-O `RecarGaragePromo` vertical já serve a maioria dos canais. Para o feed
-quadrado e para o YouTube horizontal, usa os prompts da secção "Criar outro
-formato".
+Os três formatos já existem — corre `npm run render:all` para gerar todos.
 
 ---
 

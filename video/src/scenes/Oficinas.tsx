@@ -1,12 +1,7 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame, interpolate } from "remotion";
-import {
-  MagnifyingGlass,
-  Wrench,
-  Car,
-  CaretDown,
-} from "@phosphor-icons/react";
-import { Background } from "../components/Background";
+import { useCurrentFrame, interpolate } from "remotion";
+import { MagnifyingGlass, Wrench, Car, CaretDown } from "@phosphor-icons/react";
+import { SceneShell } from "../components/SceneShell";
 import { SceneHeading } from "../components/SceneHeading";
 import { colors } from "../theme";
 import { brandFont } from "../fonts";
@@ -41,16 +36,9 @@ export const Oficinas: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill>
-      <Background tint="blue" />
-      <AbsoluteFill
-        style={{
-          flexDirection: "column",
-          alignItems: "center",
-          paddingTop: 190,
-          gap: 80,
-        }}
-      >
+    <SceneShell
+      tint="blue"
+      heading={
         <SceneHeading
           eyebrow="Oficinas & Mecânicos"
           headline={
@@ -62,13 +50,15 @@ export const Oficinas: React.FC = () => {
           }
           accent={colors.success}
         />
+      }
+      visual={
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             gap: 8,
-            width: 840,
+            width: 760,
           }}
         >
           {STEPS.map((step, i) => {
@@ -143,7 +133,7 @@ export const Oficinas: React.FC = () => {
             );
           })}
         </div>
-      </AbsoluteFill>
-    </AbsoluteFill>
+      }
+    />
   );
 };

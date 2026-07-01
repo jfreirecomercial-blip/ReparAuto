@@ -1,6 +1,6 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { Background } from "../components/Background";
+import { useCurrentFrame } from "remotion";
+import { SceneShell } from "../components/SceneShell";
 import { SceneHeading } from "../components/SceneHeading";
 import { colors } from "../theme";
 import { brandFont } from "../fonts";
@@ -51,16 +51,9 @@ export const Chat: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill>
-      <Background tint="blue" />
-      <AbsoluteFill
-        style={{
-          flexDirection: "column",
-          alignItems: "center",
-          paddingTop: 190,
-          gap: 100,
-        }}
-      >
+    <SceneShell
+      tint="blue"
+      heading={
         <SceneHeading
           eyebrow="Mensagens"
           headline={
@@ -70,12 +63,14 @@ export const Chat: React.FC = () => {
             </>
           }
         />
+      }
+      visual={
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             gap: 30,
-            width: 840,
+            width: 760,
           }}
         >
           {MESSAGES.map((m, i) => (
@@ -88,7 +83,7 @@ export const Chat: React.FC = () => {
             />
           ))}
         </div>
-      </AbsoluteFill>
-    </AbsoluteFill>
+      }
+    />
   );
 };

@@ -1,6 +1,6 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { Background } from "../components/Background";
+import { useCurrentFrame } from "remotion";
+import { SceneShell } from "../components/SceneShell";
 import { SceneHeading } from "../components/SceneHeading";
 import { colors } from "../theme";
 import { brandFont } from "../fonts";
@@ -22,10 +22,7 @@ const HexBullet: React.FC<{ color: string }> = ({ color }) => (
       fill={color}
       opacity={0.9}
     />
-    <polygon
-      points="50,26 71,38 71,62 50,74 29,62 29,38"
-      fill={colors.white}
-    />
+    <polygon points="50,26 71,38 71,62 50,74 29,62 29,38" fill={colors.white} />
   </svg>
 );
 
@@ -34,16 +31,9 @@ export const Pecas: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill>
-      <Background tint="orange" />
-      <AbsoluteFill
-        style={{
-          flexDirection: "column",
-          alignItems: "center",
-          paddingTop: 190,
-          gap: 90,
-        }}
-      >
+    <SceneShell
+      tint="orange"
+      heading={
         <SceneHeading
           eyebrow="Peças & desmonte"
           headline={
@@ -54,12 +44,14 @@ export const Pecas: React.FC = () => {
           }
           accent={colors.secondary}
         />
+      }
+      visual={
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
-            gap: 28,
-            width: 820,
+            gap: 26,
+            width: 760,
           }}
         >
           {CATEGORIES.map((label, i) => {
@@ -98,7 +90,7 @@ export const Pecas: React.FC = () => {
             );
           })}
         </div>
-      </AbsoluteFill>
-    </AbsoluteFill>
+      }
+    />
   );
 };

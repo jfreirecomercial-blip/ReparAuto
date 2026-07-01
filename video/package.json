@@ -29,6 +29,9 @@
     "studio": "remotion studio",
     "build": "remotion bundle",
     "render": "remotion render RecarGaragePromo out/RecarGarage-promo.mp4",
+    "render:square": "remotion render RecarGaragePromoSquare out/RecarGarage-promo-1x1.mp4",
+    "render:wide": "remotion render RecarGaragePromoWide out/RecarGarage-promo-16x9.mp4",
+    "render:all": "npm run render && npm run render:square && npm run render:wide",
     "upgrade": "remotion upgrade",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src && tsc"
