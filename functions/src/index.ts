@@ -1,5 +1,5 @@
 /**
- * RecarGarage Cloud Functions — push notifications.
+ * RecarGarage Cloud Functions — push notifications + AI listing proxies.
  *
  * When a document is created in `notifications/{id}` (the same docs the web and
  * mobile apps already write — e.g. new chat message, listing approved), this
@@ -21,6 +21,12 @@ initializeApp();
 
 // Keep latency low for Portugal/EU and cap concurrency to control cost.
 setGlobalOptions({ region: "europe-west1", maxInstances: 10 });
+
+// AI listing features (plan 4.1) — HTTPS callables, the only boundary that
+// talks to the Gemini model. See each module for the security layers.
+export { generateDescription } from "./generateDescription";
+export { suggestPrice } from "./suggestPrice";
+export { analyzeDamage } from "./analyzeDamage";
 
 interface NotificationDoc {
   uid?: string;
