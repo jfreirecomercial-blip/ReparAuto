@@ -21,9 +21,9 @@ export interface ClientInteraction {
 }
 
 /**
- * A client record owned by a professional (the data controller). Clients do not
- * need a RecarGarage account; when their email matches an existing user, the
- * match is surfaced as a soft, public-only link (see `matchedUserUid`).
+ * A client record owned by a professional (the data controller). Clients are
+ * the professional's own contacts and do not need a RecarGarage account; the
+ * app never cross-references them against platform users.
  */
 export interface Client {
   id: string;
@@ -39,18 +39,12 @@ export interface Client {
   tags?: string[];
   notas?: string;
   interacoes?: ClientInteraction[];
-  // Filled from a server-side lookup against the public `users` collection.
-  matchedUserUid?: string | null;
-  matchedAt?: Timestamp | null;
   consentimento?: boolean;
   criadoEm: Timestamp;
   atualizadoEm: Timestamp;
 }
 
-export type ClientInput = Omit<
-  Client,
-  'id' | 'ownerUid' | 'matchedUserUid' | 'matchedAt' | 'criadoEm' | 'atualizadoEm'
->;
+export type ClientInput = Omit<Client, 'id' | 'ownerUid' | 'criadoEm' | 'atualizadoEm'>;
 
 export const CLIENT_STAGE_LABELS: Record<ClientStage, string> = {
   lead: 'Lead',

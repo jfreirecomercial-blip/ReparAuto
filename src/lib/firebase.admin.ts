@@ -1,7 +1,6 @@
 import 'server-only';
 import { getApps, initializeApp, applicationDefault, type App } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
-import { getAuth, type Auth } from 'firebase-admin/auth';
 
 const PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'reparauto-site';
 
@@ -29,16 +28,6 @@ export function getAdminDb(): Firestore | null {
   if (!app) return null;
   try {
     return getFirestore(app);
-  } catch {
-    return null;
-  }
-}
-
-export function getAdminAuth(): Auth | null {
-  const app = getAdminApp();
-  if (!app) return null;
-  try {
-    return getAuth(app);
   } catch {
     return null;
   }

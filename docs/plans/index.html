@@ -2040,8 +2040,8 @@ const extraPlans = [
     id: '21', title: 'Dashboard Profissional & CRM de Clientes', priority: 'ALTA', effort: '~18-26 dias',
     implemented: true, file: '21-dashboard-profissional-crm-clientes.md',
     impact: 'Prova de valor para profissionais (lock-in) e nova camada de CRM',
-    summary: 'Painel /painel gated por tipoConta: KPIs agregados, graficos temporais (camada de buckets diarios por vendedor), tabela de desempenho por anuncio e caixa de leads. CRM de clientes (manual + import CSV) com correspondencia por email a perfis RecarGarage e salvaguardas de privacidade (RGPD, opt-out).',
-    evidence: 'Entregue — rota /painel, screens/PainelProfissional, components/painel/*, hooks usePainel/useClients, seller_daily + clients (db.ts, firestore.rules), match server-side em app/api/clients/match. Diferido: gráficos em SVG nativo (em vez de Recharts), deep-link ao perfil público do cliente (depende do plano 07) e série temporal de favoritos.'
+    summary: 'Painel /painel gated por tipoConta: KPIs agregados, graficos temporais (camada de buckets diarios por vendedor), tabela de desempenho por anuncio e caixa de leads. CRM de clientes (manual + import CSV). A correspondencia por email a perfis RecarGarage foi removida por privacidade — as empresas nao veem se um cliente tem conta.',
+    evidence: 'Entregue — rota /painel, screens/PainelProfissional, components/painel/*, hooks usePainel/useClients, seller_daily + clients (db.ts, firestore.rules). Gráficos em SVG nativo. Removido por privacidade: match por email (rota, badge, discoverableByPros). Diferido: série temporal de favoritos.'
   }
 ];
 

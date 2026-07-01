@@ -38,7 +38,6 @@ export default function EditarPerfilModal({ show, onClose }: EditarPerfilModalPr
   const [tipoConta, setTipoConta] = useState<TipoConta>('particular');
   const [bio, setBio] = useState('');
   const [notificacoes, setNotificacoes] = useState(true);
-  const [discoverableByPros, setDiscoverableByPros] = useState(true);
   const [erro, setErro] = useState('');
   const [saving, setSaving] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -100,7 +99,6 @@ export default function EditarPerfilModal({ show, onClose }: EditarPerfilModalPr
       setTipoConta(user.tipoConta || 'particular');
       setBio(user.bio || '');
       setNotificacoes(user.notificacoes ?? true);
-      setDiscoverableByPros(user.discoverableByPros ?? true);
       setErro('');
       setTouched({});
       lookupTriggered.current = false;
@@ -140,7 +138,6 @@ export default function EditarPerfilModal({ show, onClose }: EditarPerfilModalPr
         tipoConta,
         bio: bio.trim(),
         notificacoes,
-        discoverableByPros,
       });
       await refreshProfile();
       toast?.sucesso('Perfil atualizado com sucesso!');
@@ -313,28 +310,6 @@ export default function EditarPerfilModal({ show, onClose }: EditarPerfilModalPr
             <span
               className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition ${
                 notificacoes ? 'left-6' : 'left-0.5'
-              }`}
-            />
-          </button>
-        </div>
-
-        <div className="flex items-center justify-between bg-neutral-50 rounded-xl p-3">
-          <div className="pr-3">
-            <p className="text-sm font-semibold text-fg-heading">Visível para profissionais</p>
-            <p className="text-xs text-fg-subtle">Permitir que empresas e oficinas o associem à sua conta pelo email</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setDiscoverableByPros(!discoverableByPros)}
-            aria-pressed={discoverableByPros}
-            aria-label="Visível para profissionais"
-            className={`w-12 h-6 rounded-full transition relative shrink-0 ${
-              discoverableByPros ? 'bg-accent' : 'bg-neutral-300'
-            }`}
-          >
-            <span
-              className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition ${
-                discoverableByPros ? 'left-6' : 'left-0.5'
               }`}
             />
           </button>

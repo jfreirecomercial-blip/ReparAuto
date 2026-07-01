@@ -21,7 +21,6 @@ import { useToast } from '@/components/ui/Toast';
 import useClients from '@/hooks/useClients';
 import ClientFormModal from './ClientFormModal';
 import ClientCsvImport from './ClientCsvImport';
-import MatchedUserBadge from './MatchedUserBadge';
 import { CLIENT_STAGE_LABELS } from '@/types/client';
 import type { Client, ClientStage } from '@/types/client';
 
@@ -73,8 +72,8 @@ export default function ClientsTab({ ownerUid }: Props) {
     setFormOpen(true);
   };
 
-  const handleSave = async (data: Parameters<typeof add>[0], emailChanged: boolean) => {
-    if (editing) await update(editing.id, data, emailChanged);
+  const handleSave = async (data: Parameters<typeof add>[0]) => {
+    if (editing) await update(editing.id, data);
     else await add(data);
   };
 
@@ -143,7 +142,6 @@ export default function ClientsTab({ ownerUid }: Props) {
                       <Badge cor={STAGE_COR[c.estado]} variante="soft">
                         {CLIENT_STAGE_LABELS[c.estado]}
                       </Badge>
-                      {c.matchedUserUid && <MatchedUserBadge />}
                     </div>
                     <div className="mt-1.5 space-y-0.5 text-xs text-fg-muted">
                       {c.telefone && (

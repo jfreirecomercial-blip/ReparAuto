@@ -15,7 +15,7 @@ interface Props {
   onClose: () => void;
   /** Existing client to edit, or null to create a new one. */
   client: Client | null;
-  onSave: (data: ClientInput, emailChanged: boolean) => Promise<void>;
+  onSave: (data: ClientInput) => Promise<void>;
 }
 
 const STAGES: ClientStage[] = ['lead', 'ativo', 'inativo'];
@@ -71,9 +71,8 @@ export default function ClientFormModal({ show, onClose, client, onSave }: Props
       veiculos,
       notas: notas.trim() || undefined,
     };
-    const emailChanged = (client?.email || '') !== (data.email || '');
     try {
-      await onSave(data, emailChanged);
+      await onSave(data);
       toast?.sucesso(client ? 'Cliente atualizado.' : 'Cliente adicionado.');
       onClose();
     } catch {

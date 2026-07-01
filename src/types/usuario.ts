@@ -39,8 +39,6 @@ export interface Usuario {
   badges?: string[];
   planoAtivo?: PlanoAtivo;
   impulsosDisponiveis?: number;
-  /** When false, professionals' CRM cannot match this account by email. Defaults to true. */
-  discoverableByPros?: boolean;
   dataCriacao?: Timestamp;
   dataAtualizacao?: Timestamp;
 }

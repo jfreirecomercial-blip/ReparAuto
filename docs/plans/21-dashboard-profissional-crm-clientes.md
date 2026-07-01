@@ -5,8 +5,16 @@
 > Dá às empresas (stands/revendedores) e oficinas um painel próprio com analytics
 > reais dos seus anúncios (visualizações, cliques, contactos, favoritos ao longo do
 > tempo) **e** uma agenda de clientes (CRM) com nome, telefone, email, morada e
-> veículos — onde clientes sem conta no RecarGarage podem, se tiverem um perfil com
-> o mesmo email, ser automaticamente sinalizados e ligados ao profissional.
+> veículos.
+
+> 🔒 **Atualização de privacidade (implementação):** a capacidade de **correspondência
+> por email** (F8/F9 — sinalizar/ligar um cliente a uma conta RecarGarage existente)
+> foi **retirada do âmbito por decisão de privacidade dos utilizadores**. As empresas
+> **não** conseguem descobrir se os seus clientes têm conta no app. Não existe rota de
+> match, badge "No RecarGarage", campo `matchedUserUid` nem toggle `discoverableByPros`.
+> O CRM guarda apenas os dados que o próprio profissional introduz (manual/CSV) e nunca
+> os cruza com a coleção `users`. As secções 6.3, 6.4, 8.3 e 9 abaixo ficam como
+> registo histórico do desenho, mas **não** correspondem ao código entregue.
 
 ---
 
@@ -153,11 +161,11 @@ Webmotors/integradores (edialog, Loja Conectada, StockCarWeb), métricas de mark
 | F5 | Caixa de leads | `contatos_intencao` + chats num pipeline com estados | Média |
 | F6 | CRM de clientes | Coleção `clients`, lista/detalhe/criar/editar, histórico simples | Alta |
 | F7 | Importação CSV de clientes | Upload + pré-visualização + validação por linha | Média |
-| F8 | Correspondência por email | Match server-side cliente↔`users`, badge + ligação ao perfil | Alta |
-| F9 | Privacidade do match | Toggle "ser descoberto" + notificação ao utilizador ligado | Alta |
+| ~~F8~~ | ~~Correspondência por email~~ | **Removido por privacidade** — as empresas não veem se um cliente tem conta | — |
+| ~~F9~~ | ~~Privacidade do match~~ | **Removido** junto com F8 (deixa de ser necessário) | — |
 
 Notas de gating: **F1–F5 grátis** para qualquer conta profissional (provam valor e
-incentivam a subir de plano). **F6–F9 (CRM + match)** ligados a um plano (reutilizar
+incentivam a subir de plano). **F6–F7 (CRM)** ligados a um plano (reutilizar
 `CategoriaPlano` — p.ex. `'leads'` ou um novo `'crm'`) — decisão em §8.4.
 
 ---
