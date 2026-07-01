@@ -28,6 +28,13 @@ const initialDados: CarroFormData = {
   combustivel: 'Gasolina',
   cambio: 'Manual',
   portas: '',
+  bodyType: '',
+  seats: '',
+  condition: 'Usado',
+  power: '',
+  displacement: '',
+  traction: '',
+  features: [],
   localizacao: '',
   localizacaoDistrito: '',
   preco: '',
@@ -119,6 +126,13 @@ export default function Anunciar() {
         portas: Number(dados.portas),
         anoFabricacao: Number(dados.anoFabricacao),
         anoModelo: Number(dados.anoModelo),
+        bodyType: dados.bodyType || undefined,
+        seats: dados.seats ? Number(dados.seats) : undefined,
+        condition: dados.condition || undefined,
+        power: dados.power ? Number(dados.power) : undefined,
+        displacement: dados.displacement ? Number(dados.displacement) : undefined,
+        traction: dados.traction || undefined,
+        features: dados.features.length ? dados.features : undefined,
         rodando: dados.rodando === 'sim',
         inspecao: dados.inspecao === 'sim',
         criador: user.email,
@@ -162,7 +176,7 @@ export default function Anunciar() {
     setCategoria(null);
     setPasso(0);
     setFotos([]);
-    setDados((prev) => ({ ...prev, preco: '', descricao: '', videoUrl: '', tiposManutencao: [] }));
+    setDados((prev) => ({ ...prev, preco: '', descricao: '', videoUrl: '', tiposManutencao: [], features: [] }));
   };
 
   if (publicado) {

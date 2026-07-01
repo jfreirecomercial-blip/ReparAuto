@@ -9,6 +9,7 @@ import { useDistritosConcelhos } from '@/hooks/useDistritosConcelhos';
 import CarCard from './CarCard';
 import { CarCardSkeleton } from '@/components/ui/Skeleton';
 import { formatarPreco, obterWhatsApp } from '@/lib/utils';
+import { TIPOS_CARROCERIA, CONDICOES_VEICULO, TIPOS_COMBUSTIVEL, TIPOS_CAMBIO, TIPOS_TRACAO, EQUIPAMENTOS_CARRO } from '@/lib/constants';
 import { buscarIntencoesMatch, getIntencoesAtivas, subscribeOficinas } from '@/lib/db';
 import type { IntencaoCompra } from '@/types/intencao';
 import type { OficinaMecanico } from '@/types/oficina';
@@ -50,9 +51,31 @@ export default function CarGrid() {
     setAdvRaioCentro,
     advRaioKm,
     setAdvRaioKm,
+    advBodyType,
+    setAdvBodyType,
+    advCondition,
+    setAdvCondition,
+    advCombustivel,
+    setAdvCombustivel,
+    advCambio,
+    setAdvCambio,
+    advSeatsMin,
+    setAdvSeatsMin,
+    advTraction,
+    setAdvTraction,
+    advFeatures,
+    setAdvFeatures,
     sortOrdem,
     setSortOrdem,
   } = carros;
+
+  const toggleFeature = (feature: string) => {
+    setAdvFeatures(
+      advFeatures.includes(feature)
+        ? advFeatures.filter((f) => f !== feature)
+        : [...advFeatures, feature],
+    );
+  };
 
   const { distritos, getConcelhos } = useDistritosConcelhos();
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -68,6 +91,13 @@ export default function CarGrid() {
     setAdvConcelho('');
     setAdvRaioCentro('');
     setAdvRaioKm(null);
+    setAdvBodyType('');
+    setAdvCondition('');
+    setAdvCombustivel('');
+    setAdvCambio('');
+    setAdvSeatsMin(null);
+    setAdvTraction('');
+    setAdvFeatures([]);
     setSortOrdem(null);
     setRaioMode(false);
     setRaioDist('');
@@ -201,6 +231,28 @@ export default function CarGrid() {
             </div>
           )}
 
+          {/* Category & condition — common filters, always visible */}
+          {tipo === 'carros' && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-fg-subtle mb-1">Categoria</label>
+                <select value={advBodyType} onChange={(e) => setAdvBodyType(e.target.value)}
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-fg focus:outline-none focus:border-accent">
+                  <option value="">Todas</option>
+                  {TIPOS_CARROCERIA.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-fg-subtle mb-1">Condição</label>
+                <select value={advCondition} onChange={(e) => setAdvCondition(e.target.value)}
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-fg focus:outline-none focus:border-accent">
+                  <option value="">Qualquer</option>
+                  {CONDICOES_VEICULO.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+            </div>
+          )}
+
           {/* Advanced filters toggle (mobile only) */}
           <Button
             tipo="secundario"
@@ -236,6 +288,62 @@ export default function CarGrid() {
                   />
                 </div>
               </div>
+            )}
+
+            {tipo === 'carros' && (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-fg-subtle mb-1">Combustível</label>
+                    <select value={advCombustivel} onChange={(e) => setAdvCombustivel(e.target.value)}
+                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-fg focus:outline-none focus:border-accent">
+                      <option value="">Todos</option>
+                      {TIPOS_COMBUSTIVEL.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-fg-subtle mb-1">Câmbio</label>
+                    <select value={advCambio} onChange={(e) => setAdvCambio(e.target.value)}
+                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-fg focus:outline-none focus:border-accent">
+                      <option value="">Todos</option>
+                      {TIPOS_CAMBIO.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-fg-subtle mb-1">Lugares (mín.)</label>
+                    <input type="number" min={1} max={9} placeholder="Ex: 5"
+                      value={advSeatsMin ?? ''}
+                      onChange={(e) => setAdvSeatsMin(e.target.value ? Number(e.target.value) : null)}
+                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-fg placeholder-slate-500 focus:outline-none focus:border-accent" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-fg-subtle mb-1">Tração</label>
+                    <select value={advTraction} onChange={(e) => setAdvTraction(e.target.value)}
+                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-fg focus:outline-none focus:border-accent">
+                      <option value="">Todas</option>
+                      {TIPOS_TRACAO.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="block text-xs font-bold text-fg-subtle mb-2">Equipamento</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {EQUIPAMENTOS_CARRO.map((feature) => {
+                      const ativo = advFeatures.includes(feature);
+                      return (
+                        <button key={feature} type="button" onClick={() => toggleFeature(feature)}
+                          aria-pressed={ativo}
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition ${
+                            ativo ? 'bg-accent text-white border-accent' : 'bg-slate-50 text-fg-muted border-slate-200 hover:bg-slate-100'
+                          }`}>
+                          {feature}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
             )}
 
             <div>

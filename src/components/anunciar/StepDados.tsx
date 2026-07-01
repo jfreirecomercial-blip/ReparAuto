@@ -1,7 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { TIPOS_COMBUSTIVEL, TIPOS_CAMBIO } from '@/lib/constants';
+import { CaretDown } from '@phosphor-icons/react';
+import {
+  TIPOS_COMBUSTIVEL,
+  TIPOS_CAMBIO,
+  TIPOS_CARROCERIA,
+  CONDICOES_VEICULO,
+  TIPOS_TRACAO,
+  EQUIPAMENTOS_CARRO,
+} from '@/lib/constants';
 import SeletorMarcaModelo from '@/components/ui/SeletorMarcaModelo';
 import SeletorLocalizacao from '@/components/ui/SeletorLocalizacao';
 import type { CarroFormData } from '@/types/carro';
@@ -16,10 +24,20 @@ interface StepDadosProps {
 
 export default function StepDados({ dados, setDados, onNext, onBack }: StepDadosProps) {
   const [erros, setErros] = useState<Record<string, boolean>>({});
+  const [showMore, setShowMore] = useState(false);
 
   const atualizar = (campo: string, valor: string) => {
     setDados((prev) => ({ ...prev, [campo]: valor }));
     setErros((prev) => ({ ...prev, [campo]: false }));
+  };
+
+  const toggleFeature = (feature: string) => {
+    setDados((prev) => ({
+      ...prev,
+      features: prev.features.includes(feature)
+        ? prev.features.filter((f) => f !== feature)
+        : [...prev.features, feature],
+    }));
   };
 
   const validar = () => {
@@ -38,17 +56,25 @@ export default function StepDados({ dados, setDados, onNext, onBack }: StepDados
     }
   };
 
-  const campo = (label: string, campoId: keyof CarroFormData, type = 'text', placeholder = '', options: string[] | null = null) => (
+  const campo = (
+    label: string,
+    campoId: keyof CarroFormData,
+    type = 'text',
+    placeholder = '',
+    options: readonly string[] | null = null,
+    obrigatorio = true,
+  ) => (
     <div>
       <label className="block text-xs font-semibold text-fg-subtle mb-1">
-        {label} <span className="text-red-500">*</span>
+        {label} {obrigatorio && <span className="text-red-500">*</span>}
       </label>
       {options ? (
         <select
-          value={dados[campoId] as string || ''}
+          value={(dados[campoId] as string) || ''}
           onChange={(e) => atualizar(campoId, e.target.value)}
           className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:border-accent"
         >
+          {!obrigatorio && <option value="">Indiferente</option>}
           {options.map((opt) => (
             <option key={opt} value={opt}>{opt}</option>
           ))}
@@ -57,7 +83,7 @@ export default function StepDados({ dados, setDados, onNext, onBack }: StepDados
         <input
           type={type}
           placeholder={placeholder}
-          value={dados[campoId] as string || ''}
+          value={(dados[campoId] as string) || ''}
           onChange={(e) => atualizar(campoId, e.target.value)}
           className={`w-full border rounded-xl p-2.5 text-sm focus:outline-none focus:border-accent ${
             erros[campoId] ? 'border-red-400' : 'border-gray-300'
@@ -92,6 +118,9 @@ export default function StepDados({ dados, setDados, onNext, onBack }: StepDados
         {campo('Combustível', 'combustivel', 'text', '', TIPOS_COMBUSTIVEL)}
         {campo('Câmbio', 'cambio', 'text', '', TIPOS_CAMBIO)}
         {campo('Nº Portas', 'portas', 'number', 'Ex: 5')}
+        {campo('Lugares', 'seats', 'number', 'Ex: 5', null, false)}
+        {campo('Categoria', 'bodyType', 'text', '', TIPOS_CARROCERIA, false)}
+        {campo('Condição', 'condition', 'text', '', CONDICOES_VEICULO, false)}
         <div className="col-span-2">
           <SeletorLocalizacao
             distrito={dados.localizacaoDistrito}
@@ -104,6 +133,51 @@ export default function StepDados({ dados, setDados, onNext, onBack }: StepDados
           />
         </div>
       </div>
+
+      {/* Advanced specs — collapsed by default to keep the core form short */}
+      <button
+        type="button"
+        onClick={() => setShowMore((v) => !v)}
+        className="flex items-center gap-1.5 text-sm font-semibold text-accent mb-3"
+        aria-expanded={showMore}
+      >
+        <CaretDown className={`transition-transform ${showMore ? 'rotate-180' : ''}`} />
+        {showMore ? 'Ocultar detalhes adicionais' : 'Adicionar mais detalhes (opcional)'}
+      </button>
+
+      {showMore && (
+        <div className="mb-4 space-y-4 border-t border-slate-100 pt-4">
+          <div className="grid grid-cols-2 gap-3">
+            {campo('Potência (cv)', 'power', 'number', 'Ex: 90', null, false)}
+            {campo('Cilindrada (cc)', 'displacement', 'number', 'Ex: 1500', null, false)}
+            {campo('Tração', 'traction', 'text', '', TIPOS_TRACAO, false)}
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-fg-subtle mb-2">Equipamento / Extras</label>
+            <div className="flex flex-wrap gap-2">
+              {EQUIPAMENTOS_CARRO.map((feature) => {
+                const ativo = dados.features.includes(feature);
+                return (
+                  <button
+                    key={feature}
+                    type="button"
+                    onClick={() => toggleFeature(feature)}
+                    aria-pressed={ativo}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                      ativo
+                        ? 'bg-accent text-white border-accent'
+                        : 'bg-slate-50 text-fg-muted border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {feature}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-3">
         <Button
           tipo="secundario"
