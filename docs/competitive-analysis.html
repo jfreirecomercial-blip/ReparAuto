@@ -1125,7 +1125,8 @@
       <li><a class="toc-link toc-sub" href="#inv-intencao">2.10 Intencao de Compra</a></li>
       <li><a class="toc-link toc-sub" href="#inv-mobile">2.11 App Movel Nativa</a></li>
       <li><a class="toc-link toc-sub" href="#inv-confianca">2.12 Confianca e Reputacao</a></li>
-      <li><a class="toc-link toc-sub" href="#inv-infra">2.13 Infraestrutura Tecnica</a></li>
+      <li><a class="toc-link toc-sub" href="#inv-aquisicao">2.13 Aquisicao e Monetizacao</a></li>
+      <li><a class="toc-link toc-sub" href="#inv-infra">2.14 Infraestrutura Tecnica</a></li>
       <li><a class="toc-link" href="#perfis-concorrentes">3. Perfis dos Concorrentes</a></li>
       <li><a class="toc-link toc-sub" href="#conc-brasileiros">3.1 Concorrentes Brasileiros</a></li>
       <li><a class="toc-link toc-sub" href="#conc-europeus">3.2 Concorrentes Europeus</a></li>
@@ -1301,9 +1302,10 @@
         <thead><tr><th>Funcionalidade</th><th>Detalhe</th></tr></thead>
         <tbody>
           <tr><td>Criacao de anuncio</td><td>Wizard de 3 etapas: Fotos &rarr; Dados tecnicos &rarr; Preco e condicao</td></tr>
-          <tr><td>Upload de fotos</td><td>Ate 7 fotos por anuncio, limite de 1 MB por imagem, com recorte uniforme para 4:3 (web + mobile)</td></tr>
+          <tr><td>Upload de fotos</td><td>Ate 20 fotos por anuncio, limite de 5 MB por imagem, com recorte uniforme para 4:3 e reordenacao (web + mobile)</td></tr>
+          <tr><td>Captura por camara</td><td>Tirar fotos diretamente na app via camara do dispositivo (WebRTC no web, camara nativa no mobile)</td></tr>
           <tr><td>Video do anuncio</td><td>Link de video do YouTube incorporado na pagina de detalhes (carros e oficinas)</td></tr>
-          <tr><td>Dados tecnicos</td><td>Marca, modelo, ano fabricacao/modelo, km, combustivel (6 tipos), cambio (3 tipos), cor, portas, localizacao</td></tr>
+          <tr><td>Dados tecnicos</td><td>Marca, modelo, ano fabricacao/modelo, km, combustivel (6 tipos), cambio (3 tipos), cor, portas, localizacao. Marcas/modelos carregados do Firestore com seletor unificado</td></tr>
           <tr><td>Estado do veiculo</td><td>Binario: "Pronto" ou "Precisa de manutencao"</td></tr>
           <tr><td>Detalhamento de manutencao</td><td>8 tipos: Mecanica, Eletrica, Eletronica, Pintura/funilaria, Lataria/amassados, Estofamento/interno, Ar-condicionado, Outro</td></tr>
           <tr><td>Orcamento de reparacao</td><td>Campo opcional com texto livre para descricao do orcamento</td></tr>
@@ -1335,10 +1337,11 @@
       <table class="info-table">
         <thead><tr><th>Funcionalidade</th><th>Detalhe</th></tr></thead>
         <tbody>
-          <tr><td>Metodos de autenticacao</td><td>Email/password, Google OAuth 2.0</td></tr>
+          <tr><td>Metodos de autenticacao</td><td>Email/password, Google (web + iOS/Android nativo) e <strong>Sign in with Apple</strong> (iOS)</td></tr>
+          <tr><td>Seguranca de registo</td><td>Verificacao de email obrigatoria e requisitos de password reforcados</td></tr>
           <tr><td>Tipos de conta</td><td>Particular, Profissional</td></tr>
           <tr><td>Papeis (roles)</td><td>Utilizador, Administrador</td></tr>
-          <tr><td>Perfil</td><td>Nome, email, telefone, localidade, codigo postal, morada, NIF, bio, foto de avatar</td></tr>
+          <tr><td>Perfil</td><td>Nome, email, telefone, localidade, codigo postal (com pesquisa/autopreenchimento), morada, NIF, bio, foto de avatar</td></tr>
           <tr><td>Setup de perfil</td><td>Fluxo dedicado para completar dados obrigatorios apos registo</td></tr>
         </tbody>
       </table>
@@ -1363,7 +1366,7 @@
         <tbody>
           <tr><td>Pesquisa textual</td><td>Busca por texto livre</td></tr>
           <tr><td>Filtros rapidos (chips)</td><td>Low-cost, ate 500 EUR, ate 1000 EUR, para reparar, qualquer</td></tr>
-          <tr><td>Localizacao</td><td>6 concelhos: Braga, Porto, Lisboa, Coimbra, Faro, Leiria</td></tr>
+          <tr><td>Localizacao</td><td>Cobertura nacional: 20 distritos / 308 concelhos (dados <code>distritos-concelhos.json</code> com coordenadas), com mapa de Portugal interativo no painel admin</td></tr>
           <tr><td>Ordenacao</td><td>Preco crescente/decrescente</td></tr>
           <tr><td>Faixa de preco</td><td>Filtro por intervalo de preco</td></tr>
         </tbody>
@@ -1375,7 +1378,8 @@
       <table class="info-table">
         <thead><tr><th>Funcionalidade</th><th>Detalhe</th></tr></thead>
         <tbody>
-          <tr><td>Utilizadores autenticados</td><td>Persistencia via Firestore</td></tr>
+          <tr><td>Ambito</td><td>Favoritos de carros, pecas e oficinas (nao apenas carros)</td></tr>
+          <tr><td>Utilizadores autenticados</td><td>Persistencia via Firestore; favoritar requer login</td></tr>
           <tr><td>Visitantes</td><td>Fallback para localStorage (chave <code>favs_reparauto</code>)</td></tr>
         </tbody>
       </table>
@@ -1386,9 +1390,11 @@
       <table class="info-table">
         <thead><tr><th>Funcionalidade</th><th>Detalhe</th></tr></thead>
         <tbody>
-          <tr><td>Gestao de anuncios</td><td>Aprovar/rejeitar carros e pecas, edicao inline</td></tr>
-          <tr><td>Gestao de utilizadores</td><td>Listagem e administracao de contas</td></tr>
-          <tr><td>Estatisticas</td><td>Dashboard com metricas da plataforma</td></tr>
+          <tr><td>Gestao de anuncios</td><td>Aprovar/rejeitar carros, pecas e oficinas; edicao inline; aba unificada de pendentes</td></tr>
+          <tr><td>Gestao de utilizadores</td><td>Listagem e administracao de contas; qualificacao manual de "verificado" e "profissional"</td></tr>
+          <tr><td>Moderacao</td><td>Fila de avaliacoes (reviews) e fila de denuncias/reports</td></tr>
+          <tr><td>Monetizacao</td><td>Gestao de banners personalizados e destaques premium automatizados; atribuicao manual de planos</td></tr>
+          <tr><td>Estatisticas</td><td>Dashboard redesenhado com sidebar de metricas (Firestore real) e mapa de Portugal interativo</td></tr>
         </tbody>
       </table>
     </div>
@@ -1414,7 +1420,7 @@
         <tbody>
           <tr><td>Perfis de servico</td><td>Ficha do profissional/oficina com especialidades, localizacao, contactos e fotos</td></tr>
           <tr><td>Colecao dedicada</td><td>Firestore <code>services</code>, com moderacao (pendente/aprovado)</td></tr>
-          <tr><td>Media</td><td>Ate 7 fotos e link de video do YouTube</td></tr>
+          <tr><td>Media</td><td>Fotos (mesmo limite dos anuncios) e link de video do YouTube</td></tr>
           <tr><td>Descoberta</td><td>Listagem publica indexavel, ligada a proposta de "carros para reparar"</td></tr>
         </tbody>
       </table>
@@ -1452,15 +1458,31 @@
       <table class="info-table">
         <thead><tr><th>Funcionalidade</th><th>Detalhe</th></tr></thead>
         <tbody>
-          <tr><td>Avaliacoes / reviews</td><td>Sistema de avaliacoes (colecao <code>reviews</code>) &mdash; plano 01</td></tr>
-          <tr><td>Verificacao</td><td>Fluxo de verificacao de vendedor/profissional (colecao <code>verifications</code>)</td></tr>
+          <tr><td>Avaliacoes / reviews</td><td>Sistema de avaliacoes (colecao <code>reviews</code>) com filtro de linguagem impropria &mdash; plano 01</td></tr>
+          <tr><td>Verificacao de vendedor</td><td>Fluxo de verificacao de vendedor/profissional com upload de documento ate 5 MB (colecao <code>verifications</code>)</td></tr>
+          <tr><td>Verificacao de VIN</td><td>Painel de consulta do numero de chassis (VIN) &mdash; verificacao indicativa do veiculo</td></tr>
           <tr><td>Denuncias</td><td>Reporte de anuncios/utilizadores (colecoes <code>reports</code> / <code>denuncias</code>)</td></tr>
+          <tr><td>Conformidade</td><td>RGPD/DSA; verificacao de email; requisitos de password reforcados</td></tr>
           <tr><td>Qualidade de codigo</td><td>Suite de testes Jest + politica TDD (plano 20 &mdash; testes)</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h3 class="subsection-heading" id="inv-infra">2.13 Infraestrutura Tecnica</h3>
+    <h3 class="subsection-heading" id="inv-aquisicao">2.13 Aquisicao, Analytics e Monetizacao <span class="shipped-tag">Novo</span></h3>
+    <div class="table-wrap">
+      <table class="info-table">
+        <thead><tr><th>Funcionalidade</th><th>Detalhe</th></tr></thead>
+        <tbody>
+          <tr><td>Landing page publica</td><td>Pagina institucional na raiz com o marketplace movido para <code>/app</code>; destaca a disponibilidade da app iOS/Android</td></tr>
+          <tr><td>Analytics</td><td>Firebase Analytics com rastreamento de paginas</td></tr>
+          <tr><td>Planos premium</td><td>Modal de planos: Impulso (7/30 dias), Turbo, Oficina Basico/Pro e Leads Pro (mensal/anual)</td></tr>
+          <tr><td>Destaques e banners</td><td>Carrossel de monetizacao, banners personalizados e destaques premium automatizados</td></tr>
+          <tr><td>Pagamento</td><td>Integracao Stripe preparada (Price IDs e endpoint de checkout ainda por ligar) &mdash; ver GAP-15</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="subsection-heading" id="inv-infra">2.14 Infraestrutura Tecnica</h3>
     <div class="table-wrap">
       <table class="info-table">
         <thead><tr><th>Aspecto</th><th>Detalhe</th></tr></thead>
@@ -2180,8 +2202,8 @@
           <tr><td>Pesquisas guardadas / alertas</td><td class="col-reparauto"><span class="status-absent">&#10008;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td></tr>
           <tr><td>Alerta de reducao de preco</td><td class="col-reparauto"><span class="status-absent">&#10008;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td></tr>
           <tr><td>Avaliacao de preco justo</td><td class="col-reparauto"><span class="status-absent">&#10008;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-partial">&#9888;</span></td></tr>
-          <tr><td>Verificacao de historico</td><td class="col-reparauto"><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-partial">&#9888;</span></td></tr>
-          <tr><td>Filtro por localizacao granular</td><td class="col-reparauto"><span class="status-partial">&#9888;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td></tr>
+          <tr><td>Verificacao de historico</td><td class="col-reparauto"><span class="status-partial">&#9888;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-partial">&#9888;</span></td></tr>
+          <tr><td>Filtro por localizacao granular</td><td class="col-reparauto"><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td></tr>
           <tr><td>Dados de mercado / analytics</td><td class="col-reparauto"><span class="status-absent">&#10008;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-partial">&#9888;</span></td><td><span class="status-absent">&#10008;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-complete">&#10004;</span></td><td><span class="status-absent">&#10008;</span></td></tr>
         </tbody>
       </table>
@@ -2359,7 +2381,7 @@
         </div>
       </div>
       <div class="gap-detail">
-        <div class="gap-detail-row"><div class="gap-detail-label">Descricao</div><div>O RecarGarage utiliza HashRouter (SPA pura). Os motores de busca nao indexam corretamente paginas com <code>#</code> no URL.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Descricao</div><div>Ate a revisao v2.0, o RecarGarage usava HashRouter (SPA pura), pelo que os motores de busca nao indexavam corretamente paginas com <code>#</code> no URL.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Concorrentes</div><div>Virtualmente todos os concorrentes exceto Comprecar</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Alto</strong> &mdash; SEO e o principal canal de aquisicao organica para marketplaces de classificados.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-alto">P1 (Alta)</span></div></div>
@@ -2370,20 +2392,21 @@
 
     <h3 class="subsection-heading" id="gap-importantes">5.2 Lacunas Importantes (Prioridade Media)</h3>
 
-    <div class="gap-card">
+    <div class="gap-card is-resolved">
       <div class="gap-header">
-        <span class="gap-badge gap-medio">Medio</span>
+        <span class="gap-badge gap-resolvido">Resolvido</span>
         <div>
           <div class="gap-id">GAP-05</div>
           <div class="gap-title">Cobertura Geografica Limitada</div>
         </div>
       </div>
       <div class="gap-detail">
-        <div class="gap-detail-row"><div class="gap-detail-label">Descricao</div><div>O RecarGarage suporta apenas 6 concelhos. Portugal tem 308 concelhos em 18 distritos + regioes autonomas.</div></div>
+        <div class="gap-detail-row"><div class="gap-detail-label">Descricao</div><div>Ate a revisao v2.0, o RecarGarage suportava apenas 6 concelhos. Portugal tem 308 concelhos em 18 distritos + regioes autonomas &mdash; hoje totalmente cobertos.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Impacto</div><div><strong>Medio-Alto</strong> &mdash; Limita o mercado enderecavel a ~60% da populacao portuguesa.</div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Prioridade</div><div><span class="gap-badge gap-alto">P1 (Alta)</span></div></div>
         <div class="gap-detail-row"><div class="gap-detail-label">Recomendacao</div><div>Expandir para todos os 18 distritos + Acores e Madeira. Implementar selecao hierarquica e pesquisa por raio.</div></div>
       </div>
+      <div class="resolution-note"><strong>&#10004; Resolvido:</strong> cobertura nacional com 20 distritos e 308 concelhos (com coordenadas), selecao hierarquica e mapa de Portugal interativo no admin. Falta apenas a pesquisa por raio de distancia.</div>
     </div>
 
     <div class="gap-card is-resolved">
@@ -2633,14 +2656,14 @@
           <div class="phase-subtitle">0&ndash;3 meses &bull; Resolver lacunas criticas que bloqueiam crescimento organico</div>
         </div>
         <div class="phase-progress">
-          <div class="progress-bar"><div class="progress-fill" style="width: 40%"></div></div>
-          <span>40%</span>
+          <div class="progress-bar"><div class="progress-fill" style="width: 60%"></div></div>
+          <span>60%</span>
         </div>
       </div>
       <div class="phase-body">
         <div class="roadmap-item"><div class="roadmap-id">R-01</div><div class="roadmap-action"><strong>Migrar para SSR + metadados dinamicos</strong> <span class="shipped-tag">Feito</span> &mdash; Concretizado via <strong>Next.js 15 (App Router)</strong>: SSR/ISR, <code>generateMetadata</code>, Open Graph, Twitter Cards e JSON-LD (schema Vehicle), sitemap/robots dinamicos. <em>(GAP-04)</em></div><div><span class="effort-tag effort-medio">Medio</span></div><div><span class="impact-tag impact-muito-alto">Muito Alto</span></div></div>
         <div class="roadmap-item"><div class="roadmap-id">R-02</div><div class="roadmap-action"><strong>Implementar pesquisas guardadas e alertas</strong> &mdash; Guardar criterios de filtro no Firestore, executar matching via Cloud Function, notificar por email e in-app. <em>(GAP-02)</em></div><div><span class="effort-tag effort-medio">Medio</span></div><div><span class="impact-tag impact-alto">Alto</span></div></div>
-        <div class="roadmap-item"><div class="roadmap-id">R-03</div><div class="roadmap-action"><strong>Expandir cobertura geografica</strong> &mdash; Substituir lista fixa de 6 concelhos por selecao hierarquica cobrindo todo o territorio portugues. <em>(GAP-05)</em></div><div><span class="effort-tag effort-baixo">Baixo</span></div><div><span class="impact-tag impact-alto">Alto</span></div></div>
+        <div class="roadmap-item"><div class="roadmap-id">R-03</div><div class="roadmap-action"><strong>Expandir cobertura geografica</strong> <span class="shipped-tag">Feito</span> &mdash; Cobertura nacional (20 distritos / 308 concelhos) com selecao hierarquica e mapa interativo. <em>(GAP-05)</em></div><div><span class="effort-tag effort-baixo">Baixo</span></div><div><span class="impact-tag impact-alto">Alto</span></div></div>
         <div class="roadmap-item"><div class="roadmap-id">R-04</div><div class="roadmap-action"><strong>App movel + notificacoes push</strong> <span class="shipped-tag">Feito</span> &mdash; Entregue a app nativa React Native/Expo (App Store + Google Play) com push via FCM; web instalavel/PWA. <em>(GAP-03)</em></div><div><span class="effort-tag effort-baixo">Baixo</span></div><div><span class="impact-tag impact-medio-alto">Medio-Alto</span></div></div>
         <div class="roadmap-item"><div class="roadmap-id">R-05</div><div class="roadmap-action"><strong>Implementar alerta de reducao de preco</strong> &mdash; Detetar alteracao de preco em favoritos e notificar utilizador. <em>(GAP-10)</em></div><div><span class="effort-tag effort-baixo">Baixo</span></div><div><span class="impact-tag impact-medio">Medio</span></div></div>
       </div>
