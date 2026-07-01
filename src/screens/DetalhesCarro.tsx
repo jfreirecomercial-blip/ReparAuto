@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, ArrowsOut, CircleNotch, Heart, Lock, PencilSimpleLine, TextAlignLeft, Trash, Warning, Wrench, YoutubeLogo } from '@phosphor-icons/react';
+import { ArrowLeft, ArrowsOut, ChartLineUp, CircleNotch, Heart, Info, Lock, PencilSimpleLine, TextAlignLeft, Trash, Warning, Wrench, YoutubeLogo } from '@phosphor-icons/react';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useApp } from '@/providers/AppProvider';
@@ -12,6 +12,11 @@ import GalleryModal from '@/components/detalhes/GalleryModal';
 import CompatibleParts from '@/components/pecas/CompatibleParts';
 import VinCheckPanel from '@/components/trust/VinCheckPanel';
 import FinanciamentoSeguroWidget from '@/components/detalhes/FinanciamentoSeguroWidget';
+import PriceIndicatorBadge from '@/components/preco/PriceIndicatorBadge';
+import MarketWidget from '@/components/preco/MarketWidget';
+import usePriceIndicator from '@/hooks/usePriceIndicator';
+import { formatarPreco as fmt } from '@/lib/utils';
+import { PRICE_DISCLAIMERS, PRICE_THRESHOLDS } from '@/lib/constants';
 import Badge from '@/components/ui/Badge';
 import Alert from '@/components/ui/Alert';
 import Button from '@/components/ui/Button';
@@ -128,6 +133,7 @@ export default function DetalhesCarro() {
   }
 
   const isLowCost = carro.preco <= 2000;
+  const priceInfo = usePriceIndicator(carro);
 
   return (
     <div className="page-enter">
@@ -247,6 +253,52 @@ export default function DetalhesCarro() {
             />
           </div>
         )}
+
+        {priceInfo.indicator !== 'indisponivel' && priceInfo.stats && (
+          <div className="mb-6 bg-neutral-50 border border-neutral-200 rounded-xl p-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <h3 className="font-extrabold text-fg-heading flex items-center gap-2 mb-1">
+                  <ChartLineUp className="text-accent" /> Análise de preço
+                </h3>
+                <p className="text-xs text-fg-muted">
+                  Comparado com {priceInfo.sampleSize}{' '}
+                  {priceInfo.sampleSize === 1 ? 'anúncio similar' : 'anúncios similares'} no RecarGarage.
+                </p>
+              </div>
+              <PriceIndicatorBadge
+                indicator={priceInfo.indicator}
+                deviation={priceInfo.deviation}
+                sampleSize={priceInfo.sampleSize}
+                diffEuros={Math.round(carro.preco - priceInfo.stats.median)}
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-2 mt-3 text-center text-xs">
+              <div className="bg-white rounded-lg p-2">
+                <p className="text-[10px] text-fg-muted">Mínimo</p>
+                <p className="font-bold text-success-700">{fmt(priceInfo.stats.min)}</p>
+              </div>
+              <div className="bg-white rounded-lg p-2">
+                <p className="text-[10px] text-fg-muted">Mediana do mercado</p>
+                <p className="font-bold text-fg-heading">{fmt(priceInfo.stats.median)}</p>
+              </div>
+              <div className="bg-white rounded-lg p-2">
+                <p className="text-[10px] text-fg-muted">Máximo</p>
+                <p className="font-bold text-danger-700">{fmt(priceInfo.stats.max)}</p>
+              </div>
+            </div>
+            {priceInfo.sampleSize < PRICE_THRESHOLDS.lowConfidenceSampleSize && (
+              <Alert tipo="aviso" icone={<Info />} className="mt-3 !p-2 !text-xs">
+                {PRICE_DISCLAIMERS.lowConfidence}
+              </Alert>
+            )}
+            <p className="text-[10px] text-fg-muted mt-2">{PRICE_DISCLAIMERS.badge}</p>
+          </div>
+        )}
+
+        <div className="mb-6">
+          <MarketWidget marca={carro.marca} modelo={carro.modelo} title="Ver mercado deste modelo" />
+        </div>
 
         {carro.videoUrl && (
           <div className="mb-6">
