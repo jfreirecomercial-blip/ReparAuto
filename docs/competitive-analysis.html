@@ -1353,7 +1353,9 @@
         <thead><tr><th>Funcionalidade</th><th>Detalhe</th></tr></thead>
         <tbody>
           <tr><td>Chat em tempo real</td><td>Firestore onSnapshot, por anuncio, entre comprador e vendedor</td></tr>
-          <tr><td>Notificacoes</td><td>Tipos: aprovacao, rejeicao, informativa, mensagem. Marcacao como lida</td></tr>
+          <tr><td>Notificacoes in-app</td><td>Tipos: aprovacao, rejeicao, informativa, mensagem. Marcacao como lida</td></tr>
+          <tr><td>Notificacoes push</td><td>Push via Firebase Cloud Messaging (FCM) para novas mensagens de chat e notificacoes &mdash; web e app nativa. Tokens FCM guardados por utilizador (<code>fcmTokens</code>)</td></tr>
+          <tr><td>Definicoes de notificacao</td><td>Gestao de permissoes e preferencias de notificacao no perfil, com pre-prompt de consentimento</td></tr>
           <tr><td>Contador de nao lidas</td><td>Badge visual em tempo real na navegacao</td></tr>
         </tbody>
       </table>
@@ -2608,7 +2610,7 @@
 
     <div class="advantage-card">
       <div class="advantage-title">6.4 Chat em Tempo Real com Firestore</div>
-      <p>Chat verdadeiramente em tempo real via Firestore <code>onSnapshot</code>, com experiencia superior ao modelo de mensageria assincrona da maioria dos concorrentes. Conversa contextualizada por anuncio.</p>
+      <p>Chat verdadeiramente em tempo real via Firestore <code>onSnapshot</code>, com experiencia superior ao modelo de mensageria assincrona da maioria dos concorrentes. Conversa contextualizada por anuncio, com <strong>notificacoes push (FCM)</strong> para novas mensagens e notificacoes, na web e na app nativa.</p>
     </div>
 
     <div class="advantage-card">
